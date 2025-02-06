@@ -1,81 +1,72 @@
-#include "ofApp.h"
+#include "grid.h"
 
 //--------------------------------------------------------------
-void ofApp::setup(){
-
+void Grid::setup(int x, int y, int w, int h)
+{
+    displayPosX = x;
+    displayPosY = y;
+    displayWidth = w;
+    displayHeight = h;
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
-
+void Grid::draw()
+{
+    ofColor(1, 1);
+    ofDrawRectangle(displayPosX, displayPosY, displayWidth, displayHeight);
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
-
+void Grid::exit()
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::exit(){
-
+void Grid::keyPressed(int key)
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-
+void Grid::keyReleased(int key)
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
+void Grid::mouseMoved(int x, int y)
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
-
+void Grid::mouseDragged(int x, int y, int button)
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
-
+void Grid::mousePressed(int x, int y, int button)
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-
+void Grid::mouseReleased(int x, int y, int button)
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-
+void Grid::mouseScrolled(int x, int y, float scrollX, float scrollY)
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseScrolled(int x, int y, float scrollX, float scrollY){
-
+void Grid::mouseEntered(int x, int y)
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-
+void Grid::mouseExited(int x, int y)
+{
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
+void Grid::windowResized(int w, int h)
+{
 }
