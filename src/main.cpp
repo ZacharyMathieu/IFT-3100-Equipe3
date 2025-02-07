@@ -1,6 +1,7 @@
 #include "ofMain.h"
 #include "ofApp.h"
 
+//CECI EST UN TEST AVEC VISUAL STUDIO 2022
 //========================================================================
 int main( ){
 
