@@ -12,10 +12,19 @@ void Grid::setup(int x, int y, int w, int h)
 //--------------------------------------------------------------
 void Grid::draw()
 {
-    ofSetColor(0);
-    ofDrawRectangle(displayPosX, displayPosY, displayWidth, displayHeight);
-}
+    ofLog() << "grid.draw() appelé !";
+    ofSetColor(0, 0, 0, 150);
+    ofSetLineWidth(2);
 
+    for (int i = 0; i < displayWidth; i += 20)
+    {
+        ofDrawLine(displayPosX + i, displayPosY, displayPosX + i, displayPosY + displayHeight);
+    }
+    for (int j = 0; j < displayHeight; j += 20)
+    {
+        ofDrawLine(displayPosX, displayPosY + j, displayPosX + displayWidth, displayPosY + j);
+    }
+}
 //--------------------------------------------------------------
 void Grid::exit()
 {

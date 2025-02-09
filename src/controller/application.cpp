@@ -20,16 +20,22 @@ void Application::setupButtons()
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
 
-    importImageButton.setup(MENU_BUTTON_WIDTH * 0, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, importImage, importImageIcon);
-    exportImageButton.setup(MENU_BUTTON_WIDTH * 1, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, exportImage, exportImageIcon);
-    playButton.setup(MENU_BUTTON_WIDTH * 2, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, play, playIcon);
-    fastForwardButton.setup(MENU_BUTTON_WIDTH * 3, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, fastForward, fastForwardIcon);
-    eraseModeButton.setup(MENU_BUTTON_WIDTH * 4, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, eraseMode, eraseModeIcon);
-    drawModeButton.setup(MENU_BUTTON_WIDTH * 5, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, drawMode, drawModeIcon);
-    shapeModeButton.setup(MENU_BUTTON_WIDTH * 6, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeMode, shapeModeIcon);
-    penTypeChoiceButton.setup(MENU_BUTTON_WIDTH * 7, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, penTypeChoice, penTypeChoiceIcon);
-    shapeChoiceButton.setup(MENU_BUTTON_WIDTH * 8, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeChoice, shapeChoiceIcon);
-    buttons = vector<Button *>{
+    for (int i = 0; i < 9; i++) {
+        int xPos = i * (MENU_BUTTON_WIDTH + BUTTON_MARGIN);
+        switch (i) {
+            case 0: importImageButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::importImage, importImageIcon); break;
+            case 1: exportImageButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::exportImage, exportImageIcon); break;
+            case 2: playButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::play, playIcon); break;
+            case 3: fastForwardButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::fastForward, fastForwardIcon); break;
+            case 4: eraseModeButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::eraseMode, eraseModeIcon); break;
+            case 5: drawModeButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::drawMode, drawModeIcon); break;
+            case 6: shapeModeButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::shapeMode, shapeModeIcon); break;
+            case 7: penTypeChoiceButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::penTypeChoice, penTypeChoiceIcon); break;
+            case 8: shapeChoiceButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::shapeChoice, shapeChoiceIcon); break;
+        }
+    }
+
+    buttons = {
         &importImageButton,
         &exportImageButton,
         &playButton,
@@ -38,12 +44,14 @@ void Application::setupButtons()
         &drawModeButton,
         &shapeModeButton,
         &penTypeChoiceButton,
-        &shapeChoiceButton};
+        &shapeChoiceButton
+    };
 }
 
 void Application::drawMenu()
 {
     ofSetBackgroundColor(255);
+    ofSetColor(255);
     for (Button *b : buttons)
     {
         b->draw();
@@ -61,6 +69,12 @@ void Application::update()
 void Application::draw()
 {
     drawMenu();
+
+    if (imageLoaded)
+    {
+        ofSetColor(255);
+        importedImage.draw(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
+    }
     grid.draw();
 }
 
@@ -139,8 +153,24 @@ void Application::dragEvent(ofDragInfo dragInfo)
 
 void Application::importImage()
 {
-    // TODO
-    cout << "importImage\n";
+    ofFileDialogResult result = ofSystemLoadDialog("Importer une image");
+    if (result.bSuccess)
+    {
+        string filePath = result.getPath();
+        ofLog() << "Tentative de chargement de l'image : " << filePath;
+
+        if (importedImage.load(filePath))
+        {
+            imageLoaded = true;
+            ofLog() << "Image importée avec succès : " << filePath;
+            ofLog() << "Taille de l'image : " << importedImage.getWidth() << "x" << importedImage.getHeight();
+        }
+        else
+        {
+            ofLogError() << "Échec du chargement de l'image.";
+            imageLoaded = false;
+        }
+    }
 }
 
 void Application::exportImage()
