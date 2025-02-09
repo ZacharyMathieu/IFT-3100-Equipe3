@@ -2,7 +2,7 @@
 
 Button::Button() {}
 
-void Button::setup(int x, int y, int w, int h, Application *application, void (Application::*callback)())
+void Button::setup(int x, int y, int w, int h, Application *application, void (Application::*callback)(),ofImage icon)
 {
     ofLog() << "Button setup\n";
     this->x = x;
@@ -11,6 +11,7 @@ void Button::setup(int x, int y, int w, int h, Application *application, void (A
     this->h = h;
     this->application = application;
     this->callback = callback;
+    setIcon(icon);
 }
 
 void Button::setIcon(ofImage icon)

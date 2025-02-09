@@ -16,7 +16,7 @@ public:
     int h;
 
     Button();
-    void setup(int x, int y, int w, int h, Application *application, void (Application::*callback)());
+    void setup(int x, int y, int w, int h, Application *application, void (Application::*callback)(), ofImage icon);
     void setIcon(ofImage icon);
 
     void update();
@@ -32,6 +32,7 @@ public:
     void mouseEntered(int x, int y);
     void mouseExited(int x, int y);
     void windowResized(int w, int h);
+
 private:
     void (Application::*callback)();
     Application *application;
