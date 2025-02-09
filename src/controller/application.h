@@ -15,7 +15,6 @@ public:
 	const int MENU_HEIGHT = 100;
 	const int MENU_BUTTON_WIDTH = MENU_HEIGHT;
 
-	vector<Button> buttons;
 	Grid grid;
 	bool isRunning = false;
 
@@ -38,9 +37,40 @@ public:
 	void gotMessage(ofMessage msg) override;
 
 private:
+	ofImage importImageIcon;
+	ofImage exportImageIcon;
+	ofImage playIcon;
+	ofImage pauseIcon;
+	ofImage fastForwardIcon;
+	ofImage eraseModeIcon;
+	ofImage drawModeIcon;
+	ofImage shapeModeIcon;
+	ofImage penTypeChoiceIcon;
+	ofImage shapeChoiceIcon;
+
+	Button importImageButton;
+	Button exportImageButton;
+	Button playButton;
+	Button pauseButton;
+	Button fastForwardButton;
+	Button eraseModeButton;
+	Button drawModeButton;
+	Button shapeModeButton;
+	Button penTypeChoiceButton;
+	Button shapeChoiceButton;
+	vector<Button *> buttons;
+
+	void setupButtons();
 	void drawMenu();
-	void callback();
-	void callback2();
+	void importImage();
+	void exportImage();
+	void play();
+	void fastForward();
+	void eraseMode();
+	void drawMode();
+	void shapeMode();
+	void penTypeChoice();
+	void shapeChoice();
 };
 
 #endif

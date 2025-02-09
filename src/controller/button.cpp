@@ -1,12 +1,21 @@
 #include "button.h"
 
-Button::Button(int x, int y, int w, int h, void(*callback)())
+Button::Button() {}
+
+void Button::setup(int x, int y, int w, int h, Application *application, void (Application::*callback)())
 {
+    ofLog() << "Button setup\n";
     this->x = x;
     this->y = y;
     this->w = w;
     this->h = h;
+    this->application = application;
     this->callback = callback;
+}
+
+void Button::setIcon(ofImage icon)
+{
+    this->icon = icon;
 }
 
 //--------------------------------------------------------------
@@ -17,6 +26,14 @@ void Button::update()
 //--------------------------------------------------------------
 void Button::draw()
 {
+    if (icon.isAllocated())
+    {
+        icon.draw(x, y, w, h);
+    }
+    else
+    {
+        ofLogError() << "Button icon is not allocated!\n";
+    }
 }
 
 //--------------------------------------------------------------
@@ -47,7 +64,8 @@ void Button::mouseDragged(int x, int y, int button)
 //--------------------------------------------------------------
 void Button::mousePressed(int x, int y, int button)
 {
-    ofLog() << "MOUSE PRESSED DETECTED";
+    ofLog() << "MOUSE PRESSED DETECTED\n";
+    (application->*callback)();
 }
 
 //--------------------------------------------------------------

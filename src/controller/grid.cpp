@@ -12,7 +12,7 @@ void Grid::setup(int x, int y, int w, int h)
 //--------------------------------------------------------------
 void Grid::draw()
 {
-    ofColor(1, 1);
+    ofSetColor(0);
     ofDrawRectangle(displayPosX, displayPosY, displayWidth, displayHeight);
 }
 

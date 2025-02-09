@@ -1,5 +1,5 @@
 #include "ofMain.h"
-#include "controller.h"
+#include "application.h"
 
 //========================================================================
 int main( ){

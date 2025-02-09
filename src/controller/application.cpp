@@ -1,35 +1,64 @@
 #include "application.h"
 
-void someFunction()
-{
-
-    ofLog() << "SOME FUNCTION CALLED";
-}
-
-//--------------------------------------------------------------
 void Application::setup()
 {
     ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
     grid.setup(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT);
+    setupButtons();
+}
 
-    buttons = vector<Button>{
-        Button(MENU_BUTTON_WIDTH * 0, 0, MENU_BUTTON_WIDTH, MENU_BUTTON_WIDTH, someFunction), // importButton
-        Button(MENU_BUTTON_WIDTH * 1, 0, MENU_BUTTON_WIDTH, MENU_BUTTON_WIDTH, someFunction), // exportButton
-        Button(MENU_BUTTON_WIDTH * 2, 0, MENU_BUTTON_WIDTH, MENU_BUTTON_WIDTH, someFunction), // playButton
-        Button(MENU_BUTTON_WIDTH * 3, 0, MENU_BUTTON_WIDTH, MENU_BUTTON_WIDTH, someFunction), // fastForwardButton
-        Button(MENU_BUTTON_WIDTH * 4, 0, MENU_BUTTON_WIDTH, MENU_BUTTON_WIDTH, someFunction), // eraseModeButton
-        Button(MENU_BUTTON_WIDTH * 5, 0, MENU_BUTTON_WIDTH, MENU_BUTTON_WIDTH, someFunction), // drawModeButton
-        Button(MENU_BUTTON_WIDTH * 6, 0, MENU_BUTTON_WIDTH, MENU_BUTTON_WIDTH, someFunction), // shapeModeButton
-        Button(MENU_BUTTON_WIDTH * 7, 0, MENU_BUTTON_WIDTH, MENU_BUTTON_WIDTH, someFunction), // penTypeChoiceButton
-        Button(MENU_BUTTON_WIDTH * 8, 0, MENU_BUTTON_WIDTH, MENU_BUTTON_WIDTH, someFunction)  // shapeChoiceButton
-    };
+void Application::setupButtons()
+{
+    importImageIcon.load("images/importImage.png");
+    exportImageIcon.load("images/exportImage.png");
+    playIcon.load("images/play.png");
+    pauseIcon.load("images/pause.png");
+    fastForwardIcon.load("images/fastForward.png");
+    eraseModeIcon.load("images/eraseMode.png");
+    drawModeIcon.load("images/drawMode.png");
+    shapeModeIcon.load("images/shapeMode.png");
+    penTypeChoiceIcon.load("images/penTypeChoice.png");
+    shapeChoiceIcon.load("images/shapeChoice.png");
+
+    importImageButton.setup(MENU_BUTTON_WIDTH * 0, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, importImage);
+    exportImageButton.setup(MENU_BUTTON_WIDTH * 1, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, exportImage);
+    playButton.setup(MENU_BUTTON_WIDTH * 2, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, play);
+    fastForwardButton.setup(MENU_BUTTON_WIDTH * 3, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, fastForward);
+    eraseModeButton.setup(MENU_BUTTON_WIDTH * 4, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, eraseMode);
+    drawModeButton.setup(MENU_BUTTON_WIDTH * 5, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, drawMode);
+    shapeModeButton.setup(MENU_BUTTON_WIDTH * 6, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeMode);
+    penTypeChoiceButton.setup(MENU_BUTTON_WIDTH * 7, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, penTypeChoice);
+    shapeChoiceButton.setup(MENU_BUTTON_WIDTH * 8, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeChoice);
+    importImageButton.setIcon(importImageIcon);
+    exportImageButton.setIcon(exportImageIcon);
+    playButton.setIcon(playIcon);
+    fastForwardButton.setIcon(fastForwardIcon);
+    eraseModeButton.setIcon(eraseModeIcon);
+    drawModeButton.setIcon(drawModeIcon);
+    shapeModeButton.setIcon(shapeModeIcon);
+    penTypeChoiceButton.setIcon(penTypeChoiceIcon);
+    shapeChoiceButton.setIcon(shapeChoiceIcon);
+    buttons = vector<Button *>{
+        &importImageButton,
+        &exportImageButton,
+        &playButton,
+        &fastForwardButton,
+        &eraseModeButton,
+        &drawModeButton,
+        &shapeModeButton,
+        &penTypeChoiceButton,
+        &shapeChoiceButton};
 }
 
 void Application::drawMenu()
 {
-    for (Button b : buttons) {
-        b.draw();
+    ofSetBackgroundColor(255);
+    for (Button *b : buttons)
+    {
+        b->draw();
     }
+    ofSetColor(0);
+    ofDrawLine(0, MENU_HEIGHT, WINDOW_WIDTH, MENU_HEIGHT);
 }
 
 //--------------------------------------------------------------
@@ -75,10 +104,9 @@ void Application::mousePressed(int x, int y, int button)
     if (y < MENU_HEIGHT)
     {
         int buttonNumber = x / MENU_BUTTON_WIDTH;
-        if (buttonNumber < sizeof(buttons))
+        if (buttonNumber < (int)sizeof(buttons))
         {
-            ofLog() << "passing click to callback of button: " << buttonNumber;
-            buttons[buttonNumber].callback();
+            buttons[buttonNumber]->mousePressed(x, y, button);
         }
     }
 }
@@ -116,4 +144,67 @@ void Application::gotMessage(ofMessage msg)
 //--------------------------------------------------------------
 void Application::dragEvent(ofDragInfo dragInfo)
 {
+}
+
+void Application::importImage()
+{
+    // TODO
+    cout << "importImage\n";
+}
+
+void Application::exportImage()
+{
+    // TODO
+    cout << "exportImage\n";
+}
+
+void Application::play()
+{
+    // TODO
+    cout << "play\n";
+    isRunning = !isRunning;
+    if (isRunning)
+    {
+        playButton.setIcon(pauseIcon);
+    }
+    else
+    {
+        playButton.setIcon(playIcon);
+    }
+}
+
+void Application::fastForward()
+{
+    // TODO
+    cout << "fastForward\n";
+}
+
+void Application::eraseMode()
+{
+    // TODO
+    cout << "eraseMode\n";
+}
+
+void Application::drawMode()
+{
+    // TODO
+    cout << "drawMode\n";
+}
+
+void Application::shapeMode()
+{
+    // TODO
+    cout << "shapeMode\n";
+}
+
+void Application::penTypeChoice()
+{
+    // TODO
+    cout << "penTypeChoice\n";
+}
+
+void Application::shapeChoice()
+{
+    // TODO
+    cout << "shapeChoice\n";
 }

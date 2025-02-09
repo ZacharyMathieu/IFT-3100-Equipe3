@@ -5,6 +5,8 @@
 #ifndef BUTTON
 #define BUTTON
 
+class Application; // Forward declaration
+
 class Button
 {
 public:
@@ -12,13 +14,14 @@ public:
     int y;
     int w;
     int h;
-    void(*callback)();
 
-    Button(int x, int y, int w, int h, void(*callback)());
+    Button();
+    void setup(int x, int y, int w, int h, Application *application, void (Application::*callback)());
+    void setIcon(ofImage icon);
+
     void update();
     void draw();
     void exit();
-
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y);
@@ -29,6 +32,10 @@ public:
     void mouseEntered(int x, int y);
     void mouseExited(int x, int y);
     void windowResized(int w, int h);
+private:
+    void (Application::*callback)();
+    Application *application;
+    ofImage icon;
 };
 
 #endif
