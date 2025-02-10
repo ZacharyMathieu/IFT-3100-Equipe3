@@ -38,7 +38,6 @@
 *.user
 *.make
 *.rc
-bin/*
 .vscode/*
 .history/*
 obj/*
