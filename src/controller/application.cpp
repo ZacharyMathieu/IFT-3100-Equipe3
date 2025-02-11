@@ -51,12 +51,11 @@ void Application::setupButtons()
 void Application::drawMenu()
 {
     ofSetBackgroundColor(255);
-    ofSetColor(255);
+    ofSetColor(0);
     for (Button *b : buttons)
     {
         b->draw();
     }
-    ofSetColor(0);
     ofDrawLine(0, MENU_HEIGHT, WINDOW_WIDTH, MENU_HEIGHT);
 }
 
@@ -131,7 +130,7 @@ void Application::mousePressed(int x, int y, int button)
 {
     if (y < MENU_HEIGHT)
     {
-        int buttonNumber = x / (MENU_BUTTON_WIDTH + BUTTON_MARGIN);
+        int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
         if (buttonNumber < (int)sizeof(buttons))
         {
             buttons[buttonNumber]->mousePressed(x, y, button);
@@ -176,19 +175,21 @@ void Application::dragEvent(ofDragInfo dragInfo)
 
 void Application::importImage()
 {
-    cursorMode = DEFAULT;
-
     ofFileDialogResult result = ofSystemLoadDialog("Importer une image");
     if (result.bSuccess)
     {
         string filePath = result.getPath();
+        ofLog() << "Tentative de chargement de l'image : " << filePath;
 
         if (importedImage.load(filePath))
         {
             imageLoaded = true;
+            ofLog() << "Image importée avec succès : " << filePath;
+            ofLog() << "Taille de l'image : " << importedImage.getWidth() << "x" << importedImage.getHeight();
         }
         else
         {
+            ofLogError() << "Échec du chargement de l'image.";
             imageLoaded = false;
         }
     }
@@ -205,11 +206,11 @@ void Application::play()
     isRunning = !isRunning;
     if (isRunning)
     {
-        playButton.setIcon(pauseIcon);
+        playButton.setIcon(&pauseIcon);
     }
     else
     {
-        playButton.setIcon(playIcon);
+        playButton.setIcon(&playIcon);
     }
 }
 

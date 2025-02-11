@@ -13,7 +13,7 @@ public:
 	const int WINDOW_WIDTH = 1024;
 	const int WINDOW_HEIGHT = 768;
 	const int MENU_HEIGHT = 50;
-	const int BUTTON_MARGIN = 10;
+	const int MENU_BUTTON_MARGIN = 10;
 	const int MENU_BUTTON_WIDTH = MENU_HEIGHT;
 
 	bool isRunning = false;
