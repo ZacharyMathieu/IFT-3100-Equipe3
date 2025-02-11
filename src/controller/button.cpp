@@ -2,9 +2,8 @@
 
 Button::Button() {}
 
-void Button::setup(int x, int y, int w, int h, Application *application, void (Application::*callback)(),ofImage icon)
+void Button::setup(int x, int y, int w, int h, Application *application, void (Application::*callback)(), ofImage *icon)
 {
-    ofLog() << "Button setup\n";
     this->x = x;
     this->y = y;
     this->w = w;
@@ -14,7 +13,7 @@ void Button::setup(int x, int y, int w, int h, Application *application, void (A
     setIcon(icon);
 }
 
-void Button::setIcon(ofImage icon)
+void Button::setIcon(ofImage *icon)
 {
     this->icon = icon;
 }
@@ -27,9 +26,9 @@ void Button::update()
 //--------------------------------------------------------------
 void Button::draw()
 {
-    if (icon.isAllocated())
+    if (icon->isAllocated())
     {
-        icon.draw(x, y, w, h);
+        icon->draw(x, y, w, h);
     }
     else
     {
@@ -65,7 +64,6 @@ void Button::mouseDragged(int x, int y, int button)
 //--------------------------------------------------------------
 void Button::mousePressed(int x, int y, int button)
 {
-    ofLog() << "MOUSE PRESSED DETECTED\n";
     (application->*callback)();
 }
 

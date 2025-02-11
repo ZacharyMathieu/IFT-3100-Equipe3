@@ -20,35 +20,35 @@ void Application::setupButtons()
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
 
-    importImageButton.setup(MENU_BUTTON_WIDTH * 0, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, importImage, importImageIcon);
-    exportImageButton.setup(MENU_BUTTON_WIDTH * 1, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, exportImage, exportImageIcon);
-    playButton.setup(MENU_BUTTON_WIDTH * 2, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, play, playIcon);
-    fastForwardButton.setup(MENU_BUTTON_WIDTH * 3, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, fastForward, fastForwardIcon);
-    eraseModeButton.setup(MENU_BUTTON_WIDTH * 4, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, eraseMode, eraseModeIcon);
-    drawModeButton.setup(MENU_BUTTON_WIDTH * 5, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, drawMode, drawModeIcon);
-    shapeModeButton.setup(MENU_BUTTON_WIDTH * 6, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeMode, shapeModeIcon);
-    penTypeChoiceButton.setup(MENU_BUTTON_WIDTH * 7, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, penTypeChoice, penTypeChoiceIcon);
-    shapeChoiceButton.setup(MENU_BUTTON_WIDTH * 8, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeChoice, shapeChoiceIcon);
-    buttons = vector<Button *>{
-        &importImageButton,
-        &exportImageButton,
-        &playButton,
-        &fastForwardButton,
-        &eraseModeButton,
-        &drawModeButton,
-        &shapeModeButton,
-        &penTypeChoiceButton,
-        &shapeChoiceButton};
+    vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
+        std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
+        std::tuple(&exportImageButton, &Application::exportImage, &exportImageIcon),
+        std::tuple(&playButton, &Application::play, &playIcon),
+        std::tuple(&fastForwardButton, &Application::fastForward, &fastForwardIcon),
+        std::tuple(&eraseModeButton, &Application::eraseMode, &eraseModeIcon),
+        std::tuple(&drawModeButton, &Application::drawMode, &drawModeIcon),
+        std::tuple(&shapeModeButton, &Application::shapeMode, &shapeModeIcon),
+        std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
+        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon)};
+
+    int i = 0;
+    for (auto bTuple : buttonMap)
+    {
+        int xPos = i * (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
+        std::get<0>(bTuple)->setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, std::get<1>(bTuple), std::get<2>(bTuple));
+        buttons.push_back(std::get<0>(bTuple));
+        i++;
+    }
 }
 
 void Application::drawMenu()
 {
     ofSetBackgroundColor(255);
+    ofSetColor(0);
     for (Button *b : buttons)
     {
         b->draw();
     }
-    ofSetColor(0);
     ofDrawLine(0, MENU_HEIGHT, WINDOW_WIDTH, MENU_HEIGHT);
 }
 
@@ -61,6 +61,12 @@ void Application::update()
 void Application::draw()
 {
     drawMenu();
+
+    if (imageLoaded)
+    {
+        ofSetColor(255);
+        importedImage.draw(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
+    }
     grid.draw();
 }
 
@@ -94,7 +100,7 @@ void Application::mousePressed(int x, int y, int button)
 {
     if (y < MENU_HEIGHT)
     {
-        int buttonNumber = x / MENU_BUTTON_WIDTH;
+        int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
         if (buttonNumber < (int)sizeof(buttons))
         {
             buttons[buttonNumber]->mousePressed(x, y, button);
@@ -139,8 +145,24 @@ void Application::dragEvent(ofDragInfo dragInfo)
 
 void Application::importImage()
 {
-    // TODO
-    cout << "importImage\n";
+    ofFileDialogResult result = ofSystemLoadDialog("Importer une image");
+    if (result.bSuccess)
+    {
+        string filePath = result.getPath();
+        ofLog() << "Tentative de chargement de l'image : " << filePath;
+
+        if (importedImage.load(filePath))
+        {
+            imageLoaded = true;
+            ofLog() << "Image importée avec succès : " << filePath;
+            ofLog() << "Taille de l'image : " << importedImage.getWidth() << "x" << importedImage.getHeight();
+        }
+        else
+        {
+            ofLogError() << "Échec du chargement de l'image.";
+            imageLoaded = false;
+        }
+    }
 }
 
 void Application::exportImage()
@@ -156,11 +178,11 @@ void Application::play()
     isRunning = !isRunning;
     if (isRunning)
     {
-        playButton.setIcon(pauseIcon);
+        playButton.setIcon(&pauseIcon);
     }
     else
     {
-        playButton.setIcon(playIcon);
+        playButton.setIcon(&playIcon);
     }
 }
 
