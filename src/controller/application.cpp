@@ -170,9 +170,7 @@ void Application::mousePressed(int x, int y, int button)
     {
         showEraserMenu = false;
         showDrawMenu = false;
-
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
-
         if (buttonNumber < (int)sizeof(buttons))
         {
             buttons[buttonNumber]->mousePressed(x, y, button);
