@@ -12,7 +12,6 @@ void Grid::setup(int x, int y, int w, int h)
 //--------------------------------------------------------------
 void Grid::draw()
 {
-    ofLog() << "grid.draw() appelé !";
     ofSetColor(0, 0, 0, 150);
     ofSetLineWidth(2);
 
