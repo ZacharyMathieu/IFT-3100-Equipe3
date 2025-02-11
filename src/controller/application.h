@@ -7,6 +7,8 @@
 #ifndef APPLICATION
 #define APPLICATION
 
+enum CursorMode { DEFAULT, DRAW, ERASE };
+
 class Application : public ofBaseApp
 {
 public:
@@ -37,10 +39,18 @@ public:
 	void gotMessage(ofMessage msg) override;
 
 private:
+	CursorMode cursorMode = DEFAULT;
+
 	Grid grid;
 
 	ofImage importedImage;
     bool imageLoaded = false;
+
+	bool showEraserMenu = false;
+	bool showDrawMenu = false;
+
+	int eraserSize = 20;
+	int drawCursorSize = 15;
 
 	ofImage importImageIcon;
 	ofImage exportImageIcon;
