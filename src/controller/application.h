@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "grid.h"
+#include "grid_controller.h"
 #include "button.h"
 
 #ifndef APPLICATION
@@ -37,7 +37,7 @@ public:
 	void gotMessage(ofMessage msg) override;
 
 private:
-	Grid grid;
+	GridController grid;
 
 	ofImage importedImage;
     bool imageLoaded = false;

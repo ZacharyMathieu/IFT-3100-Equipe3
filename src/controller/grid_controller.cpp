@@ -1,7 +1,7 @@
-#include "grid.h"
+#include "grid_controller.h"
 
 //--------------------------------------------------------------
-void Grid::setup(int x, int y, int w, int h)
+void GridController::setup(int x, int y, int w, int h)
 {
     displayPosX = x;
     displayPosY = y;
@@ -10,7 +10,7 @@ void Grid::setup(int x, int y, int w, int h)
 }
 
 //--------------------------------------------------------------
-void Grid::draw()
+void GridController::draw()
 {
     ofSetColor(0, 0, 0, 150);
     ofSetLineWidth(2);
@@ -25,56 +25,56 @@ void Grid::draw()
     }
 }
 //--------------------------------------------------------------
-void Grid::exit()
+void GridController::exit()
 {
 }
 
 //--------------------------------------------------------------
-void Grid::keyPressed(int key)
+void GridController::keyPressed(int key)
 {
 }
 
 //--------------------------------------------------------------
-void Grid::keyReleased(int key)
+void GridController::keyReleased(int key)
 {
 }
 
 //--------------------------------------------------------------
-void Grid::mouseMoved(int x, int y)
+void GridController::mouseMoved(int x, int y)
 {
 }
 
 //--------------------------------------------------------------
-void Grid::mouseDragged(int x, int y, int button)
+void GridController::mouseDragged(int x, int y, int button)
 {
 }
 
 //--------------------------------------------------------------
-void Grid::mousePressed(int x, int y, int button)
+void GridController::mousePressed(int x, int y, int button)
 {
 }
 
 //--------------------------------------------------------------
-void Grid::mouseReleased(int x, int y, int button)
+void GridController::mouseReleased(int x, int y, int button)
 {
 }
 
 //--------------------------------------------------------------
-void Grid::mouseScrolled(int x, int y, float scrollX, float scrollY)
+void GridController::mouseScrolled(int x, int y, float scrollX, float scrollY)
 {
 }
 
 //--------------------------------------------------------------
-void Grid::mouseEntered(int x, int y)
+void GridController::mouseEntered(int x, int y)
 {
 }
 
 //--------------------------------------------------------------
-void Grid::mouseExited(int x, int y)
+void GridController::mouseExited(int x, int y)
 {
 }
 
 //--------------------------------------------------------------
-void Grid::windowResized(int w, int h)
+void GridController::windowResized(int w, int h)
 {
 }

@@ -1,9 +1,9 @@
 #include "ofMain.h"
 
-#ifndef GRID
-#define GRID
+#ifndef GRID_CONTROLLER
+#define GRID_CONTROLLER
 
-class Grid
+class GridController
 {
 public:
     int displayPosX;
