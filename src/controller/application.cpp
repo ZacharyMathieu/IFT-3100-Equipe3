@@ -3,7 +3,7 @@
 void Application::setup()
 {
     ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
-    grid.setup(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT);
+    gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
     setupButtons();
 }
 
@@ -67,7 +67,7 @@ void Application::draw()
         ofSetColor(255);
         importedImage.draw(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
     }
-    grid.draw();
+    gridController.draw();
 }
 
 //--------------------------------------------------------------

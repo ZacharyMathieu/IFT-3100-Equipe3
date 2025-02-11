@@ -37,7 +37,7 @@ public:
 	void gotMessage(ofMessage msg) override;
 
 private:
-	GridController grid;
+	GridController gridController;
 
 	ofImage importedImage;
     bool imageLoaded = false;
