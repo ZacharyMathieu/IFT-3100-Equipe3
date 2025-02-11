@@ -19,33 +19,26 @@ void Application::setupButtons()
     shapeModeIcon.load("images/shapeMode.png");
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
+    
+    vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
+        std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
+        std::tuple(&exportImageButton, &Application::exportImage, &exportImageIcon),
+        std::tuple(&playButton, &Application::play, &playIcon),
+        std::tuple(&fastForwardButton, &Application::fastForward, &fastForwardIcon),
+        std::tuple(&eraseModeButton, &Application::eraseMode, &eraseModeIcon),
+        std::tuple(&drawModeButton, &Application::drawMode, &drawModeIcon),
+        std::tuple(&shapeModeButton, &Application::shapeMode, &shapeModeIcon),
+        std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
+        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon)};
 
-    for (int i = 0; i < 9; i++) {
-        int xPos = i * (MENU_BUTTON_WIDTH + BUTTON_MARGIN);
-        switch (i) {
-            case 0: importImageButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::importImage, importImageIcon); break;
-            case 1: exportImageButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::exportImage, exportImageIcon); break;
-            case 2: playButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::play, playIcon); break;
-            case 3: fastForwardButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::fastForward, fastForwardIcon); break;
-            case 4: eraseModeButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::eraseMode, eraseModeIcon); break;
-            case 5: drawModeButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::drawMode, drawModeIcon); break;
-            case 6: shapeModeButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::shapeMode, shapeModeIcon); break;
-            case 7: penTypeChoiceButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::penTypeChoice, penTypeChoiceIcon); break;
-            case 8: shapeChoiceButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::shapeChoice, shapeChoiceIcon); break;
-        }
+    int i = 0;
+    for (auto bTuple : buttonMap)
+    {
+        int xPos = i * (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
+        std::get<0>(bTuple)->setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, std::get<1>(bTuple), std::get<2>(bTuple));
+        buttons.push_back(std::get<0>(bTuple));
+        i++;
     }
-
-    buttons = {
-        &importImageButton,
-        &exportImageButton,
-        &playButton,
-        &fastForwardButton,
-        &eraseModeButton,
-        &drawModeButton,
-        &shapeModeButton,
-        &penTypeChoiceButton,
-        &shapeChoiceButton
-    };
 }
 
 void Application::drawMenu()
