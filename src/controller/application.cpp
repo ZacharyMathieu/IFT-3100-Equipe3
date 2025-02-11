@@ -20,15 +20,15 @@ void Application::setupButtons()
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
 
-    importImageButton.setup(MENU_BUTTON_WIDTH * 0, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::importImage, importImageIcon);
-    exportImageButton.setup(MENU_BUTTON_WIDTH * 1, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::exportImage, exportImageIcon);
-    playButton.setup(MENU_BUTTON_WIDTH * 2, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::play, playIcon);
-    fastForwardButton.setup(MENU_BUTTON_WIDTH * 3, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::fastForward, fastForwardIcon);
-    eraseModeButton.setup(MENU_BUTTON_WIDTH * 4, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::eraseMode, eraseModeIcon);
-    drawModeButton.setup(MENU_BUTTON_WIDTH * 5, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::drawMode, drawModeIcon);
-    shapeModeButton.setup(MENU_BUTTON_WIDTH * 6, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::shapeMode, shapeModeIcon);
-    penTypeChoiceButton.setup(MENU_BUTTON_WIDTH * 7, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::penTypeChoice, penTypeChoiceIcon);
-    shapeChoiceButton.setup(MENU_BUTTON_WIDTH * 8, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::shapeChoice, shapeChoiceIcon);
+    importImageButton.setup(MENU_BUTTON_WIDTH * 0, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, importImage, importImageIcon);
+    exportImageButton.setup(MENU_BUTTON_WIDTH * 1, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, exportImage, exportImageIcon);
+    playButton.setup(MENU_BUTTON_WIDTH * 2, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, play, playIcon);
+    fastForwardButton.setup(MENU_BUTTON_WIDTH * 3, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, fastForward, fastForwardIcon);
+    eraseModeButton.setup(MENU_BUTTON_WIDTH * 4, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, eraseMode, eraseModeIcon);
+    drawModeButton.setup(MENU_BUTTON_WIDTH * 5, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, drawMode, drawModeIcon);
+    shapeModeButton.setup(MENU_BUTTON_WIDTH * 6, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeMode, shapeModeIcon);
+    penTypeChoiceButton.setup(MENU_BUTTON_WIDTH * 7, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, penTypeChoice, penTypeChoiceIcon);
+    shapeChoiceButton.setup(MENU_BUTTON_WIDTH * 8, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeChoice, shapeChoiceIcon);
     buttons = vector<Button *>{
         &importImageButton,
         &exportImageButton,
@@ -156,7 +156,7 @@ void Application::exportImage()
 
         screenshot.save(path);
     }
-    // TODO
+    
     cout << "exportImage\n";
 }
 
