@@ -20,16 +20,22 @@ void Application::setupButtons()
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
 
-    importImageButton.setup(MENU_BUTTON_WIDTH * 0, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, importImage, importImageIcon);
-    exportImageButton.setup(MENU_BUTTON_WIDTH * 1, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, exportImage, exportImageIcon);
-    playButton.setup(MENU_BUTTON_WIDTH * 2, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, play, playIcon);
-    fastForwardButton.setup(MENU_BUTTON_WIDTH * 3, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, fastForward, fastForwardIcon);
-    eraseModeButton.setup(MENU_BUTTON_WIDTH * 4, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, eraseMode, eraseModeIcon);
-    drawModeButton.setup(MENU_BUTTON_WIDTH * 5, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, drawMode, drawModeIcon);
-    shapeModeButton.setup(MENU_BUTTON_WIDTH * 6, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeMode, shapeModeIcon);
-    penTypeChoiceButton.setup(MENU_BUTTON_WIDTH * 7, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, penTypeChoice, penTypeChoiceIcon);
-    shapeChoiceButton.setup(MENU_BUTTON_WIDTH * 8, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, shapeChoice, shapeChoiceIcon);
-    buttons = vector<Button *>{
+    for (int i = 0; i < 9; i++) {
+        int xPos = i * (MENU_BUTTON_WIDTH + BUTTON_MARGIN);
+        switch (i) {
+            case 0: importImageButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::importImage, importImageIcon); break;
+            case 1: exportImageButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::exportImage, exportImageIcon); break;
+            case 2: playButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::play, playIcon); break;
+            case 3: fastForwardButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::fastForward, fastForwardIcon); break;
+            case 4: eraseModeButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::eraseMode, eraseModeIcon); break;
+            case 5: drawModeButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::drawMode, drawModeIcon); break;
+            case 6: shapeModeButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::shapeMode, shapeModeIcon); break;
+            case 7: penTypeChoiceButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::penTypeChoice, penTypeChoiceIcon); break;
+            case 8: shapeChoiceButton.setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, &Application::shapeChoice, shapeChoiceIcon); break;
+        }
+    }
+
+    buttons = {
         &importImageButton,
         &exportImageButton,
         &playButton,
@@ -38,12 +44,14 @@ void Application::setupButtons()
         &drawModeButton,
         &shapeModeButton,
         &penTypeChoiceButton,
-        &shapeChoiceButton};
+        &shapeChoiceButton
+    };
 }
 
 void Application::drawMenu()
 {
     ofSetBackgroundColor(255);
+    ofSetColor(255);
     for (Button *b : buttons)
     {
         b->draw();
@@ -61,19 +69,35 @@ void Application::update()
 void Application::draw()
 {
     drawMenu();
+
+    if (imageLoaded)
+    {
+        ofSetColor(255);
+        importedImage.draw(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
+    }
     grid.draw();
 
-    // curseur personnalisé
+    // Dessiner le curseur personnalisé
     ofSetColor(0);
+
+    // Curseur pour le dessin : Une croix plus grosse
     if (cursorMode == DRAW) 
     {
-        ofDrawLine(ofGetMouseX() - 5, ofGetMouseY(), ofGetMouseX() + 5, ofGetMouseY());
-        ofDrawLine(ofGetMouseX(), ofGetMouseY() - 5, ofGetMouseX(), ofGetMouseY() + 5);
-    } 
+        int cursorSize = 15;
+        int thickness = 2;
+
+        ofSetLineWidth(thickness);
+        ofDrawLine(ofGetMouseX() - cursorSize, ofGetMouseY(), ofGetMouseX() + cursorSize, ofGetMouseY());
+        ofDrawLine(ofGetMouseX(), ofGetMouseY() - cursorSize, ofGetMouseX(), ofGetMouseY() + cursorSize);
+    }
+
+    // Curseur pour l'effacement : Un cercle
     else if (cursorMode == ERASE) 
     {
+        int eraserSize = 20; 
         ofNoFill();
-        ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 10);
+        ofDrawCircle(ofGetMouseX(), ofGetMouseY(), eraserSize);
+        ofFill();
     }
 }
 
@@ -107,7 +131,7 @@ void Application::mousePressed(int x, int y, int button)
 {
     if (y < MENU_HEIGHT)
     {
-        int buttonNumber = x / MENU_BUTTON_WIDTH;
+        int buttonNumber = x / (MENU_BUTTON_WIDTH + BUTTON_MARGIN);
         if (buttonNumber < (int)sizeof(buttons))
         {
             buttons[buttonNumber]->mousePressed(x, y, button);
@@ -152,20 +176,32 @@ void Application::dragEvent(ofDragInfo dragInfo)
 
 void Application::importImage()
 {
-    // TODO
-    cout << "importImage\n";
+    cursorMode = DEFAULT;
+
+    ofFileDialogResult result = ofSystemLoadDialog("Importer une image");
+    if (result.bSuccess)
+    {
+        string filePath = result.getPath();
+
+        if (importedImage.load(filePath))
+        {
+            imageLoaded = true;
+        }
+        else
+        {
+            imageLoaded = false;
+        }
+    }
 }
 
 void Application::exportImage()
 {
-    // TODO
-    cout << "exportImage\n";
+    cursorMode = DEFAULT;
 }
 
 void Application::play()
 {
-    // TODO
-    cout << "play\n";
+    cursorMode = DEFAULT;
     isRunning = !isRunning;
     if (isRunning)
     {
@@ -179,23 +215,24 @@ void Application::play()
 
 void Application::fastForward()
 {
-    // TODO
-    cout << "fastForward\n";
+    cursorMode = DEFAULT;
 }
 
-void Application::eraseMode() 
+void Application::eraseMode()
 {
+    ofLog() << "Mode: ERASE";  // Debug
     cursorMode = ERASE;
     ofHideCursor();
 }
 
-void Application::drawMode() 
+void Application::drawMode()
 {
+    ofLog() << "Mode: DRAW";  // Debug
     cursorMode = DRAW;
     ofHideCursor();
 }
 
-void Application::shapeMode() 
+void Application::shapeMode()
 {
     cursorMode = DEFAULT;
     ofShowCursor();
@@ -204,11 +241,11 @@ void Application::shapeMode()
 void Application::penTypeChoice()
 {
     // TODO
-    cout << "penTypeChoice\n";
+    cursorMode = DEFAULT;
 }
 
 void Application::shapeChoice()
 {
     // TODO
-    cout << "shapeChoice\n";
+    cursorMode = DEFAULT;
 }
