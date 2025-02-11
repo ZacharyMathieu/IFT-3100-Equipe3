@@ -7,6 +7,8 @@
 #ifndef APPLICATION
 #define APPLICATION
 
+enum CursorMode { DEFAULT, DRAW, ERASE };
+
 class Application : public ofBaseApp
 {
 public:
@@ -37,7 +39,6 @@ public:
 	void gotMessage(ofMessage msg) override;
 
 private:
-	enum CursorMode { DEFAULT, DRAW, ERASE };
 	CursorMode cursorMode = DEFAULT;
 
 	Grid grid;
