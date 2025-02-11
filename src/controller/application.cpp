@@ -72,17 +72,18 @@ void Application::draw()
     // Dessiner le curseur personnalisé
     ofSetColor(0);
 
-    // Curseur pour le dessin : Utilise la taille ajustée
+    // Curseur pour le dessin
     if (cursorMode == DRAW) 
     {
         int cursorSize = drawCursorSize;
         int thickness = 1;
+        ofSetColor(currentDrawColor);  // Appliquer la couleur sélectionnée
         ofSetLineWidth(thickness);
         ofDrawLine(ofGetMouseX() - cursorSize, ofGetMouseY(), ofGetMouseX() + cursorSize, ofGetMouseY());
         ofDrawLine(ofGetMouseX(), ofGetMouseY() - cursorSize, ofGetMouseX(), ofGetMouseY() + cursorSize);
     }
 
-    // Curseur pour l’effacement : Utilise la taille ajustée
+    // Curseur pour l’effacement
     else if (cursorMode == ERASE) 
     {
         ofNoFill();
@@ -120,6 +121,11 @@ void Application::draw()
         ofDrawCircle(sliderX + (eraserSize * sliderWidth / 50), sliderY, 5);
     }
 
+    if (showColorMenu || showEraserMenu || showDrawMenu) 
+    {
+        ofShowCursor();
+    }
+
     // Afficher le menu du crayon
     if (showDrawMenu) 
     {
@@ -135,6 +141,35 @@ void Application::draw()
         
         ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
         ofDrawCircle(sliderX + (drawCursorSize * sliderWidth / 50), sliderY, 5);
+    }
+
+    // Affichage du menu de sélection de couleur
+    if (showColorMenu) 
+    {
+        ofSetColor(200);
+        ofDrawRectangle(10, 120, 220, 170);
+        ofSetColor(0);
+        ofDrawBitmapString("Sélectionner une couleur", 20, 140);
+        
+        // Roulette de couleur
+        int centerX = 110, centerY = 210, radius = 60;
+        for (int angle = 0; angle < 360; angle += 5) 
+        {
+            float rad = ofDegToRad(angle);
+            float x = centerX + cos(rad) * radius;
+            float y = centerY + sin(rad) * radius;
+            ofSetColor(ofColor::fromHsb(angle / 360.0 * 255, 255, 255));
+            ofDrawCircle(x, y, 5);
+        }
+
+        // Marqueur noir pour la couleur sélectionnée
+        float selectedAngle = (currentDrawColor.getHue() / 255.0) * 360.0;
+        float selectedRad = ofDegToRad(selectedAngle);
+        float selectedX = centerX + cos(selectedRad) * radius;
+        float selectedY = centerY + sin(selectedRad) * radius;
+        
+        ofSetColor(0);
+        ofDrawCircle(selectedX, selectedY, 5);
     }
 }
 
@@ -166,34 +201,61 @@ void Application::mouseDragged(int x, int y, int button)
 //--------------------------------------------------------------
 void Application::mousePressed(int x, int y, int button)
 {
-    if (y < MENU_HEIGHT)
+    if (y < MENU_HEIGHT) 
     {
         showEraserMenu = false;
         showDrawMenu = false;
+        showColorMenu = false;
+    
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
-        if (buttonNumber < (int)sizeof(buttons))
+
+        if (buttonNumber == 7)
         {
+            showColorMenu = !showColorMenu;
+            return;
+        }
+        
+        if (buttonNumber >= 0 && buttonNumber < buttons.size()) {
             buttons[buttonNumber]->mousePressed(x, y, button);
         }
     }
 
-    if (showEraserMenu && y >= 85 && y <= 95) { 
+    if (showEraserMenu && y >= 85 && y <= 95) 
+    { 
         int sliderX = 20;
         int sliderWidth = 150;
         
-        if (x >= sliderX && x <= sliderX + sliderWidth) {
+        if (x >= sliderX && x <= sliderX + sliderWidth) 
+        {
             eraserSize = (x - sliderX) * 50 / sliderWidth;
         }
     }
 
-    if (showDrawMenu && y >= 85 && y <= 95) { 
+    if (showDrawMenu && y >= 85 && y <= 95) 
+    { 
         int sliderX = 20;
         int sliderWidth = 150;
         
-        if (x >= sliderX && x <= sliderX + sliderWidth) {
+        if (x >= sliderX && x <= sliderX + sliderWidth) 
+        {
             drawCursorSize = (x - sliderX) * 50 / sliderWidth;
         }
     }
+
+    if (showColorMenu) 
+    {
+        int centerX = 110, centerY = 210, radius = 60;
+        int dx = x - centerX;
+        int dy = y - centerY;
+        float distance = sqrt(dx * dx + dy * dy);
+    
+        if (distance <= radius) { 
+            float angle = atan2(dy, dx) * RAD_TO_DEG;
+            if (angle < 0) angle += 360;
+            currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
+        }
+    }
+     
 }
 
 //--------------------------------------------------------------
@@ -303,8 +365,11 @@ void Application::shapeMode()
 
 void Application::penTypeChoice()
 {
-    // TODO
-    cursorMode = DEFAULT;
+    cursorMode = DRAW;
+    showColorMenu = !showColorMenu;
+    showEraserMenu = false;
+    showDrawMenu = false;
+    ofShowCursor(); // Assure que la souris apparaît
 }
 
 void Application::shapeChoice()

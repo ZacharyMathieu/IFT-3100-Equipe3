@@ -48,9 +48,11 @@ private:
 
 	bool showEraserMenu = false;
 	bool showDrawMenu = false;
-
+	bool showColorMenu = false; 
+	
 	int eraserSize = 20;
 	int drawCursorSize = 15;
+	ofColor currentDrawColor = ofColor(0, 0, 0);
 
 	ofImage importImageIcon;
 	ofImage exportImageIcon;
