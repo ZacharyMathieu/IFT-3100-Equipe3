@@ -101,7 +101,6 @@ void Application::mousePressed(int x, int y, int button)
     if (y < MENU_HEIGHT)
     {
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
-        cout << "x: " << x << "\nbutton width: " << MENU_BUTTON_WIDTH << "\nindex: " << buttonNumber << "\n";
         if (buttonNumber < (int)sizeof(buttons))
         {
             buttons[buttonNumber]->mousePressed(x, y, button);
