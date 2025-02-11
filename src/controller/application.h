@@ -37,6 +37,11 @@ public:
 	void gotMessage(ofMessage msg) override;
 
 private:
+	Grid grid;
+
+	ofImage importedImage;
+    bool imageLoaded = false;
+
 	ofImage importImageIcon;
 	ofImage exportImageIcon;
 	ofImage playIcon;

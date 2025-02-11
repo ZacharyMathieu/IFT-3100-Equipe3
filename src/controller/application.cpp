@@ -62,6 +62,19 @@ void Application::draw()
 {
     drawMenu();
     grid.draw();
+
+    // curseur personnalisé
+    ofSetColor(0);
+    if (cursorMode == DRAW) 
+    {
+        ofDrawLine(ofGetMouseX() - 5, ofGetMouseY(), ofGetMouseX() + 5, ofGetMouseY());
+        ofDrawLine(ofGetMouseX(), ofGetMouseY() - 5, ofGetMouseX(), ofGetMouseY() + 5);
+    } 
+    else if (cursorMode == ERASE) 
+    {
+        ofNoFill();
+        ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 10);
+    }
 }
 
 //--------------------------------------------------------------
@@ -170,22 +183,22 @@ void Application::fastForward()
     cout << "fastForward\n";
 }
 
-void Application::eraseMode()
+void Application::eraseMode() 
 {
-    // TODO
-    cout << "eraseMode\n";
+    cursorMode = ERASE;
+    ofHideCursor();
 }
 
-void Application::drawMode()
+void Application::drawMode() 
 {
-    // TODO
-    cout << "drawMode\n";
+    cursorMode = DRAW;
+    ofHideCursor();
 }
 
-void Application::shapeMode()
+void Application::shapeMode() 
 {
-    // TODO
-    cout << "shapeMode\n";
+    cursorMode = DEFAULT;
+    ofShowCursor();
 }
 
 void Application::penTypeChoice()
