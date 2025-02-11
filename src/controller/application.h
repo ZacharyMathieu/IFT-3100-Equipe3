@@ -7,15 +7,17 @@
 #ifndef APPLICATION
 #define APPLICATION
 
+enum CursorMode { DEFAULT, DRAW, ERASE };
+
 class Application : public ofBaseApp
 {
 public:
 	const int WINDOW_WIDTH = 1024;
 	const int WINDOW_HEIGHT = 768;
-	const int MENU_HEIGHT = 100;
+	const int MENU_HEIGHT = 50;
+	const int MENU_BUTTON_MARGIN = 10;
 	const int MENU_BUTTON_WIDTH = MENU_HEIGHT;
 
-	Grid grid;
 	bool isRunning = false;
 
 	void setup() override;
@@ -37,6 +39,19 @@ public:
 	void gotMessage(ofMessage msg) override;
 
 private:
+	CursorMode cursorMode = DEFAULT;
+
+	Grid grid;
+
+	ofImage importedImage;
+    bool imageLoaded = false;
+
+	bool showEraserMenu = false;
+	bool showDrawMenu = false;
+
+	int eraserSize = 20;
+	int drawCursorSize = 15;
+
 	ofImage importImageIcon;
 	ofImage exportImageIcon;
 	ofImage playIcon;

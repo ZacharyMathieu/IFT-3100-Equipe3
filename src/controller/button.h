@@ -16,8 +16,8 @@ public:
     int h;
 
     Button();
-    void setup(int x, int y, int w, int h, Application *application, void (Application::*callback)(), ofImage icon);
-    void setIcon(ofImage icon);
+    void setup(int x, int y, int w, int h, Application *application, void (Application::*callback)(), ofImage *icon);
+    void setIcon(ofImage *icon);
 
     void update();
     void draw();
@@ -36,7 +36,7 @@ public:
 private:
     void (Application::*callback)();
     Application *application;
-    ofImage icon;
+    ofImage *icon;
 };
 
 #endif
