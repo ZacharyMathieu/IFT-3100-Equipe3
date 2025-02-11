@@ -72,24 +72,69 @@ void Application::draw()
     // Dessiner le curseur personnalisé
     ofSetColor(0);
 
-    // Curseur pour le dessin : Une croix plus grosse
+    // Curseur pour le dessin : Utilise la taille ajustée
     if (cursorMode == DRAW) 
     {
-        int cursorSize = 15;
-        int thickness = 2;
-
+        int cursorSize = drawCursorSize;
+        int thickness = 1;
         ofSetLineWidth(thickness);
         ofDrawLine(ofGetMouseX() - cursorSize, ofGetMouseY(), ofGetMouseX() + cursorSize, ofGetMouseY());
         ofDrawLine(ofGetMouseX(), ofGetMouseY() - cursorSize, ofGetMouseX(), ofGetMouseY() + cursorSize);
     }
 
-    // Curseur pour l'effacement : Un cercle
+    // Curseur pour l’effacement : Utilise la taille ajustée
     else if (cursorMode == ERASE) 
     {
-        int eraserSize = 20; 
         ofNoFill();
         ofDrawCircle(ofGetMouseX(), ofGetMouseY(), eraserSize);
         ofFill();
+    }
+
+    if (showEraserMenu || showDrawMenu) 
+    {
+        ofShowCursor();
+    } 
+    else if (cursorMode == DRAW || cursorMode == ERASE) 
+    {
+        ofHideCursor();
+    } 
+    else 
+    {
+        ofShowCursor();
+    }
+
+    // Afficher le menu de l’effaceur
+    if (showEraserMenu) 
+    {
+        ofSetColor(200);
+        ofDrawRectangle(10, 60, 200, 50);
+
+        ofSetColor(0);
+        ofDrawBitmapString("Taille de l'efface", 20, 80);
+        
+        int sliderX = 20;
+        int sliderY = 90;
+        int sliderWidth = 150;
+        
+        ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
+        ofDrawCircle(sliderX + (eraserSize * sliderWidth / 50), sliderY, 5);
+    }
+
+    // Afficher le menu du crayon
+    if (showDrawMenu) 
+    {
+        ofSetColor(200);
+        ofDrawRectangle(10, 60, 200, 50);
+
+        ofSetColor(0);
+        ofDrawBitmapString("Taille du crayon", 20, 80);
+        
+        int sliderX = 20;
+        int sliderY = 90;
+        int sliderWidth = 150;
+        
+        ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
+        ofDrawCircle(sliderX + (drawCursorSize * sliderWidth / 50), sliderY, 5);
     }
 }
 
@@ -123,10 +168,32 @@ void Application::mousePressed(int x, int y, int button)
 {
     if (y < MENU_HEIGHT)
     {
+        showEraserMenu = false;
+        showDrawMenu = false;
+
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
+
         if (buttonNumber < (int)sizeof(buttons))
         {
             buttons[buttonNumber]->mousePressed(x, y, button);
+        }
+    }
+
+    if (showEraserMenu && y >= 85 && y <= 95) { 
+        int sliderX = 20;
+        int sliderWidth = 150;
+        
+        if (x >= sliderX && x <= sliderX + sliderWidth) {
+            eraserSize = (x - sliderX) * 50 / sliderWidth;
+        }
+    }
+
+    if (showDrawMenu && y >= 85 && y <= 95) { 
+        int sliderX = 20;
+        int sliderWidth = 150;
+        
+        if (x >= sliderX && x <= sliderX + sliderWidth) {
+            drawCursorSize = (x - sliderX) * 50 / sliderWidth;
         }
     }
 }
@@ -214,16 +281,20 @@ void Application::fastForward()
 
 void Application::eraseMode()
 {
-    ofLog() << "Mode: ERASE";  // Debug
     cursorMode = ERASE;
     ofHideCursor();
+
+    showEraserMenu = true;
+    showDrawMenu = false;
 }
 
 void Application::drawMode()
 {
-    ofLog() << "Mode: DRAW";  // Debug
     cursorMode = DRAW;
     ofHideCursor();
+
+    showDrawMenu = true;
+    showEraserMenu = false;
 }
 
 void Application::shapeMode()

@@ -45,6 +45,12 @@ private:
 	ofImage importedImage;
     bool imageLoaded = false;
 
+	bool showEraserMenu = false;
+	bool showDrawMenu = false;
+
+	int eraserSize = 20;
+	int drawCursorSize = 15;
+
 	ofImage importImageIcon;
 	ofImage exportImageIcon;
 	ofImage playIcon;
