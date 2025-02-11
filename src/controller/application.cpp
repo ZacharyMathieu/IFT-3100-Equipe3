@@ -255,7 +255,21 @@ void Application::importImage()
 
 void Application::exportImage()
 {
-    cursorMode = DEFAULT;
+  cursorMode = DEFAULT;
+  ExportImg
+    std::string defaultPath = ofFilePath::getUserHomeDir() + "/capture.png";
+    ofFileDialogResult saveFile = ofSystemSaveDialog(defaultPath, "save grid");
+
+    if (saveFile.bSuccess) {
+        std::string path = saveFile.getPath();
+        path += ".png";
+        ofImage screenshot;
+        screenshot.grabScreen(0, MENU_HEIGHT, ofGetWidth(), ofGetHeight() - MENU_HEIGHT);
+
+        screenshot.save(path);
+    }
+    
+    cout << "exportImage\n";
 }
 
 void Application::play()
