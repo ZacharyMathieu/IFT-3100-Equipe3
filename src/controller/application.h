@@ -71,7 +71,7 @@ private:
 	bool isEraserMenuCollapsed = false;
 	bool isDrawMenuCollapsed = false;
 	bool isColorMenuCollapsed = false;
-	bool menuReduit = false;
+	bool menuHidden = false;
 
 	int eraserSize = 20;
 	int drawCursorSize = 15;
