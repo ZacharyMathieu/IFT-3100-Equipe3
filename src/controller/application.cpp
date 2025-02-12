@@ -126,47 +126,84 @@ void Application::draw()
         ofShowCursor();
     }
 
-    // Afficher le menu du crayon
+    // Afficher le menu du crayon (taille + couleur)
     if (showDrawMenu) 
     {
+        int menuWidth = 220;
+        int menuHeight = 160;  // Augmenté pour inclure la roue
+        int menuX = 10, menuY = 60;
+
         ofSetColor(200);
-        ofDrawRectangle(10, 60, 200, 50);
+        ofDrawRectangle(menuX, menuY, menuWidth, menuHeight);
 
         ofSetColor(0);
-        ofDrawBitmapString("Taille du crayon", 20, 80);
+        ofDrawBitmapString("Taille du crayon", menuX + 10, menuY + 20);
         
-        int sliderX = 20;
-        int sliderY = 90;
-        int sliderWidth = 150;
+        int sliderX = menuX + 10;
+        int sliderY = menuY + 35;
+        int sliderWidth = 180;
         
         ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
         ofDrawCircle(sliderX + (drawCursorSize * sliderWidth / 50), sliderY, 5);
-    }
 
-    // Affichage du menu de sélection de couleur
-    if (showColorMenu) 
-    {
-        ofSetColor(200);
-        ofDrawRectangle(10, 120, 220, 170);
-        ofSetColor(0);
-        ofDrawBitmapString("Sélectionner une couleur", 20, 140);
-        
-        // Roulette de couleur
-        int centerX = 110, centerY = 210, radius = 60;
+        // Ajouter espace pour la roue
+        ofDrawBitmapString("Couleur du crayon", menuX + 10, menuY + 60);
+
+        // Afficher la roulette sous le texte
+        int wheelCenterX = menuX + menuWidth / 2;
+        int wheelCenterY = menuY + 110;
+        int wheelRadius = 40;
+
         for (int angle = 0; angle < 360; angle += 5) 
         {
             float rad = ofDegToRad(angle);
-            float x = centerX + cos(rad) * radius;
-            float y = centerY + sin(rad) * radius;
+            float x = wheelCenterX + cos(rad) * wheelRadius;
+            float y = wheelCenterY + sin(rad) * wheelRadius;
             ofSetColor(ofColor::fromHsb(angle / 360.0 * 255, 255, 255));
-            ofDrawCircle(x, y, 5);
+            ofDrawCircle(x, y, 4);
         }
 
         // Marqueur noir pour la couleur sélectionnée
         float selectedAngle = (currentDrawColor.getHue() / 255.0) * 360.0;
         float selectedRad = ofDegToRad(selectedAngle);
-        float selectedX = centerX + cos(selectedRad) * radius;
-        float selectedY = centerY + sin(selectedRad) * radius;
+        float selectedX = wheelCenterX + cos(selectedRad) * wheelRadius;
+        float selectedY = wheelCenterY + sin(selectedRad) * wheelRadius;
+        
+        ofSetColor(0);
+        ofDrawCircle(selectedX, selectedY, 5);
+    }
+
+    // Affichage du menu de sélection de couleur
+    if (showColorMenu) 
+    {
+        int menuWidth = 220;
+        int menuHeight = 120;
+        int menuX = 10, menuY = 60;  // Même hauteur que les autres
+
+        ofSetColor(200);
+        ofDrawRectangle(menuX, menuY, menuWidth, menuHeight);
+
+        ofSetColor(0);
+        ofDrawBitmapString("Sélectionner une couleur", menuX + 10, menuY + 20);
+        
+        int wheelCenterX = menuX + menuWidth / 2;
+        int wheelCenterY = menuY + 70;
+        int wheelRadius = 40;
+
+        for (int angle = 0; angle < 360; angle += 5) 
+        {
+            float rad = ofDegToRad(angle);
+            float x = wheelCenterX + cos(rad) * wheelRadius;
+            float y = wheelCenterY + sin(rad) * wheelRadius;
+            ofSetColor(ofColor::fromHsb(angle / 360.0 * 255, 255, 255));
+            ofDrawCircle(x, y, 4);
+        }
+
+        // Marqueur noir pour la couleur sélectionnée
+        float selectedAngle = (currentDrawColor.getHue() / 255.0) * 360.0;
+        float selectedRad = ofDegToRad(selectedAngle);
+        float selectedX = wheelCenterX + cos(selectedRad) * wheelRadius;
+        float selectedY = wheelCenterY + sin(selectedRad) * wheelRadius;
         
         ofSetColor(0);
         ofDrawCircle(selectedX, selectedY, 5);
@@ -231,25 +268,41 @@ void Application::mousePressed(int x, int y, int button)
         }
     }
 
-    if (showDrawMenu && y >= 85 && y <= 95) 
-    { 
-        int sliderX = 20;
-        int sliderWidth = 150;
-        
-        if (x >= sliderX && x <= sliderX + sliderWidth) 
-        {
-            drawCursorSize = (x - sliderX) * 50 / sliderWidth;
+    if (showDrawMenu) 
+    {
+        if (y >= 85 && y <= 95) 
+        { 
+            int sliderX = 20;
+            int sliderWidth = 150;
+            
+            if (x >= sliderX && x <= sliderX + sliderWidth) 
+            {
+                drawCursorSize = (x - sliderX) * 50 / sliderWidth;
+            }
+        }
+
+        int centerX = 110, centerY = 170, radius = 60;
+        int dx = ofGetMouseX() - centerX;
+        int dy = ofGetMouseY() - centerY;
+        float distance = sqrt(dx * dx + dy * dy);
+
+        if (distance <= radius) 
+        { 
+            float angle = atan2(dy, dx) * RAD_TO_DEG;
+            if (angle < 0) angle += 360;
+            currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
         }
     }
 
     if (showColorMenu) 
     {
-        int centerX = 110, centerY = 210, radius = 60;
-        int dx = x - centerX;
-        int dy = y - centerY;
+        int centerX = 110, centerY = 190, radius = 60;
+        int dx = ofGetMouseX() - centerX;
+        int dy = ofGetMouseY() - centerY;
         float distance = sqrt(dx * dx + dy * dy);
-    
-        if (distance <= radius) { 
+
+        if (distance <= radius) 
+        { 
             float angle = atan2(dy, dx) * RAD_TO_DEG;
             if (angle < 0) angle += 360;
             currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
