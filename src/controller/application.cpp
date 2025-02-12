@@ -19,7 +19,7 @@ void Application::setupButtons()
     shapeModeIcon.load("images/shapeMode.png");
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
-    
+
     vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
         std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
         std::tuple(&exportImageButton, &Application::exportImage, &exportImageIcon),
@@ -73,7 +73,7 @@ void Application::draw()
     ofSetColor(0);
 
     // Curseur pour le dessin : Utilise la taille ajustée
-    if (cursorMode == DRAW) 
+    if (cursorMode == DRAW)
     {
         int cursorSize = drawCursorSize;
         int thickness = 1;
@@ -83,56 +83,56 @@ void Application::draw()
     }
 
     // Curseur pour l’effacement : Utilise la taille ajustée
-    else if (cursorMode == ERASE) 
+    else if (cursorMode == ERASE)
     {
         ofNoFill();
         ofDrawCircle(ofGetMouseX(), ofGetMouseY(), eraserSize);
         ofFill();
     }
 
-    if (showEraserMenu || showDrawMenu) 
+    if (showEraserMenu || showDrawMenu)
     {
         ofShowCursor();
-    } 
-    else if (cursorMode == DRAW || cursorMode == ERASE) 
+    }
+    else if (cursorMode == DRAW || cursorMode == ERASE)
     {
         ofHideCursor();
-    } 
-    else 
+    }
+    else
     {
         ofShowCursor();
     }
 
     // Afficher le menu de l’effaceur
-    if (showEraserMenu) 
+    if (showEraserMenu)
     {
         ofSetColor(200);
         ofDrawRectangle(10, 60, 200, 50);
 
         ofSetColor(0);
         ofDrawBitmapString("Taille de l'efface", 20, 80);
-        
+
         int sliderX = 20;
         int sliderY = 90;
         int sliderWidth = 150;
-        
+
         ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
         ofDrawCircle(sliderX + (eraserSize * sliderWidth / 50), sliderY, 5);
     }
 
     // Afficher le menu du crayon
-    if (showDrawMenu) 
+    if (showDrawMenu)
     {
         ofSetColor(200);
         ofDrawRectangle(10, 60, 200, 50);
 
         ofSetColor(0);
         ofDrawBitmapString("Taille du crayon", 20, 80);
-        
+
         int sliderX = 20;
         int sliderY = 90;
         int sliderWidth = 150;
-        
+
         ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
         ofDrawCircle(sliderX + (drawCursorSize * sliderWidth / 50), sliderY, 5);
     }
@@ -177,20 +177,24 @@ void Application::mousePressed(int x, int y, int button)
         }
     }
 
-    if (showEraserMenu && y >= 85 && y <= 95) { 
+    if (showEraserMenu && y >= 85 && y <= 95)
+    {
         int sliderX = 20;
         int sliderWidth = 150;
-        
-        if (x >= sliderX && x <= sliderX + sliderWidth) {
+
+        if (x >= sliderX && x <= sliderX + sliderWidth)
+        {
             eraserSize = (x - sliderX) * 50 / sliderWidth;
         }
     }
 
-    if (showDrawMenu && y >= 85 && y <= 95) { 
+    if (showDrawMenu && y >= 85 && y <= 95)
+    {
         int sliderX = 20;
         int sliderWidth = 150;
-        
-        if (x >= sliderX && x <= sliderX + sliderWidth) {
+
+        if (x >= sliderX && x <= sliderX + sliderWidth)
+        {
             drawCursorSize = (x - sliderX) * 50 / sliderWidth;
         }
     }
@@ -255,12 +259,12 @@ void Application::importImage()
 
 void Application::exportImage()
 {
-  cursorMode = DEFAULT;
-  ExportImg
+    cursorMode = DEFAULT;
     std::string defaultPath = ofFilePath::getUserHomeDir() + "/capture.png";
     ofFileDialogResult saveFile = ofSystemSaveDialog(defaultPath, "save grid");
 
-    if (saveFile.bSuccess) {
+    if (saveFile.bSuccess)
+    {
         std::string path = saveFile.getPath();
         path += ".png";
         ofImage screenshot;
@@ -268,7 +272,7 @@ void Application::exportImage()
 
         screenshot.save(path);
     }
-    
+
     cout << "exportImage\n";
 }
 

@@ -7,7 +7,12 @@
 #ifndef APPLICATION
 #define APPLICATION
 
-enum CursorMode { DEFAULT, DRAW, ERASE };
+enum CursorMode
+{
+	DEFAULT,
+	DRAW,
+	ERASE
+};
 
 class Application : public ofBaseApp
 {
@@ -42,7 +47,7 @@ private:
 	CursorMode cursorMode = DEFAULT;
 	GridController gridController;
 	ofImage importedImage;
-    bool imageLoaded = false;
+	bool imageLoaded = false;
 
 	bool showEraserMenu = false;
 	bool showDrawMenu = false;
