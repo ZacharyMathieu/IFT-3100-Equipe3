@@ -12,15 +12,15 @@ void GridController::setup(int x, int y, int w, int h)
 //--------------------------------------------------------------
 void GridController::draw()
 {
-
     float scaleX = ((float)displayWidth) / grid.w;
     float scaleY = ((float)displayHeight) / grid.h;
 
-    for (int y = 0; y < grid.h; y++)
+    int y = 0;
+    for (vector<Cell *> line : grid.grid)
     {
-        for (int x = 0; x < grid.w; x++)
+        int x = 0;
+        for (Cell *cell : line)
         {
-            auto cell = grid.at(x, y);
             auto color = cell->getCellColor();
             ofSetColor(color);
             ofDrawRectangle(
@@ -28,7 +28,9 @@ void GridController::draw()
                 (int)y * scaleY + displayPosY,
                 (int)scaleX,
                 (int)scaleY);
+            x++;
         }
+        y++;
     }
 
     ofSetColor(0, 0, 0, 150);

@@ -7,8 +7,8 @@
 class GridController
 {
 public:
-    const int GRID_WIDTH = 100;
-    const int GRID_HEIGHT = 100;
+    static const int GRID_WIDTH = 100;
+    static const int GRID_HEIGHT = 100;
     int displayPosX;
     int displayPosY;
     int displayWidth;
