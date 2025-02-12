@@ -23,6 +23,20 @@ public:
 	static const int MENU_BUTTON_MARGIN = 10;
 	static const int MENU_BUTTON_WIDTH = MENU_HEIGHT;
 
+	static const int COLLAPSED_MENU_WIDTH = 30;
+	static const int COLLAPSED_MENU_HEIGHT = 30;
+	static const int OPENED_MENU_WIDTH = 220;
+	static const int OPENED_MENU_HEIGHT_ERASE = 50;
+	static const int OPENED_MENU_HEIGHT_DRAW = 160;
+	static const int OPENED_MENU_HEIGHT_COLOR = 160;
+	static const int WHEEL_RADIUS = 40;
+
+	static const int COORD_MENU_X = 10;
+	static const int COORD_MENU_Y = 60;
+	static const int COORD_SLIDER_X = 20;
+
+	static const int SLIDER_WIDTH = 200;
+
 	bool isRunning = false;
 
 	void setup() override;
@@ -42,6 +56,7 @@ public:
 	void windowResized(int w, int h) override;
 	void dragEvent(ofDragInfo dragInfo) override;
 	void gotMessage(ofMessage msg) override;
+	void drawMenu(bool &showMenu, bool &isCollapsed, const string &title, int &sliderValue, int menuHeight);
 
 private:
 	CursorMode cursorMode = DEFAULT;
@@ -51,9 +66,16 @@ private:
 
 	bool showEraserMenu = false;
 	bool showDrawMenu = false;
+	bool showColorMenu = false;
+
+	bool isEraserMenuCollapsed = false;
+	bool isDrawMenuCollapsed = false;
+	bool isColorMenuCollapsed = false;
+	bool menuHidden = false;
 
 	int eraserSize = 20;
 	int drawCursorSize = 15;
+	ofColor currentDrawColor = ofColor(0, 0, 0);
 
 	ofImage importImageIcon;
 	ofImage exportImageIcon;
