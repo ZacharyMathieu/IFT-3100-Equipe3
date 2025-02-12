@@ -1,5 +1,6 @@
 #include "application.h"
 
+//--------------------------------------------------------------
 void Application::setup()
 {
     ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -7,6 +8,7 @@ void Application::setup()
     setupButtons();
 }
 
+//--------------------------------------------------------------
 void Application::setupButtons()
 {
     importImageIcon.load("images/importImage.png");
@@ -41,12 +43,14 @@ void Application::setupButtons()
     }
 }
 
+//--------------------------------------------------------------
 void Application::drawMenu()
 {
     ofSetBackgroundColor(255);
     ofSetColor(0);
     for (Button *b : buttons)
     {
+        ofSetColor(255);
         b->draw();
     }
     ofDrawLine(0, MENU_HEIGHT, WINDOW_WIDTH, MENU_HEIGHT);
@@ -69,7 +73,7 @@ void Application::draw()
     }
     grid.draw();
 
-    // Dessiner le curseur personnalisé
+    // Dessiner les curseurs personnalisés
     ofSetColor(0);
 
     // Curseur pour le dessin
@@ -77,13 +81,13 @@ void Application::draw()
     {
         int cursorSize = drawCursorSize;
         int thickness = 1;
-        ofSetColor(currentDrawColor);  // Appliquer la couleur sélectionnée
+        ofSetColor(currentDrawColor);
         ofSetLineWidth(thickness);
         ofDrawLine(ofGetMouseX() - cursorSize, ofGetMouseY(), ofGetMouseX() + cursorSize, ofGetMouseY());
         ofDrawLine(ofGetMouseX(), ofGetMouseY() - cursorSize, ofGetMouseX(), ofGetMouseY() + cursorSize);
     }
 
-    // Curseur pour l’effacement
+    // Curseur pour l’efface
     else if (cursorMode == ERASE) 
     {
         ofNoFill();
@@ -91,7 +95,8 @@ void Application::draw()
         ofFill();
     }
 
-    if (showEraserMenu || showDrawMenu) 
+    // Affichage du curseur normal pour naviguer les menus
+    if (showEraserMenu || showDrawMenu || showColorMenu) 
     {
         ofShowCursor();
     } 
@@ -104,109 +109,138 @@ void Application::draw()
         ofShowCursor();
     }
 
-    // Afficher le menu de l’effaceur
+    // Afficher le menu de l’efface
     if (showEraserMenu) 
     {
+        int menuWidth = isEraserMenuCollapsed ? 30 : 220;
+        int menuHeight = isEraserMenuCollapsed ? 30 : 50;
+        int menuX = 10, menuY = 60;
         ofSetColor(200);
-        ofDrawRectangle(10, 60, 200, 50);
+        ofDrawRectangle(menuX, menuY, menuWidth, menuHeight);
 
+        // Dessiner la flèche associée
+        int arrowX = menuX + menuWidth - 20;
+        int arrowY = menuY + 10;
         ofSetColor(0);
-        ofDrawBitmapString("Taille de l'efface", 20, 80);
-        
-        int sliderX = 20;
-        int sliderY = 90;
-        int sliderWidth = 150;
-        
-        ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
-        ofDrawCircle(sliderX + (eraserSize * sliderWidth / 50), sliderY, 5);
-    }
+        if (isEraserMenuCollapsed) 
+        {
+            ofDrawTriangle(arrowX, arrowY, arrowX + 10, arrowY, arrowX + 5, arrowY + 10);
+        } 
+        else 
+        {
+            ofDrawTriangle(arrowX, arrowY + 10, arrowX + 10, arrowY + 10, arrowX + 5, arrowY);
+        }
 
-    if (showColorMenu || showEraserMenu || showDrawMenu) 
-    {
-        ofShowCursor();
+        if (!isEraserMenuCollapsed) 
+        {
+            ofDrawBitmapString("Taille de l'efface", menuX + 10, menuY + 20);
+            int sliderX = menuX + 10;
+            int sliderY = menuY + 35;
+            int sliderWidth = 200;
+            ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
+            ofDrawCircle(sliderX + (eraserSize * sliderWidth / 50), sliderY, 5);
+        }
     }
 
     // Afficher le menu du crayon (taille + couleur)
     if (showDrawMenu) 
     {
-        int menuWidth = 220;
-        int menuHeight = 160;  // Augmenté pour inclure la roue
+        int menuWidth = isDrawMenuCollapsed ? 30 : 220;
+        int menuHeight = isDrawMenuCollapsed ? 30 : 160;
         int menuX = 10, menuY = 60;
-
         ofSetColor(200);
         ofDrawRectangle(menuX, menuY, menuWidth, menuHeight);
 
+        // Dessiner la flèche associée
+        int arrowX = menuX + menuWidth - 20;
+        int arrowY = menuY + 10;
         ofSetColor(0);
-        ofDrawBitmapString("Taille du crayon", menuX + 10, menuY + 20);
-        
-        int sliderX = menuX + 10;
-        int sliderY = menuY + 35;
-        int sliderWidth = 180;
-        
-        ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
-        ofDrawCircle(sliderX + (drawCursorSize * sliderWidth / 50), sliderY, 5);
-
-        // Ajouter espace pour la roue
-        ofDrawBitmapString("Couleur du crayon", menuX + 10, menuY + 60);
-
-        // Afficher la roulette sous le texte
-        int wheelCenterX = menuX + menuWidth / 2;
-        int wheelCenterY = menuY + 110;
-        int wheelRadius = 40;
-
-        for (int angle = 0; angle < 360; angle += 5) 
+        if (isDrawMenuCollapsed) 
         {
-            float rad = ofDegToRad(angle);
-            float x = wheelCenterX + cos(rad) * wheelRadius;
-            float y = wheelCenterY + sin(rad) * wheelRadius;
-            ofSetColor(ofColor::fromHsb(angle / 360.0 * 255, 255, 255));
-            ofDrawCircle(x, y, 4);
+            ofDrawTriangle(arrowX, arrowY, arrowX + 10, arrowY, arrowX + 5, arrowY + 10);
+        } 
+        else 
+        {
+            ofDrawTriangle(arrowX, arrowY + 10, arrowX + 10, arrowY + 10, arrowX + 5, arrowY);
         }
 
-        // Marqueur noir pour la couleur sélectionnée
-        float selectedAngle = (currentDrawColor.getHue() / 255.0) * 360.0;
-        float selectedRad = ofDegToRad(selectedAngle);
-        float selectedX = wheelCenterX + cos(selectedRad) * wheelRadius;
-        float selectedY = wheelCenterY + sin(selectedRad) * wheelRadius;
-        
-        ofSetColor(0);
-        ofDrawCircle(selectedX, selectedY, 5);
+        if (!isDrawMenuCollapsed) 
+        {
+            ofDrawBitmapString("Taille du crayon", menuX + 10, menuY + 20);
+            int sliderX = menuX + 10;
+            int sliderY = menuY + 35;
+            int sliderWidth = 200;
+            ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
+            ofDrawCircle(sliderX + (drawCursorSize * sliderWidth / 50), sliderY, 5);
+
+            ofDrawBitmapString("Couleur du crayon", menuX + 10, menuY + 60);
+            int wheelCenterX = menuX + menuWidth / 2;
+            int wheelCenterY = menuY + 110;
+            int wheelRadius = 40;
+
+            for (int angle = 0; angle < 360; angle += 5) 
+            {
+                float rad = ofDegToRad(angle);
+                float x = wheelCenterX + cos(rad) * wheelRadius;
+                float y = wheelCenterY + sin(rad) * wheelRadius;
+                ofSetColor(ofColor::fromHsb(angle / 360.0 * 255, 255, 255));
+                ofDrawCircle(x, y, 4);
+            }
+
+            float selectedAngle = (currentDrawColor.getHue() / 255.0) * 360.0;
+            float selectedRad = ofDegToRad(selectedAngle);
+            float selectedX = wheelCenterX + cos(selectedRad) * wheelRadius;
+            float selectedY = wheelCenterY + sin(selectedRad) * wheelRadius;
+            ofSetColor(0);
+            ofDrawCircle(selectedX, selectedY, 5);
+        }
     }
 
     // Affichage du menu de sélection de couleur
     if (showColorMenu) 
     {
-        int menuWidth = 220;
-        int menuHeight = 120;
-        int menuX = 10, menuY = 60;  // Même hauteur que les autres
-
+        int menuWidth = isColorMenuCollapsed ? 30 : 220;
+        int menuHeight = isColorMenuCollapsed ? 30 : 120;
+        int menuX = 10, menuY = 60;
         ofSetColor(200);
         ofDrawRectangle(menuX, menuY, menuWidth, menuHeight);
 
+        // Dessiner la flèche associée
+        int arrowX = menuX + menuWidth - 20;
+        int arrowY = menuY + 10;
         ofSetColor(0);
-        ofDrawBitmapString("Sélectionner une couleur", menuX + 10, menuY + 20);
-        
-        int wheelCenterX = menuX + menuWidth / 2;
-        int wheelCenterY = menuY + 70;
-        int wheelRadius = 40;
-
-        for (int angle = 0; angle < 360; angle += 5) 
+        if (isColorMenuCollapsed) 
         {
-            float rad = ofDegToRad(angle);
-            float x = wheelCenterX + cos(rad) * wheelRadius;
-            float y = wheelCenterY + sin(rad) * wheelRadius;
-            ofSetColor(ofColor::fromHsb(angle / 360.0 * 255, 255, 255));
-            ofDrawCircle(x, y, 4);
+            ofDrawTriangle(arrowX, arrowY, arrowX + 10, arrowY, arrowX + 5, arrowY + 10);
+        } 
+        else 
+        {
+            ofDrawTriangle(arrowX, arrowY + 10, arrowX + 10, arrowY + 10, arrowX + 5, arrowY);
         }
 
-        // Marqueur noir pour la couleur sélectionnée
-        float selectedAngle = (currentDrawColor.getHue() / 255.0) * 360.0;
-        float selectedRad = ofDegToRad(selectedAngle);
-        float selectedX = wheelCenterX + cos(selectedRad) * wheelRadius;
-        float selectedY = wheelCenterY + sin(selectedRad) * wheelRadius;
-        
-        ofSetColor(0);
-        ofDrawCircle(selectedX, selectedY, 5);
+        if (!isColorMenuCollapsed) 
+        {
+            ofDrawBitmapString("Sélectionner une couleur", menuX + 10, menuY + 20);
+            int wheelCenterX = menuX + menuWidth / 2;
+            int wheelCenterY = menuY + 70;
+            int wheelRadius = 40;
+
+            for (int angle = 0; angle < 360; angle += 5) 
+            {
+                float rad = ofDegToRad(angle);
+                float x = wheelCenterX + cos(rad) * wheelRadius;
+                float y = wheelCenterY + sin(rad) * wheelRadius;
+                ofSetColor(ofColor::fromHsb(angle / 360.0 * 255, 255, 255));
+                ofDrawCircle(x, y, 4);
+            }
+
+            float selectedAngle = (currentDrawColor.getHue() / 255.0) * 360.0;
+            float selectedRad = ofDegToRad(selectedAngle);
+            float selectedX = wheelCenterX + cos(selectedRad) * wheelRadius;
+            float selectedY = wheelCenterY + sin(selectedRad) * wheelRadius;
+            ofSetColor(0);
+            ofDrawCircle(selectedX, selectedY, 5);
+        }
     }
 }
 
@@ -308,7 +342,33 @@ void Application::mousePressed(int x, int y, int button)
             currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
         }
     }
-     
+
+    // Vérifier si on clique sur la flèche du menu du crayon
+    if (showDrawMenu && x >= (10 + (isDrawMenuCollapsed ? 20 : 200)) - 10 &&
+    x <= (20 + (isDrawMenuCollapsed ? 30 : 200)) &&
+    y >= 60 && y <= 75) 
+    {
+    isDrawMenuCollapsed = !isDrawMenuCollapsed;
+    return;
+    }
+
+    // Vérifier si on clique sur la flèche du menu de l’effaceur
+    if (showEraserMenu && x >= (10 + (isEraserMenuCollapsed ? 20 : 200)) - 10 &&
+    x <= (20 + (isEraserMenuCollapsed ? 30 : 200)) &&
+    y >= 60 && y <= 75) 
+    {
+    isEraserMenuCollapsed = !isEraserMenuCollapsed;
+    return;
+    }
+
+    // Vérifier si on clique sur la flèche du menu de sélection de couleur
+    if (showColorMenu && x >= (10 + (isColorMenuCollapsed ? 20 : 200)) - 10 &&
+    x <= (20 + (isColorMenuCollapsed ? 30 : 200)) &&
+    y >= 60 && y <= 75) 
+    {
+    isColorMenuCollapsed = !isColorMenuCollapsed;
+    return;
+    }
 }
 
 //--------------------------------------------------------------
@@ -422,7 +482,7 @@ void Application::penTypeChoice()
     showColorMenu = !showColorMenu;
     showEraserMenu = false;
     showDrawMenu = false;
-    ofShowCursor(); // Assure que la souris apparaît
+    ofShowCursor();
 }
 
 void Application::shapeChoice()

@@ -37,6 +37,7 @@ public:
 	void windowResized(int w, int h) override;
 	void dragEvent(ofDragInfo dragInfo) override;
 	void gotMessage(ofMessage msg) override;
+	void drawMenu(bool &showMenu, bool &isCollapsed, const string &title, int &sliderValue, int menuHeight);
 
 private:
 	CursorMode cursorMode = DEFAULT;
@@ -50,6 +51,11 @@ private:
 	bool showDrawMenu = false;
 	bool showColorMenu = false; 
 	
+	bool isEraserMenuCollapsed = false;
+	bool isDrawMenuCollapsed = false;
+	bool isColorMenuCollapsed = false;
+	bool menuReduit = false;
+
 	int eraserSize = 20;
 	int drawCursorSize = 15;
 	ofColor currentDrawColor = ofColor(0, 0, 0);
