@@ -20,6 +20,10 @@ public:
 
 	bool isRunning = false;
 
+	vector<ofRectangle> rectangles;
+
+	bool mouse_pressed = false;
+
 	void setup() override;
 	void update() override;
 	void draw() override;

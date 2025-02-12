@@ -80,7 +80,18 @@ void Application::draw()
         ofSetLineWidth(thickness);
         ofDrawLine(ofGetMouseX() - cursorSize, ofGetMouseY(), ofGetMouseX() + cursorSize, ofGetMouseY());
         ofDrawLine(ofGetMouseX(), ofGetMouseY() - cursorSize, ofGetMouseX(), ofGetMouseY() + cursorSize);
+        
     }
+    if (!rectangles.empty()) {
+        for (auto rec : rectangles) {
+                    ofFile();
+                    ofSetColor(0, 0, 0);
+                    ofSetLineWidth(1);
+                    ofDrawRectangle(rec.getX(), rec.getY(), rec.getWidth(), rec.getHeight());
+        }
+    }
+        
+   
 
     // Curseur pour l’effacement : Utilise la taille ajustée
     else if (cursorMode == ERASE) 
@@ -161,6 +172,31 @@ void Application::mouseMoved(int x, int y)
 //--------------------------------------------------------------
 void Application::mouseDragged(int x, int y, int button)
 {
+    int xOrigine = (x / 20) * 20;
+    int yOrigine = (((y + MENU_HEIGHT) / 20) * 20) - MENU_HEIGHT;
+
+    if (cursorMode == ERASE && y > MENU_HEIGHT) {
+        for (auto rec = rectangles.begin(); rec != rectangles.end(); ++rec)
+        {
+            if (rec->getX() == xOrigine && rec->getY() == yOrigine)
+            {
+                rectangles.erase(rec);
+                break;
+            }
+        }
+    }
+    if (cursorMode == DRAW && y > MENU_HEIGHT) {
+        int xOrigine = (x / 20) * 20;
+        int yOrigine = (((y + MENU_HEIGHT) / 20) * 20) - MENU_HEIGHT;
+
+        ofRectangle rec;
+        rec.setX(xOrigine);
+        rec.setY(yOrigine);
+        rec.setHeight(20);
+        rec.setWidth(20);
+        rectangles.push_back(rec);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -177,28 +213,32 @@ void Application::mousePressed(int x, int y, int button)
         }
     }
 
-    if (showEraserMenu && y >= 85 && y <= 95) { 
+    if (showEraserMenu && y >= 85 && y <= 95) {
         int sliderX = 20;
         int sliderWidth = 150;
-        
+
         if (x >= sliderX && x <= sliderX + sliderWidth) {
             eraserSize = (x - sliderX) * 50 / sliderWidth;
         }
     }
 
-    if (showDrawMenu && y >= 85 && y <= 95) { 
+    if (showDrawMenu && y >= 85 && y <= 95) {
         int sliderX = 20;
         int sliderWidth = 150;
         
+
         if (x >= sliderX && x <= sliderX + sliderWidth) {
             drawCursorSize = (x - sliderX) * 50 / sliderWidth;
         }
+        
     }
+   
 }
 
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
+    mouse_pressed = false;
 }
 
 //--------------------------------------------------------------
@@ -256,7 +296,7 @@ void Application::importImage()
 void Application::exportImage()
 {
   cursorMode = DEFAULT;
-  ExportImg
+  
     std::string defaultPath = ofFilePath::getUserHomeDir() + "/capture.png";
     ofFileDialogResult saveFile = ofSystemSaveDialog(defaultPath, "save grid");
 
@@ -307,6 +347,7 @@ void Application::drawMode()
 
     showDrawMenu = true;
     showEraserMenu = false;
+
 }
 
 void Application::shapeMode()
