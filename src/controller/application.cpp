@@ -112,15 +112,14 @@ void Application::draw()
     // Afficher le menu de l’efface
     if (showEraserMenu)
     {
-        int menuWidth = isEraserMenuCollapsed ? 30 : 220;
-        int menuHeight = isEraserMenuCollapsed ? 30 : 50;
-        int menuX = 10, menuY = 60;
+        int menuWidth = isEraserMenuCollapsed ? COLLAPSED_MENU_WIDTH : OPENED_MENU_WIDTH;
+        int menuHeight = isEraserMenuCollapsed ? COLLAPSED_MENU_HEIGHT : OPENED_MENU_HEIGHT_ERASE;
         ofSetColor(200);
-        ofDrawRectangle(menuX, menuY, menuWidth, menuHeight);
+        ofDrawRectangle(COORD_MENU_X, COORD_MENU_Y, menuWidth, menuHeight);
 
         // Dessiner la flèche associée
-        int arrowX = menuX + menuWidth - 20;
-        int arrowY = menuY + 10;
+        int arrowX = COORD_MENU_X + menuWidth - 20;
+        int arrowY = COORD_MENU_Y + 10;
         ofSetColor(0);
         if (isEraserMenuCollapsed)
         {
@@ -133,27 +132,25 @@ void Application::draw()
 
         if (!isEraserMenuCollapsed)
         {
-            ofDrawBitmapString("Taille de l'efface", menuX + 10, menuY + 20);
-            int sliderX = menuX + 10;
-            int sliderY = menuY + 35;
-            int sliderWidth = 200;
-            ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
-            ofDrawCircle(sliderX + (eraserSize * sliderWidth / 50), sliderY, 5);
+            ofDrawBitmapString("Taille de l'efface", COORD_MENU_X + 10, COORD_MENU_Y + 20);
+            int sliderX = COORD_MENU_X + 10;
+            int sliderY = COORD_MENU_Y + 35;
+            ofDrawLine(sliderX, sliderY, sliderX + SLIDER_WIDTH, sliderY);
+            ofDrawCircle(sliderX + (eraserSize * SLIDER_WIDTH / 50), sliderY, 5);
         }
     }
 
     // Afficher le menu du crayon (taille + couleur)
     if (showDrawMenu)
     {
-        int menuWidth = isDrawMenuCollapsed ? 30 : 220;
-        int menuHeight = isDrawMenuCollapsed ? 30 : 160;
-        int menuX = 10, menuY = 60;
+        int menuWidth = isDrawMenuCollapsed ? COLLAPSED_MENU_WIDTH : OPENED_MENU_WIDTH;
+        int menuHeight = isDrawMenuCollapsed ? COLLAPSED_MENU_HEIGHT : OPENED_MENU_HEIGHT_DRAW;
         ofSetColor(200);
-        ofDrawRectangle(menuX, menuY, menuWidth, menuHeight);
+        ofDrawRectangle(COORD_MENU_X, COORD_MENU_Y, menuWidth, menuHeight);
 
         // Dessiner la flèche associée
-        int arrowX = menuX + menuWidth - 20;
-        int arrowY = menuY + 10;
+        int arrowX = COORD_MENU_X + menuWidth - 20;
+        int arrowY = COORD_MENU_Y + 10;
         ofSetColor(0);
         if (isDrawMenuCollapsed)
         {
@@ -166,31 +163,29 @@ void Application::draw()
 
         if (!isDrawMenuCollapsed)
         {
-            ofDrawBitmapString("Taille du crayon", menuX + 10, menuY + 20);
-            int sliderX = menuX + 10;
-            int sliderY = menuY + 35;
-            int sliderWidth = 200;
-            ofDrawLine(sliderX, sliderY, sliderX + sliderWidth, sliderY);
-            ofDrawCircle(sliderX + (drawCursorSize * sliderWidth / 50), sliderY, 5);
+            ofDrawBitmapString("Taille du crayon", COORD_MENU_X + 10, COORD_MENU_Y + 20);
+            int sliderX = COORD_MENU_X + 10;
+            int sliderY = COORD_MENU_Y + 35;
+            ofDrawLine(sliderX, sliderY, sliderX + SLIDER_WIDTH, sliderY);
+            ofDrawCircle(sliderX + (drawCursorSize * SLIDER_WIDTH / 50), sliderY, 5);
 
-            ofDrawBitmapString("Couleur du crayon", menuX + 10, menuY + 60);
-            int wheelCenterX = menuX + menuWidth / 2;
-            int wheelCenterY = menuY + 110;
-            int wheelRadius = 40;
+            ofDrawBitmapString("Couleur du crayon", COORD_MENU_X + 10, COORD_MENU_Y + 60);
+            int wheelCenterX = COORD_MENU_X + menuWidth / 2;
+            int wheelCenterY = COORD_MENU_Y + 110;
 
             for (int angle = 0; angle < 360; angle += 5)
             {
                 float rad = ofDegToRad(angle);
-                float x = wheelCenterX + cos(rad) * wheelRadius;
-                float y = wheelCenterY + sin(rad) * wheelRadius;
+                float x = wheelCenterX + cos(rad) * WHEEL_RADIUS;
+                float y = wheelCenterY + sin(rad) * WHEEL_RADIUS;
                 ofSetColor(ofColor::fromHsb(angle / 360.0 * 255, 255, 255));
                 ofDrawCircle(x, y, 4);
             }
 
             float selectedAngle = (currentDrawColor.getHue() / 255.0) * 360.0;
             float selectedRad = ofDegToRad(selectedAngle);
-            float selectedX = wheelCenterX + cos(selectedRad) * wheelRadius;
-            float selectedY = wheelCenterY + sin(selectedRad) * wheelRadius;
+            float selectedX = wheelCenterX + cos(selectedRad) * WHEEL_RADIUS;
+            float selectedY = wheelCenterY + sin(selectedRad) * WHEEL_RADIUS;
             ofSetColor(0);
             ofDrawCircle(selectedX, selectedY, 5);
         }
@@ -199,15 +194,14 @@ void Application::draw()
     // Affichage du menu de sélection de couleur
     if (showColorMenu)
     {
-        int menuWidth = isColorMenuCollapsed ? 30 : 220;
-        int menuHeight = isColorMenuCollapsed ? 30 : 120;
-        int menuX = 10, menuY = 60;
+        int menuWidth = isColorMenuCollapsed ? COLLAPSED_MENU_WIDTH : OPENED_MENU_WIDTH;
+        int menuHeight = isColorMenuCollapsed ? COLLAPSED_MENU_HEIGHT : OPENED_MENU_HEIGHT_COLOR;
         ofSetColor(200);
-        ofDrawRectangle(menuX, menuY, menuWidth, menuHeight);
+        ofDrawRectangle(COORD_MENU_X, COORD_MENU_Y, menuWidth, menuHeight);
 
         // Dessiner la flèche associée
-        int arrowX = menuX + menuWidth - 20;
-        int arrowY = menuY + 10;
+        int arrowX = COORD_MENU_X + menuWidth - 20;
+        int arrowY = COORD_MENU_Y + 10;
         ofSetColor(0);
         if (isColorMenuCollapsed)
         {
@@ -220,24 +214,23 @@ void Application::draw()
 
         if (!isColorMenuCollapsed)
         {
-            ofDrawBitmapString("Sélectionner une couleur", menuX + 10, menuY + 20);
-            int wheelCenterX = menuX + menuWidth / 2;
-            int wheelCenterY = menuY + 70;
-            int wheelRadius = 40;
+            ofDrawBitmapString("Sélectionner une couleur", COORD_MENU_X + 10, COORD_MENU_Y + 20);
+            int wheelCenterX = COORD_MENU_X + menuWidth / 2;
+            int wheelCenterY = COORD_MENU_Y + 70;
 
             for (int angle = 0; angle < 360; angle += 5)
             {
                 float rad = ofDegToRad(angle);
-                float x = wheelCenterX + cos(rad) * wheelRadius;
-                float y = wheelCenterY + sin(rad) * wheelRadius;
+                float x = wheelCenterX + cos(rad) * WHEEL_RADIUS;
+                float y = wheelCenterY + sin(rad) * WHEEL_RADIUS;
                 ofSetColor(ofColor::fromHsb(angle / 360.0 * 255, 255, 255));
                 ofDrawCircle(x, y, 4);
             }
 
             float selectedAngle = (currentDrawColor.getHue() / 255.0) * 360.0;
             float selectedRad = ofDegToRad(selectedAngle);
-            float selectedX = wheelCenterX + cos(selectedRad) * wheelRadius;
-            float selectedY = wheelCenterY + sin(selectedRad) * wheelRadius;
+            float selectedX = wheelCenterX + cos(selectedRad) * WHEEL_RADIUS;
+            float selectedY = wheelCenterY + sin(selectedRad) * WHEEL_RADIUS;
             ofSetColor(0);
             ofDrawCircle(selectedX, selectedY, 5);
         }
@@ -294,12 +287,9 @@ void Application::mousePressed(int x, int y, int button)
 
     if (showEraserMenu && y >= 85 && y <= 95)
     {
-        int sliderX = 20;
-        int sliderWidth = 150;
-
-        if (x >= sliderX && x <= sliderX + sliderWidth)
+        if (x >= COORD_SLIDER_X && x <= COORD_SLIDER_X + SLIDER_WIDTH)
         {
-            eraserSize = (x - sliderX) * 50 / sliderWidth;
+            eraserSize = (x - COORD_SLIDER_X) * 50 / SLIDER_WIDTH;
         }
     }
 
@@ -307,12 +297,9 @@ void Application::mousePressed(int x, int y, int button)
     {
         if (y >= 85 && y <= 95)
         {
-            int sliderX = 20;
-            int sliderWidth = 150;
-
-            if (x >= sliderX && x <= sliderX + sliderWidth)
+            if (x >= COORD_SLIDER_X && x <= COORD_SLIDER_X + SLIDER_WIDTH)
             {
-                drawCursorSize = (x - sliderX) * 50 / sliderWidth;
+                drawCursorSize = (x - COORD_SLIDER_X) * 50 / SLIDER_WIDTH;
             }
         }
 

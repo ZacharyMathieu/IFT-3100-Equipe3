@@ -23,6 +23,20 @@ public:
 	static const int MENU_BUTTON_MARGIN = 10;
 	static const int MENU_BUTTON_WIDTH = MENU_HEIGHT;
 
+	static const int COLLAPSED_MENU_WIDTH = 30;
+	static const int COLLAPSED_MENU_HEIGHT = 30;
+	static const int OPENED_MENU_WIDTH = 220;
+	static const int OPENED_MENU_HEIGHT_ERASE = 50;
+	static const int OPENED_MENU_HEIGHT_DRAW = 160;
+	static const int OPENED_MENU_HEIGHT_COLOR = 160;
+	static const int WHEEL_RADIUS = 40;
+
+	static const int COORD_MENU_X = 10;
+	static const int COORD_MENU_Y = 60;
+	static const int COORD_SLIDER_X = 20;
+
+	static const int SLIDER_WIDTH = 200;
+
 	bool isRunning = false;
 
 	void setup() override;
