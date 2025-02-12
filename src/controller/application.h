@@ -52,8 +52,8 @@ private:
 
 	bool showEraserMenu = false;
 	bool showDrawMenu = false;
-	bool showColorMenu = false; 
-	
+	bool showColorMenu = false;
+
 	bool isEraserMenuCollapsed = false;
 	bool isDrawMenuCollapsed = false;
 	bool isColorMenuCollapsed = false;

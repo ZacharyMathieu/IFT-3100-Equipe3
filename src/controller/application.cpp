@@ -96,7 +96,7 @@ void Application::draw()
     }
 
     // Affichage du curseur normal pour naviguer les menus
-    if (showEraserMenu || showDrawMenu || showColorMenu) 
+    if (showEraserMenu || showDrawMenu || showColorMenu)
     {
         ofShowCursor();
     }
@@ -122,16 +122,16 @@ void Application::draw()
         int arrowX = menuX + menuWidth - 20;
         int arrowY = menuY + 10;
         ofSetColor(0);
-        if (isEraserMenuCollapsed) 
+        if (isEraserMenuCollapsed)
         {
             ofDrawTriangle(arrowX, arrowY, arrowX + 10, arrowY, arrowX + 5, arrowY + 10);
-        } 
-        else 
+        }
+        else
         {
             ofDrawTriangle(arrowX, arrowY + 10, arrowX + 10, arrowY + 10, arrowX + 5, arrowY);
         }
 
-        if (!isEraserMenuCollapsed) 
+        if (!isEraserMenuCollapsed)
         {
             ofDrawBitmapString("Taille de l'efface", menuX + 10, menuY + 20);
             int sliderX = menuX + 10;
@@ -155,16 +155,16 @@ void Application::draw()
         int arrowX = menuX + menuWidth - 20;
         int arrowY = menuY + 10;
         ofSetColor(0);
-        if (isDrawMenuCollapsed) 
+        if (isDrawMenuCollapsed)
         {
             ofDrawTriangle(arrowX, arrowY, arrowX + 10, arrowY, arrowX + 5, arrowY + 10);
-        } 
-        else 
+        }
+        else
         {
             ofDrawTriangle(arrowX, arrowY + 10, arrowX + 10, arrowY + 10, arrowX + 5, arrowY);
         }
 
-        if (!isDrawMenuCollapsed) 
+        if (!isDrawMenuCollapsed)
         {
             ofDrawBitmapString("Taille du crayon", menuX + 10, menuY + 20);
             int sliderX = menuX + 10;
@@ -178,7 +178,7 @@ void Application::draw()
             int wheelCenterY = menuY + 110;
             int wheelRadius = 40;
 
-            for (int angle = 0; angle < 360; angle += 5) 
+            for (int angle = 0; angle < 360; angle += 5)
             {
                 float rad = ofDegToRad(angle);
                 float x = wheelCenterX + cos(rad) * wheelRadius;
@@ -197,7 +197,7 @@ void Application::draw()
     }
 
     // Affichage du menu de sélection de couleur
-    if (showColorMenu) 
+    if (showColorMenu)
     {
         int menuWidth = isColorMenuCollapsed ? 30 : 220;
         int menuHeight = isColorMenuCollapsed ? 30 : 120;
@@ -209,23 +209,23 @@ void Application::draw()
         int arrowX = menuX + menuWidth - 20;
         int arrowY = menuY + 10;
         ofSetColor(0);
-        if (isColorMenuCollapsed) 
+        if (isColorMenuCollapsed)
         {
             ofDrawTriangle(arrowX, arrowY, arrowX + 10, arrowY, arrowX + 5, arrowY + 10);
-        } 
-        else 
+        }
+        else
         {
             ofDrawTriangle(arrowX, arrowY + 10, arrowX + 10, arrowY + 10, arrowX + 5, arrowY);
         }
 
-        if (!isColorMenuCollapsed) 
+        if (!isColorMenuCollapsed)
         {
             ofDrawBitmapString("Sélectionner une couleur", menuX + 10, menuY + 20);
             int wheelCenterX = menuX + menuWidth / 2;
             int wheelCenterY = menuY + 70;
             int wheelRadius = 40;
 
-            for (int angle = 0; angle < 360; angle += 5) 
+            for (int angle = 0; angle < 360; angle += 5)
             {
                 float rad = ofDegToRad(angle);
                 float x = wheelCenterX + cos(rad) * wheelRadius;
@@ -272,12 +272,12 @@ void Application::mouseDragged(int x, int y, int button)
 //--------------------------------------------------------------
 void Application::mousePressed(int x, int y, int button)
 {
-    if (y < MENU_HEIGHT) 
+    if (y < MENU_HEIGHT)
     {
         showEraserMenu = false;
         showDrawMenu = false;
         showColorMenu = false;
-    
+
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
 
         if (buttonNumber == 7)
@@ -285,8 +285,9 @@ void Application::mousePressed(int x, int y, int button)
             showColorMenu = !showColorMenu;
             return;
         }
-        
-        if (buttonNumber >= 0 && buttonNumber < buttons.size()) {
+
+        if (buttonNumber >= 0 && buttonNumber < buttons.size())
+        {
             buttons[buttonNumber]->mousePressed(x, y, button);
         }
     }
@@ -302,14 +303,14 @@ void Application::mousePressed(int x, int y, int button)
         }
     }
 
-    if (showDrawMenu) 
+    if (showDrawMenu)
     {
-        if (y >= 85 && y <= 95) 
-        { 
+        if (y >= 85 && y <= 95)
+        {
             int sliderX = 20;
             int sliderWidth = 150;
-            
-            if (x >= sliderX && x <= sliderX + sliderWidth) 
+
+            if (x >= sliderX && x <= sliderX + sliderWidth)
             {
                 drawCursorSize = (x - sliderX) * 50 / sliderWidth;
             }
@@ -320,54 +321,56 @@ void Application::mousePressed(int x, int y, int button)
         int dy = ofGetMouseY() - centerY;
         float distance = sqrt(dx * dx + dy * dy);
 
-        if (distance <= radius) 
-        { 
+        if (distance <= radius)
+        {
             float angle = atan2(dy, dx) * RAD_TO_DEG;
-            if (angle < 0) angle += 360;
+            if (angle < 0)
+                angle += 360;
             currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
         }
     }
 
-    if (showColorMenu) 
+    if (showColorMenu)
     {
         int centerX = 110, centerY = 190, radius = 60;
         int dx = ofGetMouseX() - centerX;
         int dy = ofGetMouseY() - centerY;
         float distance = sqrt(dx * dx + dy * dy);
 
-        if (distance <= radius) 
-        { 
+        if (distance <= radius)
+        {
             float angle = atan2(dy, dx) * RAD_TO_DEG;
-            if (angle < 0) angle += 360;
+            if (angle < 0)
+                angle += 360;
             currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
         }
     }
 
     // Vérifier si on clique sur la flèche du menu du crayon
     if (showDrawMenu && x >= (10 + (isDrawMenuCollapsed ? 20 : 200)) - 10 &&
-    x <= (20 + (isDrawMenuCollapsed ? 30 : 200)) &&
-    y >= 60 && y <= 75) 
+        x <= (20 + (isDrawMenuCollapsed ? 30 : 200)) &&
+        y >= 60 && y <= 75)
     {
-    isDrawMenuCollapsed = !isDrawMenuCollapsed;
-    return;
+        isDrawMenuCollapsed = !isDrawMenuCollapsed;
+        return;
     }
 
     // Vérifier si on clique sur la flèche du menu de l’effaceur
     if (showEraserMenu && x >= (10 + (isEraserMenuCollapsed ? 20 : 200)) - 10 &&
-    x <= (20 + (isEraserMenuCollapsed ? 30 : 200)) &&
-    y >= 60 && y <= 75) 
+        x <= (20 + (isEraserMenuCollapsed ? 30 : 200)) &&
+        y >= 60 && y <= 75)
     {
-    isEraserMenuCollapsed = !isEraserMenuCollapsed;
-    return;
+        isEraserMenuCollapsed = !isEraserMenuCollapsed;
+        return;
     }
 
     // Vérifier si on clique sur la flèche du menu de sélection de couleur
     if (showColorMenu && x >= (10 + (isColorMenuCollapsed ? 20 : 200)) - 10 &&
-    x <= (20 + (isColorMenuCollapsed ? 30 : 200)) &&
-    y >= 60 && y <= 75) 
+        x <= (20 + (isColorMenuCollapsed ? 30 : 200)) &&
+        y >= 60 && y <= 75)
     {
-    isColorMenuCollapsed = !isColorMenuCollapsed;
-    return;
+        isColorMenuCollapsed = !isColorMenuCollapsed;
+        return;
     }
 }
 
