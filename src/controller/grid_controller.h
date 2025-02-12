@@ -1,19 +1,23 @@
 #include "ofMain.h"
+#include "model/grid.h"
 
-#ifndef GRID
-#define GRID
+#ifndef GRID_CONTROLLER
+#define GRID_CONTROLLER
 
-class Grid
+class GridController
 {
 public:
+    static const int GRID_WIDTH = 100;
+    static const int GRID_HEIGHT = 100;
     int displayPosX;
     int displayPosY;
     int displayWidth;
     int displayHeight;
+    Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
 
     void setup(int x, int y, int w, int h);
     void draw();
-	void exit();
+    void exit();
 
     void keyPressed(int key);
     void keyReleased(int key);

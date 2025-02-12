@@ -1,22 +1,27 @@
 #pragma once
 
 #include "ofMain.h"
-#include "grid.h"
+#include "grid_controller.h"
 #include "button.h"
 
 #ifndef APPLICATION
 #define APPLICATION
 
-enum CursorMode { DEFAULT, DRAW, ERASE };
+enum CursorMode
+{
+	DEFAULT,
+	DRAW,
+	ERASE
+};
 
 class Application : public ofBaseApp
 {
 public:
-	const int WINDOW_WIDTH = 1024;
-	const int WINDOW_HEIGHT = 768;
-	const int MENU_HEIGHT = 50;
-	const int MENU_BUTTON_MARGIN = 10;
-	const int MENU_BUTTON_WIDTH = MENU_HEIGHT;
+	static const int WINDOW_WIDTH = 1024;
+	static const int WINDOW_HEIGHT = 768;
+	static const int MENU_HEIGHT = 50;
+	static const int MENU_BUTTON_MARGIN = 10;
+	static const int MENU_BUTTON_WIDTH = MENU_HEIGHT;
 
 	bool isRunning = false;
 
@@ -40,11 +45,9 @@ public:
 
 private:
 	CursorMode cursorMode = DEFAULT;
-
-	Grid grid;
-
+	GridController gridController;
 	ofImage importedImage;
-    bool imageLoaded = false;
+	bool imageLoaded = false;
 
 	bool showEraserMenu = false;
 	bool showDrawMenu = false;
