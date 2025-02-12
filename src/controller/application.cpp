@@ -4,7 +4,7 @@
 void Application::setup()
 {
     ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
-    grid.setup(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT);
+    gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
     setupButtons();
 }
 
@@ -21,7 +21,7 @@ void Application::setupButtons()
     shapeModeIcon.load("images/shapeMode.png");
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
-    
+
     vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
         std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
         std::tuple(&exportImageButton, &Application::exportImage, &exportImageIcon),
@@ -71,13 +71,13 @@ void Application::draw()
         ofSetColor(255);
         importedImage.draw(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
     }
-    grid.draw();
+    gridController.draw();
 
     // Dessiner les curseurs personnalisés
     ofSetColor(0);
 
     // Curseur pour le dessin
-    if (cursorMode == DRAW) 
+    if (cursorMode == DRAW)
     {
         int cursorSize = drawCursorSize;
         int thickness = 1;
@@ -88,7 +88,7 @@ void Application::draw()
     }
 
     // Curseur pour l’efface
-    else if (cursorMode == ERASE) 
+    else if (cursorMode == ERASE)
     {
         ofNoFill();
         ofDrawCircle(ofGetMouseX(), ofGetMouseY(), eraserSize);
@@ -99,18 +99,18 @@ void Application::draw()
     if (showEraserMenu || showDrawMenu || showColorMenu) 
     {
         ofShowCursor();
-    } 
-    else if (cursorMode == DRAW || cursorMode == ERASE) 
+    }
+    else if (cursorMode == DRAW || cursorMode == ERASE)
     {
         ofHideCursor();
-    } 
-    else 
+    }
+    else
     {
         ofShowCursor();
     }
 
     // Afficher le menu de l’efface
-    if (showEraserMenu) 
+    if (showEraserMenu)
     {
         int menuWidth = isEraserMenuCollapsed ? 30 : 220;
         int menuHeight = isEraserMenuCollapsed ? 30 : 50;
@@ -143,7 +143,7 @@ void Application::draw()
     }
 
     // Afficher le menu du crayon (taille + couleur)
-    if (showDrawMenu) 
+    if (showDrawMenu)
     {
         int menuWidth = isDrawMenuCollapsed ? 30 : 220;
         int menuHeight = isDrawMenuCollapsed ? 30 : 160;
@@ -291,12 +291,12 @@ void Application::mousePressed(int x, int y, int button)
         }
     }
 
-    if (showEraserMenu && y >= 85 && y <= 95) 
-    { 
+    if (showEraserMenu && y >= 85 && y <= 95)
+    {
         int sliderX = 20;
         int sliderWidth = 150;
-        
-        if (x >= sliderX && x <= sliderX + sliderWidth) 
+
+        if (x >= sliderX && x <= sliderX + sliderWidth)
         {
             eraserSize = (x - sliderX) * 50 / sliderWidth;
         }
@@ -431,6 +431,20 @@ void Application::importImage()
 void Application::exportImage()
 {
     cursorMode = DEFAULT;
+    std::string defaultPath = ofFilePath::getUserHomeDir() + "/capture.png";
+    ofFileDialogResult saveFile = ofSystemSaveDialog(defaultPath, "save grid");
+
+    if (saveFile.bSuccess)
+    {
+        std::string path = saveFile.getPath();
+        path += ".png";
+        ofImage screenshot;
+        screenshot.grabScreen(0, MENU_HEIGHT, ofGetWidth(), ofGetHeight() - MENU_HEIGHT);
+
+        screenshot.save(path);
+    }
+
+    cout << "exportImage\n";
 }
 
 void Application::play()
