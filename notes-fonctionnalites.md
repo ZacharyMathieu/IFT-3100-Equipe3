@@ -19,24 +19,24 @@
 - Formes vectorielles
 
 # Section 3
-- Graphe de scène
-- Sélection multiple
-- Transformations interactives
-- Historique de transformation
-- Système de coordonnées
 ## Chosen
+- Graphe de scène
+- Historique de transformation
+- Sélection multiple (murs)
 ## Backup
+- Transformations interactives
 ## Difficile
+- Système de coordonnées
 
 # Section 4
-- Boîte de délimitation
-- Primitives géométriques
-- Modèles 3D
-- Animation
-- Instanciation
 ## Chosen
+- Boîte de délimitation
+- Instanciation
+- Animation
 ## Backup
+- Primitives géométriques
 ## Difficile
+- Modèles 3D
 
 # Section 5
 - Caméra interactive
