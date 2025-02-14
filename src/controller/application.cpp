@@ -90,7 +90,7 @@ void Application::draw()
     // Curseur pour l’efface
     else if (cursorMode == ERASE)
     {
-        
+
         ofNoFill();
         ofDrawCircle(ofGetMouseX(), ofGetMouseY(), eraserSize);
         ofFill();
@@ -262,50 +262,56 @@ void Application::mouseMoved(int x, int y)
 void Application::mouseDragged(int x, int y, int button)
 {
     if (y > MENU_HEIGHT)
-    { 
+    {
         float scaleX = ((float)gridController.displayWidth) / gridController.grid.w;
         float scaleY = ((float)gridController.displayHeight) / gridController.grid.h;
 
-        //changer pheromone en mur
-        if (cursorMode == DRAW) {
+        // changer pheromone en mur
+        if (cursorMode == DRAW)
+        {
             int xOrigine = ((x - drawCursorSize) / scaleX) * scaleX;
             int yOrigine = ((y - drawCursorSize) / scaleY) * scaleY;
-            for (int i = xOrigine; i < xOrigine + (drawCursorSize * 2); i += scaleX) {
-                for (int j = yOrigine; j < yOrigine + (drawCursorSize * 2); j += scaleY) {
+            for (int i = xOrigine; i < xOrigine + (drawCursorSize * 2); i += scaleX)
+            {
+                for (int j = yOrigine; j < yOrigine + (drawCursorSize * 2); j += scaleY)
+                {
                     int gridX = (i - gridController.displayPosX) / scaleX;
                     int gridY = (j - gridController.displayPosY) / scaleY;
                     if ((x - drawCursorSize) >= 0 &&
                         (y - drawCursorSize) >= MENU_HEIGHT &&
-                        (x + drawCursorSize-scaleX) < WINDOW_WIDTH &&
-                        (y + drawCursorSize-scaleY) < WINDOW_HEIGHT)
+                        (x + drawCursorSize - scaleX) < WINDOW_WIDTH &&
+                        (y + drawCursorSize - scaleY) < WINDOW_HEIGHT)
                     {
-                        Cell* cell = gridController.grid.at(gridX, gridY);
-                        if (cell) cell->type = WALL;
+                        Cell *cell = gridController.grid.at(gridX, gridY);
+                        if (cell)
+                            cell->type = WALL;
                     }
                 }
             }
         }
-        //changer mur en pheromone
-        if (cursorMode == ERASE) {
+        // changer mur en pheromone
+        if (cursorMode == ERASE)
+        {
             int xOrigine = ((x - eraserSize) / scaleX) * scaleX;
             int yOrigine = ((y - eraserSize) / scaleY) * scaleY;
-            for (int i = xOrigine; i < xOrigine + (eraserSize * 2); i += scaleX) {
-                for (int j = yOrigine; j < yOrigine + (eraserSize * 2); j += scaleY) {
+            for (int i = xOrigine; i < xOrigine + (eraserSize * 2); i += scaleX)
+            {
+                for (int j = yOrigine; j < yOrigine + (eraserSize * 2); j += scaleY)
+                {
                     int gridX = (i - gridController.displayPosX) / scaleX;
                     int gridY = (j - gridController.displayPosY) / scaleY;
                     if ((x - eraserSize) >= 0 &&
                         (y - eraserSize) >= MENU_HEIGHT &&
-                        (x + eraserSize -scaleX) < WINDOW_WIDTH &&
-                        (y + eraserSize -scaleY) < WINDOW_HEIGHT)
+                        (x + eraserSize - scaleX) < WINDOW_WIDTH &&
+                        (y + eraserSize - scaleY) < WINDOW_HEIGHT)
                     {
-                        Cell* cell = gridController.grid.at(gridX, gridY);
-                            if(cell) cell->type = PHEROMONE;
+                        Cell *cell = gridController.grid.at(gridX, gridY);
+                        if (cell)
+                            cell->type = PHEROMONE;
                     }
-                        
                 }
             }
         }
-        
     }
 }
 
@@ -326,7 +332,7 @@ void Application::mousePressed(int x, int y, int button)
             return;
         }
 
-        if (buttonNumber >= 0 && buttonNumber < buttons.size())
+        if (buttonNumber >= 0 && buttonNumber < (int)buttons.size())
         {
             buttons[buttonNumber]->mousePressed(x, y, button);
         }
@@ -338,7 +344,6 @@ void Application::mousePressed(int x, int y, int button)
         {
             eraserSize = (x - COORD_SLIDER_X) * 50 / SLIDER_WIDTH;
         }
-
     }
 
     if (showDrawMenu)
@@ -363,7 +368,7 @@ void Application::mousePressed(int x, int y, int button)
                 angle += 360;
             currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
         }
-    }   
+    }
 
     if (showColorMenu)
     {

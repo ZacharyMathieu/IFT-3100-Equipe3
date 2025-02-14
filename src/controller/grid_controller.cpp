@@ -74,8 +74,6 @@ void GridController::mouseDragged(int x, int y, int button)
 //--------------------------------------------------------------
 void GridController::mousePressed(int x, int y, int button)
 {
-    
-
 }
 
 //--------------------------------------------------------------
