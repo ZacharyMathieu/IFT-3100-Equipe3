@@ -90,7 +90,6 @@ void Application::draw()
     // Curseur pour l’efface
     else if (cursorMode == ERASE)
     {
-
         ofNoFill();
         ofDrawCircle(ofGetMouseX(), ofGetMouseY(), eraserSize);
         ofFill();
