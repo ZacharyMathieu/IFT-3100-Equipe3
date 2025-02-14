@@ -254,8 +254,6 @@ void Application::mousePressed(int x, int y, int button)
         showEraserMenu = false;
         showColorMenu = false;
 
-        int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
-
         if (buttonNumber == 7)
         {
             showColorMenu = !showColorMenu;
