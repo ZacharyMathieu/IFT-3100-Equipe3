@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "grid_controller.h"
 #include "button.h"
+#include "ofxGui.h"
 
 #ifndef APPLICATION
 #define APPLICATION
@@ -72,10 +73,20 @@ private:
 	bool isDrawMenuCollapsed = false;
 	bool isColorMenuCollapsed = false;
 	bool menuHidden = false;
+	
+	// Taille du crayon et de la gomme
+	ofParameter<int> eraserSize;
+	ofParameter<int> drawCursorSize;
 
-	int eraserSize = 20;
-	int drawCursorSize = 15;
-	ofColor currentDrawColor = ofColor(0, 0, 0);
+	// Couleur du crayon
+	ofParameter<ofColor> colorPicker;
+
+	// Interfaces graphiques (GUI)
+	ofxPanel eraserGui; // GUI pour la gomme (taille uniquement)
+	ofxPanel penGui;    // GUI pour le crayon (taille + couleur)
+	ofxPanel colorGui;  // GUI pour la roue de couleur seule
+
+	ofColor currentDrawColor = ofColor(255, 0, 0);
 
 	ofImage importImageIcon;
 	ofImage exportImageIcon;
@@ -102,6 +113,10 @@ private:
 
 	void setupButtons();
 	void drawMenu();
+	void drawCustomCursors();
+	void onColorChanged(ofColor &color);
+	void onDrawCursorSizeChanged(int &size);
+	void onEraserSizeChanged(int &size);
 	void importImage();
 	void exportImage();
 	void play();
