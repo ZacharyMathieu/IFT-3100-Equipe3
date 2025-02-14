@@ -47,7 +47,7 @@ void Application::setupButtons()
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
 
-    vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
+    vector<std::tuple<Button*, void (Application::*)(), ofImage*>> buttonMap = {
         std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
         std::tuple(&exportImageButton, &Application::exportImage, &exportImageIcon),
         std::tuple(&playButton, &Application::play, &playIcon),
@@ -56,7 +56,7 @@ void Application::setupButtons()
         std::tuple(&drawModeButton, &Application::drawMode, &drawModeIcon),
         std::tuple(&shapeModeButton, &Application::shapeMode, &shapeModeIcon),
         std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
-        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon)};
+        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon) };
 
     int i = 0;
     for (auto bTuple : buttonMap)
@@ -73,7 +73,7 @@ void Application::drawMenu()
 {
     ofSetBackgroundColor(255);
     ofSetColor(0);
-    for (Button *b : buttons)
+    for (Button* b : buttons)
     {
         ofSetColor(255);
         b->draw();
@@ -111,7 +111,7 @@ void Application::drawCustomCursors()
 {
     ofSetColor(0);
 
-    // Si la souris est dans le menu, afficher le curseur par défaut
+    // Si la souris est dans le menu, afficher le curseur par dÃ©faut
     if (ofGetMouseY() < MENU_HEIGHT)
     {
         ofShowCursor();
@@ -127,7 +127,7 @@ void Application::drawCustomCursors()
             ofDrawLine(ofGetMouseX(), ofGetMouseY() - cursorSize, ofGetMouseX(), ofGetMouseY() + cursorSize);
             ofHideCursor();
         }
-        // Dessiner le curseur de l’efface
+        // Dessiner le curseur de lâ€™efface
         else if (cursorMode == ERASE)
         {
             ofNoFill();
@@ -143,21 +143,21 @@ void Application::drawCustomCursors()
 }
 
 //--------------------------------------------------------------
-void Application::onColorChanged(ofColor &color)
+void Application::onColorChanged(ofColor& color)
 {
     currentDrawColor = color;
 }
 
 //--------------------------------------------------------------
-void Application::onDrawCursorSizeChanged(int &size)
+void Application::onDrawCursorSizeChanged(int& size)
 {
     drawCursorSize = size;
 }
 
 //--------------------------------------------------------------
-void Application::onEraserSizeChanged(int &size)
+void Application::onEraserSizeChanged(int& size)
 {
-    eraserSize = size; 
+    eraserSize = size;
 }
 
 //--------------------------------------------------------------
@@ -183,58 +183,20 @@ void Application::mouseMoved(int x, int y)
 //--------------------------------------------------------------
 void Application::mouseDragged(int x, int y, int button)
 {
-    if (y > MENU_HEIGHT)
-    {
-        float scaleX = ((float)gridController.displayWidth) / gridController.grid.w;
-        float scaleY = ((float)gridController.displayHeight) / gridController.grid.h;
+    string cursor;
 
-        // changer pheromone en mur
-        if (cursorMode == DRAW)
-        {
-            int xOrigine = ((x - drawCursorSize) / scaleX) * scaleX;
-            int yOrigine = ((y - drawCursorSize) / scaleY) * scaleY;
-            for (int i = xOrigine; i < xOrigine + (drawCursorSize * 2); i += scaleX)
-            {
-                for (int j = yOrigine; j < yOrigine + (drawCursorSize * 2); j += scaleY)
-                {
-                    int gridX = (i - gridController.displayPosX) / scaleX;
-                    int gridY = (j - gridController.displayPosY) / scaleY;
-                    if ((x - drawCursorSize) >= 0 &&
-                        (y - drawCursorSize) >= MENU_HEIGHT &&
-                        (x + drawCursorSize - scaleX) < WINDOW_WIDTH &&
-                        (y + drawCursorSize - scaleY) < WINDOW_HEIGHT)
-                    {
-                        Cell *cell = gridController.grid.at(gridX, gridY);
-                        if (cell)
-                            cell->type = WALL;
-                    }
-                }
-            }
-        }
-        // changer mur en pheromone
-        if (cursorMode == ERASE)
-        {
-            int xOrigine = ((x - eraserSize) / scaleX) * scaleX;
-            int yOrigine = ((y - eraserSize) / scaleY) * scaleY;
-            for (int i = xOrigine; i < xOrigine + (eraserSize * 2); i += scaleX)
-            {
-                for (int j = yOrigine; j < yOrigine + (eraserSize * 2); j += scaleY)
-                {
-                    int gridX = (i - gridController.displayPosX) / scaleX;
-                    int gridY = (j - gridController.displayPosY) / scaleY;
-                    if ((x - eraserSize) >= 0 &&
-                        (y - eraserSize) >= MENU_HEIGHT &&
-                        (x + eraserSize - scaleX) < WINDOW_WIDTH &&
-                        (y + eraserSize - scaleY) < WINDOW_HEIGHT)
-                    {
-                        Cell *cell = gridController.grid.at(gridX, gridY);
-                        if (cell)
-                            cell->type = PHEROMONE;
-                    }
-                }
-            }
-        }
+    switch (cursorMode) {
+    case DRAW:
+        cursor = "DRAW";
+        break;
+    case ERASE :
+        cursor = "ERASE";
+        break;
+    default:
+        break;
     }
+
+    gridController.mouseDragged(x, y, button, cursor, drawCursorSize, eraserSize);
 }
 
 //--------------------------------------------------------------
@@ -314,7 +276,7 @@ void Application::mousePressed(int x, int y, int button)
         }
     }
 
-    // Vérifier si on clique sur la flèche du menu du crayon
+    // VÃ©rifier si on clique sur la flÃ¨che du menu du crayon
     if (showDrawMenu && x >= (10 + (isDrawMenuCollapsed ? 20 : 200)) - 10 &&
         x <= (20 + (isDrawMenuCollapsed ? 30 : 200)) &&
         y >= 60 && y <= 75)
@@ -323,7 +285,7 @@ void Application::mousePressed(int x, int y, int button)
         return;
     }
 
-    // Vérifier si on clique sur la flèche du menu de l’effaceur
+    // VÃ©rifier si on clique sur la flÃ¨che du menu de lâ€™effaceur
     if (showEraserMenu && x >= (10 + (isEraserMenuCollapsed ? 20 : 200)) - 10 &&
         x <= (20 + (isEraserMenuCollapsed ? 30 : 200)) &&
         y >= 60 && y <= 75)
@@ -332,7 +294,7 @@ void Application::mousePressed(int x, int y, int button)
         return;
     }
 
-    // Vérifier si on clique sur la flèche du menu de sélection de couleur
+    // VÃ©rifier si on clique sur la flÃ¨che du menu de sÃ©lection de couleur
     if (showColorMenu && x >= (10 + (isColorMenuCollapsed ? 20 : 200)) - 10 &&
         x <= (20 + (isColorMenuCollapsed ? 30 : 200)) &&
         y >= 60 && y <= 75)
@@ -389,12 +351,12 @@ void Application::importImage()
         if (importedImage.load(filePath))
         {
             imageLoaded = true;
-            ofLog() << "Image importée avec succès : " << filePath;
+            ofLog() << "Image importÃ©e avec succÃ¨s : " << filePath;
             ofLog() << "Taille de l'image : " << importedImage.getWidth() << "x" << importedImage.getHeight();
         }
         else
         {
-            ofLogError() << "Échec du chargement de l'image.";
+            ofLogError() << "Ã‰chec du chargement de l'image.";
             imageLoaded = false;
         }
     }
@@ -461,7 +423,7 @@ void Application::drawMode()
     showDrawMenu = true;
     showEraserMenu = false;
 
-    showColorMenu = true;  // Affiche la roue de sélection de couleur automatiquement
+    showColorMenu = true;  // Affiche la roue de sÃ©lection de couleur automatiquement
 }
 
 //--------------------------------------------------------------
