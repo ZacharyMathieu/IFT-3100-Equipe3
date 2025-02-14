@@ -315,7 +315,23 @@ void Application::mousePressed(int x, int y, int button)
                 angle += 360;
             currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
         }
-    }
+        if (y > MENU_HEIGHT)
+        {
+            float scaleX = ((float)gridController.displayWidth) / gridController.grid.w;
+            float scaleY = ((float)gridController.displayHeight) / gridController.grid.h;
+
+            int xOrigine = (x / scaleX) * scaleX;
+            int yOrigine = (y / scaleY) * scaleY;
+
+            int gridX = (xOrigine - gridController.displayPosX) / scaleX;
+            int gridY = (yOrigine - gridController.displayPosY) / scaleY;
+
+            gridController.grid.at(gridX, gridY)->type = WALL;
+
+        }
+        
+    }   
+
 
     if (showColorMenu)
     {
