@@ -208,9 +208,10 @@ void Application::mousePressed(int x, int y, int button)
     if (y < MENU_HEIGHT)
     {
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
+        Button *pressedButton = buttons[buttonNumber];
 
         // Toggle (ouverture/fermeture) pour chaque menu
-        if (buttonNumber == 4)
+        if (pressedButton == &eraseModeButton)
         {
             showEraserMenu = !showEraserMenu;
             showDrawMenu = false;
@@ -218,7 +219,7 @@ void Application::mousePressed(int x, int y, int button)
             cursorMode = showEraserMenu ? ERASE : DEFAULT;
             return;
         }
-        if (buttonNumber == 5)
+        if (pressedButton == &drawModeButton)
         {
             showDrawMenu = !showDrawMenu;
             showEraserMenu = false;
@@ -226,7 +227,7 @@ void Application::mousePressed(int x, int y, int button)
             cursorMode = showDrawMenu ? DRAW : DEFAULT;
             return;
         }
-        if (buttonNumber == 7)
+        if (pressedButton == &penTypeChoiceButton)
         {
             showColorMenu = !showColorMenu;
             showDrawMenu = false;
@@ -239,16 +240,12 @@ void Application::mousePressed(int x, int y, int button)
         showEraserMenu = false;
         showColorMenu = false;
 
-        if (buttonNumber == 7)
+        if (pressedButton == &penTypeChoiceButton)
         {
             showColorMenu = !showColorMenu;
             return;
         }
-
-        if (buttonNumber >= 0 && buttonNumber < (int)buttons.size())
-        {
-            buttons[buttonNumber]->mousePressed(x, y, button);
-        }
+        pressedButton->mousePressed(x, y, button);
     }
 
     if (showEraserMenu && y >= 85 && y <= 95)
