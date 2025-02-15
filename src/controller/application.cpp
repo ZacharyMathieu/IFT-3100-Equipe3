@@ -305,7 +305,7 @@ void Application::mousePressed(int x, int y, int button)
         return;
     }
 
-    // Vérifier si on clique sur la flêche du menu de lâ€™effaceur
+    // Vérifier si on clique sur la flêche du menu de l'effaceur
     if (showEraserMenu && x >= (10 + (isEraserMenuCollapsed ? 20 : 200)) - 10 &&
         x <= (20 + (isEraserMenuCollapsed ? 30 : 200)) &&
         y >= 60 && y <= 75)
@@ -371,12 +371,12 @@ void Application::importImage()
         if (importedImage.load(filePath))
         {
             imageLoaded = true;
-            ofLog() << "Image importée avec succês : " << filePath;
+            ofLog() << "Image importée avec succès : " << filePath;
             ofLog() << "Taille de l'image : " << importedImage.getWidth() << "x" << importedImage.getHeight();
         }
         else
         {
-            ofLogError() << "Ã‰chec du chargement de l'image.";
+            ofLogError() << "Échec du chargement de l'image.";
             imageLoaded = false;
         }
     }

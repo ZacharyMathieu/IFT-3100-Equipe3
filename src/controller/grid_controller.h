@@ -6,7 +6,7 @@
 
 class GridController
 {
-public:    
+public:
     static const int GRID_WIDTH = 100;
     static const int GRID_HEIGHT = 100;
     int displayPosX;
@@ -22,7 +22,7 @@ public:
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y);
-    void mouseDragged(int x, int y, int button,string cursor, int drawSize, int eraserSize);
+    void mouseDragged(int x, int y, int button, string cursor, int drawSize, int eraserSize);
     void mousePressed(int x, int y, int button);
     void mouseReleased(int x, int y, int button);
     void mouseScrolled(int x, int y, float scrollX, float scrollY);

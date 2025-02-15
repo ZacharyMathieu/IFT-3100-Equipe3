@@ -1,10 +1,9 @@
 #include "grid_controller.h"
 
-
 //--------------------------------------------------------------
 void GridController::setup(int x, int y, int w, int h)
 {
-    
+
     displayPosX = x;
     displayPosY = y;
     displayWidth = w;
@@ -18,10 +17,10 @@ void GridController::draw()
     float scaleY = ((float)displayHeight) / grid.h;
 
     int y = 0;
-    for (vector<Cell*> line : grid.grid)
+    for (vector<Cell *> line : grid.grid)
     {
         int x = 0;
-        for (Cell* cell : line)
+        for (Cell *cell : line)
         {
             auto color = cell->getCellColor();
             ofSetColor(color);
@@ -76,16 +75,19 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
         float scaleX = ((float)displayWidth) / grid.w;
         float scaleY = ((float)displayHeight) / grid.h;
 
-        //changer pheromone en mur
-        if (cursor == "DRAW") {
+        // changer pheromone en mur
+        if (cursor == "DRAW")
+        {
             int xOrigine = ((x - drawSize) / scaleX) * scaleX;
             int yOrigine = ((y - drawSize) / scaleY) * scaleY;
 
             int nbIteX = (xOrigine + (drawSize * 2) / scaleX) * scaleX;
             int nbIteY = (yOrigine + (drawSize * 2) / scaleY) * scaleY;
 
-            for (int i = xOrigine; i < xOrigine + (drawSize * 2); i += scaleX) {
-                for (int j = yOrigine; j < yOrigine + (drawSize * 2); j += scaleY) {
+            for (int i = xOrigine; i < xOrigine + (drawSize * 2); i += scaleX)
+            {
+                for (int j = yOrigine; j < yOrigine + (drawSize * 2); j += scaleY)
+                {
                     int gridX = (i - displayPosX) / scaleX;
                     int gridY = (j - displayPosY) / scaleY;
                     if ((x - drawSize) >= displayPosX &&
@@ -93,18 +95,22 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
                         (x + drawSize) < displayWidth &&
                         (y + drawSize) < displayHeight)
                     {
-                        Cell* cell = grid.at(gridX, gridY);
-                        if (cell) cell->type = WALL;
+                        Cell *cell = grid.at(gridX, gridY);
+                        if (cell)
+                            cell->type = WALL;
                     }
                 }
             }
         }
-        //changer mur en pheromone
-        if (cursor == "ERASE") {
+        // changer mur en pheromone
+        if (cursor == "ERASE")
+        {
             int xOrigine = ((x - eraserSize) / scaleX) * scaleX;
             int yOrigine = ((y - eraserSize) / scaleY) * scaleY;
-            for (int i = xOrigine; i < xOrigine + (eraserSize * 2); i += scaleX) {
-                for (int j = yOrigine; j < yOrigine + (eraserSize * 2); j += scaleY) {
+            for (int i = xOrigine; i < xOrigine + (eraserSize * 2); i += scaleX)
+            {
+                for (int j = yOrigine; j < yOrigine + (eraserSize * 2); j += scaleY)
+                {
                     int gridX = (i - displayPosX) / scaleX;
                     int gridY = (j - displayPosY) / scaleY;
                     if ((x - eraserSize) >= displayPosX &&
@@ -112,17 +118,14 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
                         (x + eraserSize - scaleX) < displayWidth &&
                         (y + eraserSize - scaleY) < displayHeight)
                     {
-                        Cell* cell = grid.at(gridX, gridY);
-                        if (cell) cell->type = PHEROMONE;
+                        Cell *cell = grid.at(gridX, gridY);
+                        if (cell)
+                            cell->type = PHEROMONE;
                     }
-
                 }
             }
         }
-
     }
-
-
 }
 
 //--------------------------------------------------------------
@@ -154,5 +157,3 @@ void GridController::mouseExited(int x, int y)
 void GridController::windowResized(int w, int h)
 {
 }
-
-
