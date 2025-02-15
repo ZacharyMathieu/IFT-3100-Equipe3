@@ -47,7 +47,7 @@ void Application::setupButtons()
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
 
-    vector<std::tuple<Button*, void (Application::*)(), ofImage*>> buttonMap = {
+    vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
         std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
         std::tuple(&exportImageButton, &Application::exportImage, &exportImageIcon),
         std::tuple(&playButton, &Application::play, &playIcon),
@@ -56,7 +56,7 @@ void Application::setupButtons()
         std::tuple(&drawModeButton, &Application::drawMode, &drawModeIcon),
         std::tuple(&shapeModeButton, &Application::shapeMode, &shapeModeIcon),
         std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
-        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon) };
+        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon)};
 
     int i = 0;
     for (auto bTuple : buttonMap)
@@ -73,7 +73,7 @@ void Application::drawMenu()
 {
     ofSetBackgroundColor(255);
     ofSetColor(0);
-    for (Button* b : buttons)
+    for (Button *b : buttons)
     {
         ofSetColor(255);
         b->draw();
@@ -98,13 +98,15 @@ void Application::draw()
     }
     gridController.draw();
 
-    if (showDrawMenu) penGui.draw();
-    if (showEraserMenu) eraserGui.draw();
-    if (showColorMenu) colorGui.draw();
+    if (showDrawMenu)
+        penGui.draw();
+    if (showEraserMenu)
+        eraserGui.draw();
+    if (showColorMenu)
+        colorGui.draw();
 
     drawCustomCursors();
 }
-
 
 //--------------------------------------------------------------
 void Application::drawCustomCursors()
@@ -143,19 +145,19 @@ void Application::drawCustomCursors()
 }
 
 //--------------------------------------------------------------
-void Application::onColorChanged(ofColor& color)
+void Application::onColorChanged(ofColor &color)
 {
     currentDrawColor = color;
 }
 
 //--------------------------------------------------------------
-void Application::onDrawCursorSizeChanged(int& size)
+void Application::onDrawCursorSizeChanged(int &size)
 {
     drawCursorSize = size;
 }
 
 //--------------------------------------------------------------
-void Application::onEraserSizeChanged(int& size)
+void Application::onEraserSizeChanged(int &size)
 {
     eraserSize = size;
 }
@@ -185,11 +187,12 @@ void Application::mouseDragged(int x, int y, int button)
 {
     string cursor;
 
-    switch (cursorMode) {
+    switch (cursorMode)
+    {
     case DRAW:
         cursor = "DRAW";
         break;
-    case ERASE :
+    case ERASE:
         cursor = "ERASE";
         break;
     default:
@@ -207,9 +210,29 @@ void Application::mousePressed(int x, int y, int button)
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
 
         // Toggle (ouverture/fermeture) pour chaque menu
-        if (buttonNumber == 4) { showEraserMenu = !showEraserMenu; showDrawMenu = false; showColorMenu = false; cursorMode = showEraserMenu ? ERASE : DEFAULT; return; }
-        if (buttonNumber == 5) { showDrawMenu = !showDrawMenu; showEraserMenu = false; showColorMenu = false; cursorMode = showDrawMenu ? DRAW : DEFAULT; return; }
-        if (buttonNumber == 7) { showColorMenu = !showColorMenu; showDrawMenu = false; showEraserMenu = false; return; }
+        if (buttonNumber == 4)
+        {
+            showEraserMenu = !showEraserMenu;
+            showDrawMenu = false;
+            showColorMenu = false;
+            cursorMode = showEraserMenu ? ERASE : DEFAULT;
+            return;
+        }
+        if (buttonNumber == 5)
+        {
+            showDrawMenu = !showDrawMenu;
+            showEraserMenu = false;
+            showColorMenu = false;
+            cursorMode = showDrawMenu ? DRAW : DEFAULT;
+            return;
+        }
+        if (buttonNumber == 7)
+        {
+            showColorMenu = !showColorMenu;
+            showDrawMenu = false;
+            showEraserMenu = false;
+            return;
+        }
 
         // Si on clique ailleurs, tout fermer
         showDrawMenu = false;
@@ -423,7 +446,7 @@ void Application::drawMode()
     showDrawMenu = true;
     showEraserMenu = false;
 
-    showColorMenu = true;  // Affiche la roue de sélection de couleur automatiquement
+    showColorMenu = true; // Affiche la roue de sélection de couleur automatiquement
 }
 
 //--------------------------------------------------------------
