@@ -111,7 +111,7 @@ void Application::drawCustomCursors()
 {
     ofSetColor(0);
 
-    // Si la souris est dans le menu, afficher le curseur par dÃ©faut
+    // Si la souris est dans le menu, afficher le curseur par défaut
     if (ofGetMouseY() < MENU_HEIGHT)
     {
         ofShowCursor();
@@ -127,7 +127,7 @@ void Application::drawCustomCursors()
             ofDrawLine(ofGetMouseX(), ofGetMouseY() - cursorSize, ofGetMouseX(), ofGetMouseY() + cursorSize);
             ofHideCursor();
         }
-        // Dessiner le curseur de lâ€™efface
+        // Dessiner le curseur de l'efface
         else if (cursorMode == ERASE)
         {
             ofNoFill();
@@ -276,7 +276,7 @@ void Application::mousePressed(int x, int y, int button)
         }
     }
 
-    // VÃ©rifier si on clique sur la flÃ¨che du menu du crayon
+    // Vérifier si on clique sur la flêche du menu du crayon
     if (showDrawMenu && x >= (10 + (isDrawMenuCollapsed ? 20 : 200)) - 10 &&
         x <= (20 + (isDrawMenuCollapsed ? 30 : 200)) &&
         y >= 60 && y <= 75)
@@ -285,7 +285,7 @@ void Application::mousePressed(int x, int y, int button)
         return;
     }
 
-    // VÃ©rifier si on clique sur la flÃ¨che du menu de lâ€™effaceur
+    // Vérifier si on clique sur la flêche du menu de lâ€™effaceur
     if (showEraserMenu && x >= (10 + (isEraserMenuCollapsed ? 20 : 200)) - 10 &&
         x <= (20 + (isEraserMenuCollapsed ? 30 : 200)) &&
         y >= 60 && y <= 75)
@@ -294,7 +294,7 @@ void Application::mousePressed(int x, int y, int button)
         return;
     }
 
-    // VÃ©rifier si on clique sur la flÃ¨che du menu de sÃ©lection de couleur
+    // Vérifier si on clique sur la flêche du menu de sélection de couleur
     if (showColorMenu && x >= (10 + (isColorMenuCollapsed ? 20 : 200)) - 10 &&
         x <= (20 + (isColorMenuCollapsed ? 30 : 200)) &&
         y >= 60 && y <= 75)
@@ -351,7 +351,7 @@ void Application::importImage()
         if (importedImage.load(filePath))
         {
             imageLoaded = true;
-            ofLog() << "Image importÃ©e avec succÃ¨s : " << filePath;
+            ofLog() << "Image importée avec succês : " << filePath;
             ofLog() << "Taille de l'image : " << importedImage.getWidth() << "x" << importedImage.getHeight();
         }
         else
@@ -423,7 +423,7 @@ void Application::drawMode()
     showDrawMenu = true;
     showEraserMenu = false;
 
-    showColorMenu = true;  // Affiche la roue de sÃ©lection de couleur automatiquement
+    showColorMenu = true;  // Affiche la roue de sélection de couleur automatiquement
 }
 
 //--------------------------------------------------------------
