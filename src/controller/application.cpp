@@ -118,7 +118,25 @@ void Application::drawCustomCursors()
     {
         ofShowCursor();
     }
-    else
+    // Si la souris est dans le menu de l'efface, afficher le curseur par défaut
+    else if(ofGetMouseX() > COORD_MENU_X
+        && ofGetMouseX() < OPENED_MENU_WIDTH
+        && ofGetMouseY() > COORD_MENU_Y
+        && ofGetMouseY() < COORD_MENU_Y + OPENED_MENU_HEIGHT_ERASE
+        && cursorMode == ERASE) 
+    {
+        ofShowCursor();
+    }
+    // Si la souris est dans le menu du crayon, afficher le curseur par défaut
+    else if (ofGetMouseX() > COORD_MENU_X
+        && ofGetMouseX() < OPENED_MENU_WIDTH
+        && ofGetMouseY() > COORD_MENU_Y
+        && ofGetMouseY() < COORD_MENU_Y + OPENED_MENU_HEIGHT_DRAW
+        && cursorMode == DRAW)
+    {
+        ofShowCursor();
+    }
+    else 
     {
         // Dessiner le curseur du crayon
         if (cursorMode == DRAW)
@@ -137,8 +155,8 @@ void Application::drawCustomCursors()
             ofFill();
             ofHideCursor();
         }
-        else
-        {
+        else 
+        { 
             ofShowCursor();
         }
     }
@@ -170,6 +188,12 @@ void Application::exit()
 //--------------------------------------------------------------
 void Application::keyPressed(int key)
 {
+    if (key == 'z') {
+        gridController.keyPressed(key);
+    }
+    if (key == 'y') {
+        gridController.keyPressed(key);
+    }
 }
 
 //--------------------------------------------------------------
