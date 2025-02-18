@@ -46,6 +46,8 @@ void Application::setupButtons()
     shapeModeIcon.load("images/shapeMode.png");
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
+    undoIcon.load("images/undo.png");
+    redoIcon.load("images/redo.png");
 
     vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
         std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
@@ -56,7 +58,10 @@ void Application::setupButtons()
         std::tuple(&drawModeButton, &Application::drawMode, &drawModeIcon),
         std::tuple(&shapeModeButton, &Application::shapeMode, &shapeModeIcon),
         std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
-        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon)};
+        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon),
+        std::tuple(&undoButton, &Application::undo, &undoIcon),
+        std::tuple(&redoButton, &Application::redo, &redoIcon),
+    };
 
     int i = 0;
     for (auto bTuple : buttonMap)
@@ -98,13 +103,15 @@ void Application::draw()
     }
     gridController.draw();
 
-    if (showDrawMenu) penGui.draw();
-    if (showEraserMenu) eraserGui.draw();
-    if (showColorMenu) colorGui.draw();
+    if (showDrawMenu)
+        penGui.draw();
+    if (showEraserMenu)
+        eraserGui.draw();
+    if (showColorMenu)
+        colorGui.draw();
 
     drawCustomCursors();
 }
-
 
 //--------------------------------------------------------------
 void Application::drawCustomCursors()
@@ -116,7 +123,25 @@ void Application::drawCustomCursors()
     {
         ofShowCursor();
     }
-    else
+    // Si la souris est dans le menu de l'efface, afficher le curseur par défaut
+    else if(ofGetMouseX() > COORD_MENU_X
+        && ofGetMouseX() < OPENED_MENU_WIDTH
+        && ofGetMouseY() > COORD_MENU_Y
+        && ofGetMouseY() < COORD_MENU_Y + OPENED_MENU_HEIGHT_ERASE
+        && cursorMode == ERASE) 
+    {
+        ofShowCursor();
+    }
+    // Si la souris est dans le menu du crayon, afficher le curseur par défaut
+    else if (ofGetMouseX() > COORD_MENU_X
+        && ofGetMouseX() < OPENED_MENU_WIDTH
+        && ofGetMouseY() > COORD_MENU_Y
+        && ofGetMouseY() < COORD_MENU_Y + OPENED_MENU_HEIGHT_DRAW
+        && cursorMode == DRAW)
+    {
+        ofShowCursor();
+    }
+    else 
     {
         // Dessiner le curseur du crayon
         if (cursorMode == DRAW)
@@ -127,7 +152,7 @@ void Application::drawCustomCursors()
             ofDrawLine(ofGetMouseX(), ofGetMouseY() - cursorSize, ofGetMouseX(), ofGetMouseY() + cursorSize);
             ofHideCursor();
         }
-        // Dessiner le curseur de l’efface
+        // Dessiner le curseur de l'efface
         else if (cursorMode == ERASE)
         {
             ofNoFill();
@@ -135,8 +160,8 @@ void Application::drawCustomCursors()
             ofFill();
             ofHideCursor();
         }
-        else
-        {
+        else 
+        { 
             ofShowCursor();
         }
     }
@@ -157,7 +182,7 @@ void Application::onDrawCursorSizeChanged(int &size)
 //--------------------------------------------------------------
 void Application::onEraserSizeChanged(int &size)
 {
-    eraserSize = size; 
+    eraserSize = size;
 }
 
 //--------------------------------------------------------------
@@ -168,6 +193,12 @@ void Application::exit()
 //--------------------------------------------------------------
 void Application::keyPressed(int key)
 {
+    if (key == 'z') {
+        gridController.keyPressed(key);
+    }
+    if (key == 'y') {
+        gridController.keyPressed(key);
+    }
 }
 
 //--------------------------------------------------------------
@@ -183,6 +214,21 @@ void Application::mouseMoved(int x, int y)
 //--------------------------------------------------------------
 void Application::mouseDragged(int x, int y, int button)
 {
+    string cursor;
+
+    switch (cursorMode)
+    {
+    case DRAW:
+        cursor = "DRAW";
+        break;
+    case ERASE:
+        cursor = "ERASE";
+        break;
+    default:
+        break;
+    }
+
+    gridController.mouseDragged(x, y, button, cursor, drawCursorSize, eraserSize);
 }
 
 //--------------------------------------------------------------
@@ -191,16 +237,120 @@ void Application::mousePressed(int x, int y, int button)
     if (y < MENU_HEIGHT)
     {
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
+        Button *pressedButton = buttons[buttonNumber];
 
         // Toggle (ouverture/fermeture) pour chaque menu
-        if (buttonNumber == 4) { showEraserMenu = !showEraserMenu; showDrawMenu = false; showColorMenu = false; cursorMode = showEraserMenu ? ERASE : DEFAULT; return; }
-        if (buttonNumber == 5) { showDrawMenu = !showDrawMenu; showEraserMenu = false; showColorMenu = false; cursorMode = showDrawMenu ? DRAW : DEFAULT; return; }
-        if (buttonNumber == 7) { showColorMenu = !showColorMenu; showDrawMenu = false; showEraserMenu = false; return; }
+        if (pressedButton == &eraseModeButton)
+        {
+            showEraserMenu = !showEraserMenu;
+            showDrawMenu = false;
+            showColorMenu = false;
+            cursorMode = showEraserMenu ? ERASE : DEFAULT;
+            return;
+        }
+        if (pressedButton == &drawModeButton)
+        {
+            showDrawMenu = !showDrawMenu;
+            showEraserMenu = false;
+            showColorMenu = false;
+            cursorMode = showDrawMenu ? DRAW : DEFAULT;
+            return;
+        }
+        if (pressedButton == &penTypeChoiceButton)
+        {
+            showColorMenu = !showColorMenu;
+            showDrawMenu = false;
+            showEraserMenu = false;
+            return;
+        }
+        
 
         // Si on clique ailleurs, tout fermer
         showDrawMenu = false;
         showEraserMenu = false;
         showColorMenu = false;
+
+        if (pressedButton == &penTypeChoiceButton)
+        {
+            showColorMenu = !showColorMenu;
+            return;
+        }
+        pressedButton->mousePressed(x, y, button);
+    }
+
+    if (showEraserMenu && y >= 85 && y <= 95)
+    {
+        if (x >= COORD_SLIDER_X && x <= COORD_SLIDER_X + SLIDER_WIDTH)
+        {
+            eraserSize = (x - COORD_SLIDER_X) * 50 / SLIDER_WIDTH;
+        }
+    }
+
+    if (showDrawMenu)
+    {
+        if (y >= 85 && y <= 95)
+        {
+            if (x >= COORD_SLIDER_X && x <= COORD_SLIDER_X + SLIDER_WIDTH)
+            {
+                drawCursorSize = (x - COORD_SLIDER_X) * 50 / SLIDER_WIDTH;
+            }
+        }
+
+        int centerX = 110, centerY = 170, radius = 60;
+        int dx = ofGetMouseX() - centerX;
+        int dy = ofGetMouseY() - centerY;
+        float distance = sqrt(dx * dx + dy * dy);
+
+        if (distance <= radius)
+        {
+            float angle = atan2(dy, dx) * RAD_TO_DEG;
+            if (angle < 0)
+                angle += 360;
+            currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
+        }
+    }
+
+    if (showColorMenu)
+    {
+        int centerX = 110, centerY = 190, radius = 60;
+        int dx = ofGetMouseX() - centerX;
+        int dy = ofGetMouseY() - centerY;
+        float distance = sqrt(dx * dx + dy * dy);
+
+        if (distance <= radius)
+        {
+            float angle = atan2(dy, dx) * RAD_TO_DEG;
+            if (angle < 0)
+                angle += 360;
+            currentDrawColor = ofColor::fromHsb(angle / 360.0 * 255, 255, 255);
+        }
+    }
+
+    // Vérifier si on clique sur la flêche du menu du crayon
+    if (showDrawMenu && x >= (10 + (isDrawMenuCollapsed ? 20 : 200)) - 10 &&
+        x <= (20 + (isDrawMenuCollapsed ? 30 : 200)) &&
+        y >= 60 && y <= 75)
+    {
+        isDrawMenuCollapsed = !isDrawMenuCollapsed;
+        return;
+    }
+
+    // Vérifier si on clique sur la flêche du menu de l'effaceur
+    if (showEraserMenu && x >= (10 + (isEraserMenuCollapsed ? 20 : 200)) - 10 &&
+        x <= (20 + (isEraserMenuCollapsed ? 30 : 200)) &&
+        y >= 60 && y <= 75)
+    {
+        isEraserMenuCollapsed = !isEraserMenuCollapsed;
+        return;
+    }
+
+    // Vérifier si on clique sur la flêche du menu de sélection de couleur
+    if (showColorMenu && x >= (10 + (isColorMenuCollapsed ? 20 : 200)) - 10 &&
+        x <= (20 + (isColorMenuCollapsed ? 30 : 200)) &&
+        y >= 60 && y <= 75)
+    {
+        isColorMenuCollapsed = !isColorMenuCollapsed;
+        return;
     }
 }
 
@@ -323,7 +473,7 @@ void Application::drawMode()
     showDrawMenu = true;
     showEraserMenu = false;
 
-    showColorMenu = true;  // Affiche la roue de sélection de couleur automatiquement
+    showColorMenu = true; // Affiche la roue de sélection de couleur automatiquement
 }
 
 //--------------------------------------------------------------
@@ -348,4 +498,14 @@ void Application::shapeChoice()
 {
     // TODO
     cursorMode = DEFAULT;
+}
+
+void Application::undo()
+{
+    gridController.undo();
+}
+
+void Application::redo()
+{
+    gridController.redo();
 }

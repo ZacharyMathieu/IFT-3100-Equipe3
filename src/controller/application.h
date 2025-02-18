@@ -98,6 +98,8 @@ private:
 	ofImage shapeModeIcon;
 	ofImage penTypeChoiceIcon;
 	ofImage shapeChoiceIcon;
+	ofImage redoIcon;
+	ofImage undoIcon;
 
 	Button importImageButton;
 	Button exportImageButton;
@@ -109,6 +111,8 @@ private:
 	Button shapeModeButton;
 	Button penTypeChoiceButton;
 	Button shapeChoiceButton;
+	Button undoButton;
+	Button redoButton;
 	vector<Button *> buttons;
 
 	void setupButtons();
@@ -126,6 +130,8 @@ private:
 	void shapeMode();
 	void penTypeChoice();
 	void shapeChoice();
+	void undo();
+	void redo();
 };
 
 #endif
