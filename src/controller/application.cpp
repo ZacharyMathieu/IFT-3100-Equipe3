@@ -46,6 +46,8 @@ void Application::setupButtons()
     shapeModeIcon.load("images/shapeMode.png");
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
+    undoIcon.load("images/undo.png");
+    redoIcon.load("images/redo.png");
 
     vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
         std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
@@ -56,7 +58,10 @@ void Application::setupButtons()
         std::tuple(&drawModeButton, &Application::drawMode, &drawModeIcon),
         std::tuple(&shapeModeButton, &Application::shapeMode, &shapeModeIcon),
         std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
-        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon)};
+        std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon),
+        std::tuple(&undoButton, &Application::undo, &undoIcon),
+        std::tuple(&redoButton, &Application::redo, &redoIcon),
+    };
 
     int i = 0;
     for (auto bTuple : buttonMap)
@@ -258,6 +263,7 @@ void Application::mousePressed(int x, int y, int button)
             showEraserMenu = false;
             return;
         }
+        
 
         // Si on clique ailleurs, tout fermer
         showDrawMenu = false;
@@ -492,4 +498,14 @@ void Application::shapeChoice()
 {
     // TODO
     cursorMode = DEFAULT;
+}
+
+void Application::undo()
+{
+    gridController.undo();
+}
+
+void Application::redo()
+{
+    gridController.redo();
 }
