@@ -1,6 +1,7 @@
 #include "ofMain.h"
 #include "model/grid.h"
 
+
 #ifndef GRID_CONTROLLER
 #define GRID_CONTROLLER
 
@@ -14,6 +15,8 @@ public:
     int displayWidth;
     int displayHeight;
     Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
+    std::stack<std::pair<std::string,vector<Cell*>>> Undo;
+    std::stack<std::pair<std::string, vector<Cell*>>> Redo;
 
     void setup(int x, int y, int w, int h);
     void draw();
@@ -22,13 +25,15 @@ public:
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y);
-    void mouseDragged(int x, int y, int button);
+    void mouseDragged(int x, int y, int button, string cursor, int drawSize, int eraserSize);
     void mousePressed(int x, int y, int button);
     void mouseReleased(int x, int y, int button);
     void mouseScrolled(int x, int y, float scrollX, float scrollY);
     void mouseEntered(int x, int y);
     void mouseExited(int x, int y);
     void windowResized(int w, int h);
+    void undo();
+    void redo();
 };
 
 #endif
