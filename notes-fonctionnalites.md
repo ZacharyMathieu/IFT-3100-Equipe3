@@ -39,11 +39,11 @@
 - Modèles 3D
 
 # Section 5
+## Chosen
 - Caméra interactive
 - Modes de projection
-- Point de vue multiple
 - Occlusion
-- Portail
-## Chosen
 ## Backup
+- Point de vue multiple
 ## Difficile
+- Portail
