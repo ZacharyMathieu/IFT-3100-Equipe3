@@ -1,5 +1,6 @@
 #include "ofMain.h"
 #include "model/grid.h"
+#include "model/ant.h"
 
 
 #ifndef GRID_CONTROLLER
@@ -15,8 +16,11 @@ public:
     int displayWidth;
     int displayHeight;
     Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
+    vector<Ant *> ants;
     std::stack<std::pair<std::string,vector<Cell*>>> Undo;
     std::stack<std::pair<std::string, vector<Cell*>>> Redo;
+    ofImage gridImage;
+    ofShader shader;
 
     void setup(int x, int y, int w, int h);
     void draw();
@@ -34,6 +38,8 @@ public:
     void windowResized(int w, int h);
     void undo();
     void redo();
+
+    void update();
 };
 
 #endif

@@ -14,7 +14,9 @@ public:
     vector<vector<Cell *>> grid;
 
     Grid(int w, int h);
-    Cell *at(int x, int y);
+    Cell *at(int, int);
+    Cell *at(ofPoint);
+    void update();
 };
 
 #endif
