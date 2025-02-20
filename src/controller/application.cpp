@@ -199,6 +199,9 @@ void Application::keyPressed(int key)
     if (key == 'y') {
         gridController.keyPressed(key);
     }
+    if (key == ' '){
+        gridController.update();
+    }
 }
 
 //--------------------------------------------------------------

@@ -14,20 +14,23 @@ enum CellType
 class Cell
 {
 public:
-    const ofColor WALL_COLOR = ofColor(0);
-    const ofColor PHEROMONE_COLOR = ofColor(0, 0, 255);
-    static const int MAX_VALUE = 255;
+    ofColor *WALL_COLOR = new ofColor(0);
+    ofColor *PHEROMONE_COLOR = new ofColor(0, 0, 255);
+    ofColor *EMPTY_COLOR = new ofColor(255, 255, 255);
+    const float MAX_VALUE = 256;
+    const float DECAY_VALUE = 2;
+    float value;
 
     CellType type;
 
     Cell(CellType = PHEROMONE, float = 0.0);
 
+    void update();
     ofColor getCellColor();
+    void addAntValue(float);
 
 private:
-    float value;
-
-    ofColor adjustColor(ofColor color);
+    ofColor adjustColor(ofColor *fullColor, ofColor *emptyColor);
 };
 
 #endif
