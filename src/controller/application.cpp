@@ -4,7 +4,8 @@
 void Application::setup()
 {
     ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
-    gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
+    gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH/2, WINDOW_HEIGHT - MENU_HEIGHT);
+    SceneController.setup(WINDOW_WIDTH / 2, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT);
     setupButtons();
 
     // GUI de l'efface
@@ -31,6 +32,9 @@ void Application::setup()
     colorGui.add(tempColor);
     tempColor.addListener(this, &Application::onColorChanged);
     colorGui.setPosition(10, MENU_HEIGHT + 10);
+
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -71,6 +75,8 @@ void Application::setupButtons()
         buttons.push_back(std::get<0>(bTuple));
         i++;
     }
+
+    
 }
 
 //--------------------------------------------------------------
@@ -101,6 +107,7 @@ void Application::draw()
         ofSetColor(255);
         importedImage.draw(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
     }
+    
     gridController.draw();
 
     if (showDrawMenu)
@@ -111,6 +118,10 @@ void Application::draw()
         colorGui.draw();
 
     drawCustomCursors();
+    SceneController.draw();
+    
+    
+    
 }
 
 //--------------------------------------------------------------

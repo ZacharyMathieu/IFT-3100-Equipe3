@@ -4,6 +4,7 @@
 #include "grid_controller.h"
 #include "button.h"
 #include "ofxGui.h"
+#include "scene_controller.h"
 
 #ifndef APPLICATION
 #define APPLICATION
@@ -18,7 +19,7 @@ enum CursorMode
 class Application : public ofBaseApp
 {
 public:
-	static const int WINDOW_WIDTH = 1024;
+	static const int WINDOW_WIDTH = 1024*2;
 	static const int WINDOW_HEIGHT = 768;
 	static const int MENU_HEIGHT = 50;
 	static const int MENU_BUTTON_MARGIN = 10;
@@ -62,6 +63,7 @@ public:
 private:
 	CursorMode cursorMode = DEFAULT;
 	GridController gridController;
+	scene_controller SceneController;
 	ofImage importedImage;
 	bool imageLoaded = false;
 
@@ -114,6 +116,8 @@ private:
 	Button undoButton;
 	Button redoButton;
 	vector<Button *> buttons;
+
+	
 
 	void setupButtons();
 	void drawMenu();
