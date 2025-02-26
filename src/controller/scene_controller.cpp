@@ -27,6 +27,8 @@ void scene_controller::setup(int x, int y, int w, int h)
 	ant.load("models/ant3.obj");
 	ant.setPosition(50, 0, 50);
 	ant.setRotation(0, 90 + 45, 0, 1, 0);
+	rotation = ant.getRotationAngle(0);
+
 	// désactiver le matériau par défaut du modèle
 	ant.disableMaterials();
 
@@ -53,15 +55,33 @@ void scene_controller::update()
 	
 	if (ofGetKeyPressed(OF_KEY_LEFT)) {
 		ant.setPosition(ant.getPosition().x + speed, ant.getPosition().y, ant.getPosition().z - speed);
+		ant.setRotation(0, rotation-90, 0 ,1,0);
+		
 	}
 	if (ofGetKeyPressed(OF_KEY_RIGHT)) {
 		ant.setPosition(ant.getPosition().x - speed, ant.getPosition().y, ant.getPosition().z+ speed);
+		ant.setRotation(0, rotation, 0, 1, 0);
+		ant.setRotation(0, rotation+90, 0, 1, 0);
 	}
 	if (ofGetKeyPressed(OF_KEY_UP)) {
 		ant.setPosition(ant.getPosition().x + speed, ant.getPosition().y, ant.getPosition().z + speed);
+		ant.setRotation(0, rotation, 0, 1, 0);
+		if (ofGetKeyPressed(OF_KEY_RIGHT)) {
+			ant.setRotation(0, rotation+45, 0, 1, 0);
+		}
+		if (ofGetKeyPressed(OF_KEY_LEFT)) {
+			ant.setRotation(0, rotation -45, 0, 1, 0);
+		}
 	}
 	if (ofGetKeyPressed(OF_KEY_DOWN)) {
 		ant.setPosition(ant.getPosition().x - speed, ant.getPosition().y, ant.getPosition().z - speed);
+		ant.setRotation(0, rotation - 180, 0, 1, 0);
+		if (ofGetKeyPressed(OF_KEY_RIGHT)) {
+			ant.setRotation(0, rotation +135, 0, 1, 0);
+		}
+		if (ofGetKeyPressed(OF_KEY_LEFT)) {
+			ant.setRotation(0, rotation - 135, 0, 1, 0);
+		}
 	}
 	cam.setPosition(ant.getPosition().x - 100, 100, ant.getPosition().z - 100);
 	cam.lookAt(ofVec3f(ant.getPosition()));;

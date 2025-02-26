@@ -41,7 +41,7 @@ private:
 	ofxAssimpModelLoader ant;
 	float scale_ant;
 	float speed;
-
+	float rotation;
 
 
 
