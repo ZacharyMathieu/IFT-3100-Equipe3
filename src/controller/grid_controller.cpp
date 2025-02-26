@@ -8,11 +8,13 @@ void GridController::setup(int x, int y, int w, int h)
     displayPosY = y;
     displayWidth = w;
     displayHeight = h;
+    
 }
 
 //--------------------------------------------------------------
 void GridController::draw()
 {
+    
     float scaleX = ((float)displayWidth) / grid.w;
     float scaleY = ((float)displayHeight) / grid.h;
 
@@ -22,6 +24,10 @@ void GridController::draw()
         int x = 0;
         for (Cell *cell : line)
         {
+            if (cell->type == WALL)
+            {
+                
+            }
             auto color = cell->getCellColor();
             ofSetColor(color);
             ofDrawRectangle(
@@ -45,6 +51,7 @@ void GridController::draw()
     {
         ofDrawLine(displayPosX, y * scaleY + displayPosY, displayPosX + displayWidth, y * scaleY + displayPosY);
     }
+    
 }
 
 //--------------------------------------------------------------
@@ -111,6 +118,7 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
                             {
                                 grid.at(gridX, gridY)->type = WALL;
                                 tasCell.push_back(grid.at(gridX, gridY));
+                                
                                 while (!Redo.empty()) {
                                     Redo.pop();
                                 }

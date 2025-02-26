@@ -36,7 +36,7 @@ public:
 	static const int COORD_MENU_X = 10;
 	static const int COORD_MENU_Y = 60;
 	static const int COORD_SLIDER_X = 20;
-
+	scene_controller SceneController;
 	static const int SLIDER_WIDTH = 200;
 
 	bool isRunning = false;
@@ -63,10 +63,10 @@ public:
 private:
 	CursorMode cursorMode = DEFAULT;
 	GridController gridController;
-	scene_controller SceneController;
+	
 	ofImage importedImage;
 	bool imageLoaded = false;
-
+	
 	bool showEraserMenu = false;
 	bool showDrawMenu = false;
 	bool showColorMenu = false;
@@ -87,7 +87,7 @@ private:
 	ofxPanel eraserGui; // GUI pour la gomme (taille uniquement)
 	ofxPanel penGui;    // GUI pour le crayon (taille + couleur)
 	ofxPanel colorGui;  // GUI pour la roue de couleur seule
-
+	ofxPanel gui;
 	ofColor currentDrawColor = ofColor(255, 0, 0);
 
 	ofImage importImageIcon;
@@ -117,8 +117,10 @@ private:
 	Button redoButton;
 	vector<Button *> buttons;
 
+	ofParameter<ofColor> color_picker_ambient;
+	ofParameter<ofColor> color_picker_diffuse;
 	
-
+	
 	void setupButtons();
 	void drawMenu();
 	void drawCustomCursors();
@@ -136,6 +138,7 @@ private:
 	void shapeChoice();
 	void undo();
 	void redo();
+	void wallPosition3D();
 };
 
 #endif

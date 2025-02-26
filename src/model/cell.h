@@ -17,8 +17,9 @@ public:
     const ofColor WALL_COLOR = ofColor(0);
     const ofColor PHEROMONE_COLOR = ofColor(0, 0, 255);
     static const int MAX_VALUE = 255;
-
+    static const int CELL_HEIGHT = 300;
     CellType type;
+    
 
     Cell(CellType = PHEROMONE, float = 0.0);
 

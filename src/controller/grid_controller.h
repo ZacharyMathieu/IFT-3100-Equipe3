@@ -1,5 +1,7 @@
 #include "ofMain.h"
 #include "model/grid.h"
+#include <scene_controller.h>
+
 
 
 #ifndef GRID_CONTROLLER
@@ -17,7 +19,7 @@ public:
     Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
     std::stack<std::pair<std::string,vector<Cell*>>> Undo;
     std::stack<std::pair<std::string, vector<Cell*>>> Redo;
-
+    scene_controller SceneController;
     void setup(int x, int y, int w, int h);
     void draw();
     void exit();

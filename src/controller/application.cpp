@@ -4,8 +4,10 @@
 void Application::setup()
 {
     ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
-    gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH/2, WINDOW_HEIGHT - MENU_HEIGHT);
-    SceneController.setup(WINDOW_WIDTH / 2, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT);
+    gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT);
+
+    SceneController.setup(0 + WINDOW_WIDTH / 2, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT);
+    
     setupButtons();
 
     // GUI de l'efface
@@ -33,6 +35,10 @@ void Application::setup()
     tempColor.addListener(this, &Application::onColorChanged);
     colorGui.setPosition(10, MENU_HEIGHT + 10);
 
+    gui.setup();
+    
+    gui.add(color_picker_ambient.set("ambient color", ofColor(63, 63, 63), ofColor(0, 0), ofColor(255, 255)));
+    gui.add(color_picker_diffuse.set("diffuse color", ofColor(174, 223, 134), ofColor(0, 0), ofColor(255, 255)));
     
     
 }
@@ -95,13 +101,16 @@ void Application::drawMenu()
 //--------------------------------------------------------------
 void Application::update()
 {
+    SceneController.color_ambient = color_picker_ambient;
+    SceneController.color_diffuse = color_picker_diffuse;
+    SceneController.update();
 }
 
 //--------------------------------------------------------------
 void Application::draw()
 {
     drawMenu();
-
+   // gui.draw();
     if (imageLoaded)
     {
         ofSetColor(255);
@@ -110,6 +119,12 @@ void Application::draw()
     
     gridController.draw();
 
+    // Dans votre méthode de mise à jour de la grille
+    
+
+
+   
+   
     if (showDrawMenu)
         penGui.draw();
     if (showEraserMenu)
@@ -118,8 +133,8 @@ void Application::draw()
         colorGui.draw();
 
     drawCustomCursors();
+    wallPosition3D();
     SceneController.draw();
-    
     
     
 }
@@ -519,4 +534,18 @@ void Application::undo()
 void Application::redo()
 {
     gridController.redo();
+}
+
+void Application::wallPosition3D()
+{
+    for (int y = 0; y < gridController.grid.grid.size(); y++) {
+        for (int x = 0; x < gridController.grid.grid[y].size(); x++) {
+            Cell* cell = gridController.grid.grid[y][x];
+            if (cell->type == WALL) {
+                
+                glm::vec3 cubePosition((x * 100) + 50, 50, (y * 100) + 50); 
+                SceneController.positions.push_back(cubePosition);
+            }
+        }
+    }
 }
