@@ -38,5 +38,4 @@ void Cell::addAntValue(float antValue)
 {
     value += antValue;
     value = min(value, MAX_VALUE);
-    // value = max(value, (float)0.0);
 }

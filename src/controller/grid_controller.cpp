@@ -20,7 +20,6 @@ void GridController::setup(int x, int y, int w, int h)
 //--------------------------------------------------------------
 void GridController::draw()
 {
-    
     float scaleX = ((float)displayWidth) / grid.w;
     float scaleY = ((float)displayHeight) / grid.h;
 
@@ -115,9 +114,6 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
             {
                 int xOrigine = ((x - drawSize) / scaleX) * scaleX;
                 int yOrigine = ((y - drawSize) / scaleY) * scaleY;
-
-                // int nbIteX = (xOrigine + (drawSize * 2) / scaleX) * scaleX;
-                // int nbIteY = (yOrigine + (drawSize * 2) / scaleY) * scaleY;
 
                 for (int i = xOrigine; i < xOrigine + (drawSize * 2); i += scaleX)
                 {

@@ -20,7 +20,6 @@ public:
     const float MAX_VALUE = 256;
     const float DECAY_VALUE = 2;
     float value;
-    static const int CELL_HEIGHT = 300;
     CellType type;
 
     Cell(CellType = PHEROMONE, float = 0.0);

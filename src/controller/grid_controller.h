@@ -4,7 +4,6 @@
 #include <scene_controller.h>
 
 
-
 #ifndef GRID_CONTROLLER
 #define GRID_CONTROLLER
 
@@ -13,6 +12,7 @@ class GridController
 public:
     static const int GRID_WIDTH = 100;
     static const int GRID_HEIGHT = 100;
+
     int displayPosX;
     int displayPosY;
     int displayWidth;
@@ -21,11 +21,11 @@ public:
     vector<Ant *> ants;
     std::stack<std::pair<std::string,vector<Cell*>>> Undo;
     std::stack<std::pair<std::string, vector<Cell*>>> Redo;
-    scene_controller SceneController;
+    SceneController SceneController;
+
     void setup(int x, int y, int w, int h);
     void draw();
     void exit();
-
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y);
@@ -38,7 +38,6 @@ public:
     void windowResized(int w, int h);
     void undo();
     void redo();
-
     void update();
 };
 
