@@ -21,7 +21,6 @@ public:
     vector<Ant *> ants;
     std::stack<std::pair<std::string,vector<Cell*>>> Undo;
     std::stack<std::pair<std::string, vector<Cell*>>> Redo;
-    SceneController SceneController;
 
     void setup(int x, int y, int w, int h);
     void draw();

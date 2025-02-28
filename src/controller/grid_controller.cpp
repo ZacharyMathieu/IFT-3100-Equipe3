@@ -8,8 +8,6 @@ void GridController::setup(int x, int y, int w, int h)
     displayWidth = w;
     displayHeight = h;
 
-    gridImage.allocate(grid.h, grid.w, OF_IMAGE_COLOR);
-
     // TODO: Better init of ants
     for (int i = 0; i < 200; i++)
     {
