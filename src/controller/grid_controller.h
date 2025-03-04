@@ -1,7 +1,7 @@
 #include "ofMain.h"
 #include "model/grid.h"
+#include "model/ant.h"
 #include <scene_controller.h>
-
 
 
 #ifndef GRID_CONTROLLER
@@ -12,13 +12,16 @@ class GridController
 public:
     static const int GRID_WIDTH = 100;
     static const int GRID_HEIGHT = 100;
+
     int displayPosX;
     int displayPosY;
     int displayWidth;
     int displayHeight;
     Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
+    vector<Ant *> ants;
     std::stack<std::pair<std::string,vector<Cell*>>> Undo;
     std::stack<std::pair<std::string, vector<Cell*>>> Redo;
+<<<<<<< HEAD
     scene_controller SceneController;
     std::vector<Cell*> cSelected;
     std::vector<std::pair<int, int>> CSposition;
@@ -36,6 +39,12 @@ public:
     void exit();
 
     void drawZone(float x1, float y1, float x2, float y2);
+=======
+
+    void setup(int x, int y, int w, int h);
+    void draw();
+    void exit();
+>>>>>>> 03924b9d0bcbb7fd584869eefe51a7823f84264a
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y);
@@ -49,9 +58,13 @@ public:
     void multipleSelection();
     void undo();
     void redo();
+<<<<<<< HEAD
     bool insideZoneSelected(int x, int y);
     void processSelectionZone();
     bool alreadySelected(int x, int y);
+=======
+    void update();
+>>>>>>> 03924b9d0bcbb7fd584869eefe51a7823f84264a
 };
 
 #endif

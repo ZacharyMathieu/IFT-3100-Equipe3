@@ -1,9 +1,9 @@
 // IFT3100H25_LambertTeapot/Scene_controller.cpp
 // Classe responsable du rendu de l'application.
 
-#include "Scene_controller.h"
+#include "scene_controller.h"
 
-void scene_controller::setup(int x, int y, int w, int h)
+void SceneController::setup(int x, int y, int w, int h)
 {
 	SCENE_x = x;
 	SCENE_y = y;
@@ -14,7 +14,7 @@ void scene_controller::setup(int x, int y, int w, int h)
 	
 	ofSetLogLevel(OF_LOG_VERBOSE);
 
-	// paramètres
+	// paramï¿½tres
 	scale_ant= 0.05f;
 
 	speed = 5.0f;
@@ -23,29 +23,29 @@ void scene_controller::setup(int x, int y, int w, int h)
 	box.setPosition(0, 0, 0);
 	boxMesh = box.getMesh();
 
-	// chargement du modèle
+	// chargement du modï¿½le
 	ant.load("models/ant3.obj");
 	ant.setPosition(50, 0, 50);
 	ant.setRotation(0, 90 + 45, 0, 1, 0);
 	rotation = ant.getRotationAngle(0);
 
-	// désactiver le matériau par défaut du modèle
+	// dï¿½sactiver le matï¿½riau par dï¿½faut du modï¿½le
 	ant.disableMaterials();
 
 	// chargement du shader
 	shader_ant.load("lambert_330_vs.glsl", "lambert_330_fs.glsl");
 	shader_normal.load("draw_normal_330_vs.glsl", "draw_normal_330_fs.glsl");
 
-	// sélectionner le shader courant
+	// sï¿½lectionner le shader courant
 	shader = shader_ant;
 
 	cam.setPosition(ant.getPosition().x -100, 100, ant.getPosition().z -100);
 	cam.lookAt(ofVec3f(ant.getPosition()));
 }
 
-void scene_controller::update()
+void SceneController::update()
 {
-	// position au centre de la fenêtre d'affichage
+	// position au centre de la fenï¿½tre d'affichage
 	centre_x = 3*(ofGetWidth() / 4.0f) ;
 	centre_y = ofGetHeight() / 2.0f;
 
@@ -85,19 +85,19 @@ void scene_controller::update()
 	}
 	cam.setPosition(ant.getPosition().x - 100, 100, ant.getPosition().z - 100);
 	cam.lookAt(ofVec3f(ant.getPosition()));;
-	// configuration de la lumière
+	// configuration de la lumiï¿½re
 	light.setPointLight();
 	light.setDiffuseColor(255);
 	light.setGlobalPosition(centre_x, centre_y, 255.0f);
 }
 
-void scene_controller::draw()
+void SceneController::draw()
 {	
 
 	ofPushMatrix();
 	ofViewport(ofRectangle(ofGetWidth() / 2, 50, ofGetWidth()/2, ofGetHeight()));
 	
-	// couleur de l'arrière-plan
+	// couleur de l'arriï¿½re-plan
 	ofFill();
 	ofSetColor(0,0,0,100);
 	ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
@@ -105,10 +105,10 @@ void scene_controller::draw()
 	// activer l'occlusion en profondeur
 	ofEnableDepthTest();
 
-	// activer l'éclairage dynamique
+	// activer l'ï¿½clairage dynamique
 	ofEnableLighting();
 
-	// activer la lumière
+	// activer la lumiï¿½re
 	light.enable();
 	cam.begin();
 	cam.setFarClip(5000);
@@ -133,10 +133,10 @@ void scene_controller::draw()
 		boxMesh.draw(OF_MESH_WIREFRAME);
 		ofPopMatrix();
 	}
-	// désactiver le shader
+	// dï¿½sactiver le shader
 	positions.clear();
 
-	ofSetColor(100, 100, 100); // Couleur gris foncé pour le plancher
+	ofSetColor(100, 100, 100); // Couleur gris foncï¿½ pour le plancher
 
 
 	int step = 100;
@@ -150,19 +150,19 @@ void scene_controller::draw()
 	for (int z = 0; z <= ofGetHeight(); z++) {
 		ofDrawLine(0, 0, z * step, ofGetWidth() * step, 0, z * step);  // Lignes en Z
 	}
-	// désactiver la lumière
+	// dï¿½sactiver la lumiï¿½re
 	light.disable();
 
-	// désactiver l'éclairage dynamique
+	// dï¿½sactiver l'ï¿½clairage dynamique
 	ofDisableLighting();
 
-	// désactiver l'occlusion en profondeur
+	// dï¿½sactiver l'occlusion en profondeur
 	ofDisableDepthTest();
 	cam.end();
 	ofPopMatrix();
 }
 
-void scene_controller::keyPressed(int key)
+void SceneController::keyPressed(int key)
 {
 	
 }

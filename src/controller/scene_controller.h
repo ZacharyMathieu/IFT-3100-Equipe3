@@ -6,7 +6,8 @@
 #include "ofLight.h"
 #include <grid.h>
 #include <vector>
-class scene_controller
+
+class SceneController
 {
 public :
 	static const int GRID_WIDTH = 100;
@@ -23,7 +24,6 @@ public :
 	ofColor color_diffuse;
 	ofMesh mesh;
 	
-
 	void setup(int x, int y, int w, int h);
 	void update();
 	void draw();
@@ -42,9 +42,4 @@ private:
 	float scale_ant;
 	float speed;
 	float rotation;
-
-
-
-	
 };
-
