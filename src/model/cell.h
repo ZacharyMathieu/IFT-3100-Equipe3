@@ -19,8 +19,7 @@ public:
     static const int MAX_VALUE = 255;
     static const int CELL_HEIGHT = 300;
     CellType type;
-    
-
+    bool isSelected;
     Cell(CellType = PHEROMONE, float = 0.0);
 
     ofColor getCellColor();

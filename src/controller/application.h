@@ -13,7 +13,8 @@ enum CursorMode
 {
 	DEFAULT,
 	DRAW,
-	ERASE
+	ERASE,
+	SELECT
 };
 
 class Application : public ofBaseApp
@@ -100,6 +101,7 @@ private:
 	ofImage shapeModeIcon;
 	ofImage penTypeChoiceIcon;
 	ofImage shapeChoiceIcon;
+	ofImage selectIcon;
 	ofImage redoIcon;
 	ofImage undoIcon;
 
@@ -113,6 +115,7 @@ private:
 	Button shapeModeButton;
 	Button penTypeChoiceButton;
 	Button shapeChoiceButton;
+	Button selectButton;
 	Button undoButton;
 	Button redoButton;
 	vector<Button *> buttons;
@@ -136,6 +139,7 @@ private:
 	void shapeMode();
 	void penTypeChoice();
 	void shapeChoice();
+	void multipleSelection();
 	void undo();
 	void redo();
 	void wallPosition3D();

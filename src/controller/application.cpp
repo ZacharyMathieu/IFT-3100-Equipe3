@@ -56,10 +56,11 @@ void Application::setupButtons()
     shapeModeIcon.load("images/shapeMode.png");
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
+    selectIcon.load("images/select.png");
     undoIcon.load("images/undo.png");
     redoIcon.load("images/redo.png");
 
-    vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
+    vector<std::tuple<Button*, void (Application::*)(), ofImage*>> buttonMap = {
         std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
         std::tuple(&exportImageButton, &Application::exportImage, &exportImageIcon),
         std::tuple(&playButton, &Application::play, &playIcon),
@@ -69,6 +70,7 @@ void Application::setupButtons()
         std::tuple(&shapeModeButton, &Application::shapeMode, &shapeModeIcon),
         std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
         std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon),
+        std::tuple(&selectButton, &Application::multipleSelection, &selectIcon),
         std::tuple(&undoButton, &Application::undo, &undoIcon),
         std::tuple(&redoButton, &Application::redo, &redoIcon),
     };
@@ -240,6 +242,8 @@ void Application::mouseMoved(int x, int y)
 //--------------------------------------------------------------
 void Application::mouseDragged(int x, int y, int button)
 {
+    gridController.mouse_current_x = x;
+    gridController.mouse_current_y = y;
     string cursor;
 
     switch (cursorMode)
@@ -250,7 +254,11 @@ void Application::mouseDragged(int x, int y, int button)
     case ERASE:
         cursor = "ERASE";
         break;
+    case SELECT:
+        cursor = "SELECT";
+        break;
     default:
+       
         break;
     }
 
@@ -260,6 +268,11 @@ void Application::mouseDragged(int x, int y, int button)
 //--------------------------------------------------------------
 void Application::mousePressed(int x, int y, int button)
 {
+    gridController.mouse_pressed_x = x;
+    gridController.mouse_pressed_y = y;
+    gridController.mouse_current_x = x;
+    gridController.mouse_current_y = y;
+
     if (y < MENU_HEIGHT)
     {
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
@@ -378,11 +391,32 @@ void Application::mousePressed(int x, int y, int button)
         isColorMenuCollapsed = !isColorMenuCollapsed;
         return;
     }
+    string cursor;
+
+    switch (cursorMode)
+    {
+    case DRAW:
+        cursor = "DRAW";
+        break;
+    case ERASE:
+        cursor = "ERASE";
+        break;
+    case SELECT:
+        cursor = "SELECT";
+        break;
+    default:
+
+        break;
+    }
+    ofLog() << cursorMode;
+    gridController.mousePressed(x, y, button, cursor);
 }
 
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
+   
+    gridController.mouseReleased(x, y, button);
 }
 
 //--------------------------------------------------------------
@@ -524,6 +558,18 @@ void Application::shapeChoice()
 {
     // TODO
     cursorMode = DEFAULT;
+}
+
+void Application::multipleSelection()
+{
+    cursorMode = SELECT;
+    
+    ofShowCursor();
+
+    showEraserMenu = false;
+    showDrawMenu = false;
+    showColorMenu = false;
+   
 }
 
 void Application::undo()

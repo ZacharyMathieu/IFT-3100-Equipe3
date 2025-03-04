@@ -4,6 +4,7 @@ Cell::Cell(CellType type, float value)
 {
     this->type = type;
     this->value = value;
+    isSelected = false;
 }
 
 ofColor Cell::getCellColor()
