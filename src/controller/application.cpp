@@ -188,9 +188,14 @@ void Application::drawCustomCursors()
             ofFill();
             ofHideCursor();
         }
+        else if (cursorMode == SELECT) {
+            ofShowCursor();
+            SetCursor(LoadCursor(NULL, IDC_HAND));
+        }
         else 
         { 
             ofShowCursor();
+            SetCursor(LoadCursor(NULL, IDC_ARROW));
         }
     }
 }
@@ -455,7 +460,7 @@ void Application::dragEvent(ofDragInfo dragInfo)
 //--------------------------------------------------------------
 void Application::importImage()
 {
-    ofFileDialogResult result = ofSystemLoadDialog("Importer une image");
+    /*ofFileDialogResult result = ofSystemLoadDialog("Importer une image");
     if (result.bSuccess)
     {
         string filePath = result.getPath();
@@ -472,7 +477,8 @@ void Application::importImage()
             ofLogError() << "Échec du chargement de l'image.";
             imageLoaded = false;
         }
-    }
+    }*/
+    gridController.importGrid();
 }
 
 //--------------------------------------------------------------
@@ -487,7 +493,7 @@ void Application::exportImage()
         std::string path = saveFile.getPath();
         path += ".png";
         ofImage screenshot;
-        screenshot.grabScreen(0, MENU_HEIGHT, ofGetWidth(), ofGetHeight() - MENU_HEIGHT);
+        screenshot.grabScreen(0, MENU_HEIGHT, ofGetWidth()/2, ofGetHeight() - MENU_HEIGHT);
 
         screenshot.save(path);
     }

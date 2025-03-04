@@ -7,17 +7,14 @@ void GridController::setup(int x, int y, int w, int h)
     displayPosY = y;
     displayWidth = w;
     displayHeight = h;
-<<<<<<< HEAD
     drawZonePressed = false;
-    isSelected = false;
-=======
+    isSelected = false;;
 
     // TODO: Better init of ants
     for (int i = 0; i < 200; i++)
     {
         ants.push_back(new Ant(rand() % grid.w, rand() % grid.h, 0));
     }
->>>>>>> 03924b9d0bcbb7fd584869eefe51a7823f84264a
 }
 
 //--------------------------------------------------------------
@@ -35,11 +32,10 @@ void GridController::draw()
             auto color = cell->getCellColor();
             ofSetColor(color);
             ofDrawRectangle(
-<<<<<<< HEAD
-                (int)x * scaleX + displayPosX,
-                (int)y * scaleY + displayPosY,
-                (int)scaleX,
-                (int)scaleY);
+                x * scaleX + displayPosX,
+                y * scaleY + displayPosY,
+                ceil(scaleX),
+                ceil(scaleY));
             if (cell->isSelected)
             {
                 ofNoFill();
@@ -52,18 +48,10 @@ void GridController::draw()
                     (int)scaleY);
                 ofFill();
             }
-=======
-                x * scaleX + displayPosX,
-                y * scaleY + displayPosY,
-                ceil(scaleX),
-                ceil(scaleY));
->>>>>>> 03924b9d0bcbb7fd584869eefe51a7823f84264a
             x++;
         }
         y++;
     }
-    
-    
 
     for (Ant *ant : ants)
     {
@@ -182,18 +170,10 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
         }
         else if (cursor == "ERASE") // changer mur en pheromone
         {
-<<<<<<< HEAD
-            int xOrigine = ((x - eraserSize) / scaleX) * scaleX;
-            int yOrigine = ((y - eraserSize) / scaleY) * scaleY;
-            
-
-            for (int i = xOrigine; i < xOrigine + (eraserSize * 2); i += scaleX)
-=======
             if ((x - eraserSize) >= displayPosX &&
                 (y - eraserSize) >= displayPosY &&
                 (x + eraserSize - scaleX) < displayWidth &&
                 (y + eraserSize - scaleY) < displayHeight)
->>>>>>> 03924b9d0bcbb7fd584869eefe51a7823f84264a
             {
                 int xOrigine = ((x - eraserSize) / scaleX) * scaleX;
                 int yOrigine = ((y - eraserSize) / scaleY) * scaleY;
@@ -221,7 +201,6 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
                 if (!tasCell.empty())
                     Undo.push({"ERASE", tasCell});
             }
-<<<<<<< HEAD
             if(!tasCell.empty()) Undo.push({ "ERASE",tasCell });
         } 
         if (cursor == "SELECT")
@@ -316,11 +295,6 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
         }
    }
 
-=======
-        }
-    }
-}
->>>>>>> 03924b9d0bcbb7fd584869eefe51a7823f84264a
 
 //--------------------------------------------------------------
 void GridController::mousePressed(int x, int y, int button, string cursor)
@@ -446,19 +420,8 @@ void GridController::redo()
         }
         Redo.pop();
     }
-}
-
-void GridController::update()
-{
-    grid.update();
-    for (Ant *ant : ants)
-    {
-        ant->update(&grid);
-    }
-    for (Ant *ant : ants)
-    {
-        grid.at(ant->pos)->addAntValue(ant->pheromoneLevel);
-    }
+    
+    
 }
 
 bool GridController::insideZoneSelected(int x, int y)
@@ -509,4 +472,55 @@ bool GridController::alreadySelected(int x, int y)
         if (pos.first == x && pos.second == y) return true;
     }
     return false;
+}
+
+void GridController::update()
+{
+    grid.update();
+    for (Ant *ant : ants)
+    {
+        ant->update(&grid);
+    }
+    for (Ant *ant : ants)
+    {
+        grid.at(ant->pos)->addAntValue(ant->pheromoneLevel);
+    }
+}
+
+void GridController::importGrid()
+{
+    ofImage img;
+    ofFileDialogResult filename = ofSystemLoadDialog("Importer une image");
+    if (!img.load(filename.getPath())) {
+        ofLog() << "Erreur : Impossible de charger l'image " << filename;
+        return;
+    }
+
+    // Vérifie si l'image correspond aux dimensions de la grille
+    if (img.getWidth() != displayWidth || img.getHeight() != displayHeight) {
+        ofLog() << "Erreur : Dimensions de l'image incorrectes";
+        return;
+    }
+
+    float scaleX = ((float)displayWidth) / grid.w;
+    float scaleY = ((float)displayHeight) / grid.h;
+
+    // Parcours chaque cellule et récupère la couleur correspondante
+    for (int y = 0; y < grid.h; y++) {
+        for (int x = 0; x < grid.w; x++) {
+            int px = x * scaleX;
+            int py = y * scaleY;
+            ofColor color = img.getColor(px, py);
+
+            // Définir les cellules en fonction des couleurs détectées
+            if (color == ofColor(0, 0, 0)) {
+                grid.at(x, y)->type = WALL;  // Noir = Mur
+            }
+            else {
+                grid.at(x, y)->type = PHEROMONE;  // Autre couleur = espace libre
+            }
+        }
+    }
+
+    ofLog() << "Grille importée depuis PNG : " << filename;
 }

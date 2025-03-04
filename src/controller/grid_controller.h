@@ -4,6 +4,7 @@
 #include <scene_controller.h>
 
 
+
 #ifndef GRID_CONTROLLER
 #define GRID_CONTROLLER
 
@@ -21,8 +22,7 @@ public:
     vector<Ant *> ants;
     std::stack<std::pair<std::string,vector<Cell*>>> Undo;
     std::stack<std::pair<std::string, vector<Cell*>>> Redo;
-<<<<<<< HEAD
-    scene_controller SceneController;
+    SceneController SceneController;
     std::vector<Cell*> cSelected;
     std::vector<std::pair<int, int>> CSposition;
     glm::vec2 posStart;
@@ -39,12 +39,6 @@ public:
     void exit();
 
     void drawZone(float x1, float y1, float x2, float y2);
-=======
-
-    void setup(int x, int y, int w, int h);
-    void draw();
-    void exit();
->>>>>>> 03924b9d0bcbb7fd584869eefe51a7823f84264a
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y);
@@ -58,13 +52,11 @@ public:
     void multipleSelection();
     void undo();
     void redo();
-<<<<<<< HEAD
     bool insideZoneSelected(int x, int y);
     void processSelectionZone();
     bool alreadySelected(int x, int y);
-=======
     void update();
->>>>>>> 03924b9d0bcbb7fd584869eefe51a7823f84264a
+    void importGrid();
 };
 
 #endif
