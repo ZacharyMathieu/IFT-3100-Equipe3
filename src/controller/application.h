@@ -4,6 +4,8 @@
 #include "grid_controller.h"
 #include "button.h"
 #include "ofxGui.h"
+#include "scene_controller.h"
+
 
 #ifndef APPLICATION
 #define APPLICATION
@@ -12,13 +14,14 @@ enum CursorMode
 {
 	DEFAULT,
 	DRAW,
-	ERASE
+	ERASE,
+	SELECT
 };
 
 class Application : public ofBaseApp
 {
 public:
-	static const int WINDOW_WIDTH = 1024;
+	static const int WINDOW_WIDTH = 1024 * 2;
 	static const int WINDOW_HEIGHT = 768;
 	static const int MENU_HEIGHT = 50;
 	static const int MENU_BUTTON_MARGIN = 10;
@@ -35,10 +38,10 @@ public:
 	static const int COORD_MENU_X = 10;
 	static const int COORD_MENU_Y = 60;
 	static const int COORD_SLIDER_X = 20;
-
 	static const int SLIDER_WIDTH = 200;
 
 	bool isRunning = false;
+	SceneController SceneController;
 
 	void setup() override;
 	void update() override;
@@ -63,17 +66,16 @@ private:
 	CursorMode cursorMode = DEFAULT;
 	GridController gridController;
 	ofImage importedImage;
-	bool imageLoaded = false;
 
+	bool imageLoaded = false;
 	bool showEraserMenu = false;
 	bool showDrawMenu = false;
 	bool showColorMenu = false;
-
 	bool isEraserMenuCollapsed = false;
 	bool isDrawMenuCollapsed = false;
 	bool isColorMenuCollapsed = false;
 	bool menuHidden = false;
-	
+
 	// Taille du crayon et de la gomme
 	ofParameter<int> eraserSize;
 	ofParameter<int> drawCursorSize;
@@ -83,9 +85,9 @@ private:
 
 	// Interfaces graphiques (GUI)
 	ofxPanel eraserGui; // GUI pour la gomme (taille uniquement)
-	ofxPanel penGui;    // GUI pour le crayon (taille + couleur)
-	ofxPanel colorGui;  // GUI pour la roue de couleur seule
-
+	ofxPanel penGui;	// GUI pour le crayon (taille + couleur)
+	ofxPanel colorGui;	// GUI pour la roue de couleur seule
+	ofxPanel gui;
 	ofColor currentDrawColor = ofColor(255, 0, 0);
 
 	ofImage importImageIcon;
@@ -98,6 +100,7 @@ private:
 	ofImage shapeModeIcon;
 	ofImage penTypeChoiceIcon;
 	ofImage shapeChoiceIcon;
+	ofImage selectIcon;
 	ofImage redoIcon;
 	ofImage undoIcon;
 
@@ -111,9 +114,13 @@ private:
 	Button shapeModeButton;
 	Button penTypeChoiceButton;
 	Button shapeChoiceButton;
+	Button selectButton;
 	Button undoButton;
 	Button redoButton;
 	vector<Button *> buttons;
+
+	ofParameter<ofColor> color_picker_ambient;
+	ofParameter<ofColor> color_picker_diffuse;
 
 	void setupButtons();
 	void drawMenu();
@@ -130,8 +137,12 @@ private:
 	void shapeMode();
 	void penTypeChoice();
 	void shapeChoice();
+	void multipleSelection();
 	void undo();
 	void redo();
+	void wallPosition3D();
+	
+
 };
 
 #endif

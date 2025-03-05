@@ -4,6 +4,7 @@ Cell::Cell(CellType type, float value)
 {
     this->type = type;
     this->value = value;
+    isSelected = false;
 }
 
 ofColor Cell::getCellColor()
@@ -38,5 +39,4 @@ void Cell::addAntValue(float antValue)
 {
     value += antValue;
     value = min(value, MAX_VALUE);
-    // value = max(value, (float)0.0);
 }
