@@ -485,31 +485,6 @@ void GridController::update()
 
 void GridController::importGrid(ofFile file)
 {
-    /*if (img.getWidth() != displayWidth || img.getHeight() != displayHeight) {
-        ofLog() << "Erreur : Dimensions de l'image incorrectes";
-        return;
-    }
-
-    float scaleX = ((float)displayWidth) / grid.w;
-    float scaleY = ((float)displayHeight) / grid.h;
-
-    // Parcours chaque cellule et récupère la couleur correspondante
-   
-    for (int y = 0; y < grid.h; y++) {
-        for (int x = 0; x < grid.w; x++) {
-            int px = x * scaleX;
-            int py = y * scaleY;
-            ofColor color = img.getColor(px+3, py+3);
-            
-            // Définir les cellules en fonction des couleurs détectées
-            if (color == ofColor(0, 0, 0)) {
-                grid.at(x, y)->type = WALL;  // Noir = Mur
-            }
-            else {
-                grid.at(x, y)->type = PHEROMONE;  // Autre couleur = espace libre
-            }
-        }
-    }*/
     ofBuffer buffer = file.readToBuffer();
 
     for (auto line : buffer.getLines())
