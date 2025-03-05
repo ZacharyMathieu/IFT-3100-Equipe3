@@ -487,16 +487,8 @@ void GridController::update()
     }
 }
 
-void GridController::importGrid()
+void GridController::importGrid(ofImage img)
 {
-    ofImage img;
-    ofFileDialogResult filename = ofSystemLoadDialog("Importer une image");
-    if (!img.load(filename.getPath())) {
-        ofLog() << "Erreur : Impossible de charger l'image " << filename;
-        return;
-    }
-
-    // Vérifie si l'image correspond aux dimensions de la grille
     if (img.getWidth() != displayWidth || img.getHeight() != displayHeight) {
         ofLog() << "Erreur : Dimensions de l'image incorrectes";
         return;
@@ -521,6 +513,6 @@ void GridController::importGrid()
             }
         }
     }
-
-    ofLog() << "Grille importée depuis PNG : " << filename;
 }
+    
+

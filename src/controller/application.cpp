@@ -460,7 +460,7 @@ void Application::dragEvent(ofDragInfo dragInfo)
 //--------------------------------------------------------------
 void Application::importImage()
 {
-    /*ofFileDialogResult result = ofSystemLoadDialog("Importer une image");
+    ofFileDialogResult result = ofSystemLoadDialog("Importer une image");
     if (result.bSuccess)
     {
         string filePath = result.getPath();
@@ -477,8 +477,8 @@ void Application::importImage()
             ofLogError() << "Échec du chargement de l'image.";
             imageLoaded = false;
         }
-    }*/
-    gridController.importGrid();
+    }
+    gridController.importGrid(importedImage);
 }
 
 //--------------------------------------------------------------
