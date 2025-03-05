@@ -6,6 +6,7 @@
 #include "ofxGui.h"
 #include "scene_controller.h"
 
+
 #ifndef APPLICATION
 #define APPLICATION
 
@@ -140,6 +141,8 @@ private:
 	void undo();
 	void redo();
 	void wallPosition3D();
+	
+
 };
 
 #endif

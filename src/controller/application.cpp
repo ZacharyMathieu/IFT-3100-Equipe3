@@ -112,6 +112,12 @@ void Application::update()
 void Application::draw()
 {
     drawMenu();
+   
+
+    if (SceneController.showPopup)
+    {
+        SceneController.showPopup = !SceneController.showPopup;
+    }
    // gui.draw();
     if (imageLoaded)
     {
@@ -232,9 +238,13 @@ void Application::keyPressed(int key)
     if (key == 'y') {
         gridController.keyPressed(key);
     }
-    if (key == ' '){
+    if (key == ' ') {
         gridController.update();
     }
+    
+        SceneController.keyPressed(key);
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -593,14 +603,17 @@ void Application::redo()
 
 void Application::wallPosition3D()
 {
+    int size = SceneController.wallSize;
     for (int y = 0; y < gridController.grid.grid.size(); y++) {
         for (int x = 0; x < gridController.grid.grid[y].size(); x++) {
             Cell* cell = gridController.grid.grid[y][x];
             if (cell->type == WALL) {
                 
-                glm::vec3 cubePosition((x * 100) + 50, 50, (y * 100) + 50); 
+                glm::vec3 cubePosition((x * size) + size/2, size/2, (y * size) +size/2); 
                 SceneController.positions.push_back(cubePosition);
             }
         }
     }
 }
+
+
