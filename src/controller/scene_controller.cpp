@@ -9,7 +9,10 @@ void SceneController::setup(int x, int y, int w, int h)
 	SCENE_y = y;
 	SCENE_WIDTH = w;
 	SCENE_HEIGHT = h;
-	wallSize = 50;
+	wallSize = 10;
+
+	scaleX = (float)w / 100;
+	scaleY = (float)h / 100;
 	ofSetFrameRate(60);
 	
 	ofSetLogLevel(OF_LOG_VERBOSE);
@@ -20,7 +23,7 @@ void SceneController::setup(int x, int y, int w, int h)
 
 	speed = 5.0f;
 
-	box.set(wallSize);
+	box.set(scaleX * wallSize, wallSize *5, scaleY * wallSize);
 	box.setPosition(0, 0, 0);
 	boxMesh = box.getMesh();
 
@@ -208,13 +211,13 @@ void SceneController::drawScene()
 	}
 
 	ofSetColor(100, 100, 100);
-	int step = 50;
+	int step = 10;
 
 	for (int x = 0; x <= ofGetWidth(); x++) {
-		ofDrawLine(x * step, 0, 0, x * step, 0, ofGetHeight() * step);
+		ofDrawLine(x*(scaleX * step), 0, 0, x*(scaleX * step), 0, ofGetHeight() * step);
 	}
 	for (int z = 0; z <= ofGetHeight(); z++) {
-		ofDrawLine(0, 0, z * step, ofGetWidth() * step, 0, z * step);
+		ofDrawLine(0, 0, z*(scaleY * step), ofGetWidth() * step, 0, z*(scaleY * step));
 	}
 }
 

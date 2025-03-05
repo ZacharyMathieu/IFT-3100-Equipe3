@@ -603,13 +603,20 @@ void Application::redo()
 
 void Application::wallPosition3D()
 {
-    int size = SceneController.wallSize;
+    
+    float size = SceneController.wallSize;
+
+    float sizeBoxX = gridController.scaleX * size;
+    float sizeBoxY = gridController.scaleY * size;
+    
+    SceneController.positions.clear();
+
     for (int y = 0; y < gridController.grid.grid.size(); y++) {
         for (int x = 0; x < gridController.grid.grid[y].size(); x++) {
             Cell* cell = gridController.grid.grid[y][x];
             if (cell->type == WALL) {
                 
-                glm::vec3 cubePosition((x * size) + size/2, size/2, (y * size) +size/2); 
+                glm::vec3 cubePosition((x * sizeBoxX) + (sizeBoxX / 2), 25, (y* sizeBoxY) + (sizeBoxY/2));
                 SceneController.positions.push_back(cubePosition);
             }
         }

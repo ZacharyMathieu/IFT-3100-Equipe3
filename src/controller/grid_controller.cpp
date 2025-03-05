@@ -9,7 +9,8 @@ void GridController::setup(int x, int y, int w, int h)
     displayHeight = h;
     drawZonePressed = false;
     isSelected = false;;
-
+    scaleX = ((float)displayWidth) / grid.w;
+    scaleY = ((float)displayHeight) / grid.h;
     // TODO: Better init of ants
     for (int i = 0; i < 200; i++)
     {

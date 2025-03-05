@@ -15,6 +15,8 @@ public:
     static const int GRID_WIDTH = 100;
     static const int GRID_HEIGHT = 100;
 
+    float scaleX;
+        float scaleY;
     int displayPosX;
     int displayPosY;
     int displayWidth;

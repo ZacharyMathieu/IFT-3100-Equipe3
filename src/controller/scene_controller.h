@@ -54,7 +54,8 @@ private:
 	
 	ofRectangle sceneView;
 	
-	
+	float scaleX;
+	float scaleY;
 	float scale_ant;
 	float speed;
 	float rotation;
