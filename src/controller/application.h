@@ -140,6 +140,7 @@ private:
 	void undo();
 	void redo();
 	void wallPosition3D();
+	void createColorCanva(string filepath);
 };
 
 #endif

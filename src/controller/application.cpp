@@ -464,6 +464,8 @@ void Application::importImage()
     if (result.bSuccess)
     {
         string filePath = result.getPath();
+        ofFile file(filePath);
+
         ofLog() << "Tentative de chargement de l'image : " << filePath;
 
         if (importedImage.load(filePath))
@@ -477,27 +479,32 @@ void Application::importImage()
             ofLogError() << "Échec du chargement de l'image.";
             imageLoaded = false;
         }
+        gridController.importGrid(file);
     }
-    gridController.importGrid(importedImage);
+    
 }
 
 //--------------------------------------------------------------
 void Application::exportImage()
 {
+    
+
     cursorMode = DEFAULT;
     std::string defaultPath = ofFilePath::getUserHomeDir() + "/capture.png";
     ofFileDialogResult saveFile = ofSystemSaveDialog(defaultPath, "save grid");
 
     if (saveFile.bSuccess)
     {
-        std::string path = saveFile.getPath();
+        /*std::string path = saveFile.getPath();
         path += ".png";
         ofImage screenshot;
+        
         screenshot.grabScreen(0, MENU_HEIGHT, ofGetWidth()/2, ofGetHeight() - MENU_HEIGHT);
-
-        screenshot.save(path);
+        
+        screenshot.save(path);*/
+        createColorCanva(saveFile.getPath());
     }
-
+    
     cout << "exportImage\n";
 }
 
@@ -603,4 +610,21 @@ void Application::wallPosition3D()
             }
         }
     }
+}
+
+void Application::createColorCanva(string filepath)
+{
+    ofFile file(filepath, ofFile::WriteOnly);
+    
+    for (int y = 0; y < gridController.grid.h; y++) {
+        for (int x = 0; x < gridController.grid.w; x++) {
+            ofColor color = gridController.grid.at(x, y)->getCellColor();
+            file << x << "," << y << ","
+                << (int)color.r << ","
+                << (int)color.g << ","
+                << (int)color.b << "\n";
+        }
+    }
+    file.close();
+    
 }

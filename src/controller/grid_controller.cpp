@@ -483,9 +483,9 @@ void GridController::update()
     }
 }
 
-void GridController::importGrid(ofImage img)
+void GridController::importGrid(ofFile file)
 {
-    if (img.getWidth() != displayWidth || img.getHeight() != displayHeight) {
+    /*if (img.getWidth() != displayWidth || img.getHeight() != displayHeight) {
         ofLog() << "Erreur : Dimensions de l'image incorrectes";
         return;
     }
@@ -508,6 +508,24 @@ void GridController::importGrid(ofImage img)
             else {
                 grid.at(x, y)->type = PHEROMONE;  // Autre couleur = espace libre
             }
+        }
+    }*/
+    ofBuffer buffer = file.readToBuffer();
+
+    for (auto line : buffer.getLines())
+    {
+        vector<string> tokens = ofSplitString(line, ",");
+        if (tokens.size() < 5) continue;
+
+        int x = ofToInt(tokens[0]);
+        int y = ofToInt(tokens[1]);
+        int r = ofToInt(tokens[2]);
+        int g = ofToInt(tokens[3]);
+        int b = ofToInt(tokens[4]);
+
+        if (x >= 0 && x < grid.w && y >= 0 && y < grid.h)
+        {
+            if (r == 0) grid.at(x, y)->type = WALL;
         }
     }
 }
