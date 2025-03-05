@@ -447,10 +447,6 @@ void GridController::processSelectionZone()
     int minY = (int)((min(mouse_pressed_y, mouse_current_y) - displayPosY) / scaleY);
     int maxY = (int)((max(mouse_pressed_y, mouse_current_y) - displayPosY) / scaleY);
 
-    // Debugging pour vérifier les valeurs
-    ofLog() << "Mouse Pressed: (" << mouse_pressed_x << ", " << mouse_pressed_y << ")";
-    ofLog() << "Mouse Released: (" << mouse_current_x << ", " << mouse_current_y << ")";
-    ofLog() << "Selection Grid Coordinates: (" << minX << "," << minY << ") to (" << maxX << "," << maxY << ")";
 
     for (int i = minX; i <= maxX; i++) {
         for (int j = minY; j <= maxY; j++) {
@@ -498,12 +494,13 @@ void GridController::importGrid(ofImage img)
     float scaleY = ((float)displayHeight) / grid.h;
 
     // Parcours chaque cellule et récupère la couleur correspondante
+   
     for (int y = 0; y < grid.h; y++) {
         for (int x = 0; x < grid.w; x++) {
             int px = x * scaleX;
             int py = y * scaleY;
-            ofColor color = img.getColor(px, py);
-
+            ofColor color = img.getColor(px+3, py+3);
+            
             // Définir les cellules en fonction des couleurs détectées
             if (color == ofColor(0, 0, 0)) {
                 grid.at(x, y)->type = WALL;  // Noir = Mur

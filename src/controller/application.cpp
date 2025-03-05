@@ -113,11 +113,11 @@ void Application::draw()
 {
     drawMenu();
    // gui.draw();
-    if (imageLoaded)
+   /* if (imageLoaded)
     {
         ofSetColor(255);
         importedImage.draw(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
-    }
+    }*/
     
     gridController.draw();
 
