@@ -32,6 +32,9 @@ void SceneController::setup(int x, int y, int w, int h)
 	ant.setPosition(50, 0, 50);
 	ant.setRotation(0, 90 + 45, 0, 1, 0);
 	rotation = ant.getRotationAngle(0);
+	
+	boxCollider = createBoundingBox(ant);
+
 
 	// d�sactiver le mat�riau par d�faut du mod�le
 	ant.disableMaterials();
@@ -70,6 +73,7 @@ void SceneController::update()
 	// transformation du teapot
 	ant.setScale(scale_ant, scale_ant, scale_ant);
 	
+	boxCollider.setPosition(ant.getPosition());
 	
 	if (ofGetKeyPressed(OF_KEY_LEFT)) {
 		ant.setPosition(ant.getPosition().x + speed, ant.getPosition().y, ant.getPosition().z - speed);
@@ -199,8 +203,10 @@ void SceneController::drawScene()
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
 	ant.draw(OF_MESH_FILL);
+	
 	shader.end();
-
+	ofSetColor(255, 0, 0); // Rouge pour visualiser le collider
+	boxCollider.draw(OF_MESH_WIREFRAME);
 	for (auto& pos : positions)
 	{
 		ofPushMatrix();
@@ -219,5 +225,15 @@ void SceneController::drawScene()
 	for (int z = 0; z <= ofGetHeight(); z++) {
 		ofDrawLine(0, 0, z*(scaleY * step), ofGetWidth() * step, 0, z*(scaleY * step));
 	}
+}
+
+ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
+{
+
+	ofBoxPrimitive boundingBox;
+	boundingBox.set(model.getPosition().x, 50, model.getPosition().z);
+	
+
+    return boundingBox;
 }
 
