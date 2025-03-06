@@ -41,9 +41,10 @@ public :
 	ofLight light;
 	ofxAssimpModelLoader ant;
 	ofVboMesh boxMesh;
+	ofBoxPrimitive boxCollider;
 private:
 	ofBoxPrimitive box;
-	ofBoxPrimitive boxCollider;
+	
 	glm::vec3 boundingSize;
 	ofEasyCam cam;
 	ofParameter<bool> checkPop;
@@ -66,5 +67,6 @@ private:
 	shared_ptr<class PopupView> secondWindowApp;
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
+	bool checkCollision(glm::vec3 newPos);
 	
 };

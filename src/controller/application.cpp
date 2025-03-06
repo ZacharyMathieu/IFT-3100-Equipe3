@@ -198,10 +198,10 @@ void Application::drawCustomCursors()
             ofShowCursor();
             SetCursor(LoadCursor(NULL, IDC_HAND));
         }
-        else 
+        else if(ofGetMouseX() > ofGetWidth()/2 && ofGetMouseY() > MENU_HEIGHT)
         { 
             ofShowCursor();
-            SetCursor(LoadCursor(NULL, IDC_ARROW));
+            SetCursor(LoadCursor(NULL,IDC_CROSS));
         }
     }
 }
@@ -615,8 +615,13 @@ void Application::wallPosition3D()
         for (int x = 0; x < gridController.grid.grid[y].size(); x++) {
             Cell* cell = gridController.grid.grid[y][x];
             if (cell->type == WALL) {
-                
+
+                if (abs(SceneController.boxCollider.getPosition().x - ( (x * sizeBoxX) + (sizeBoxX / 2))) < (sizeBoxX * 1.5f) / 2
+                    && abs(SceneController.boxCollider.getPosition().z - ((y * sizeBoxY) + (sizeBoxY / 2))) < (sizeBoxY * 1.5) / 2)
+                    continue;
+
                 glm::vec3 cubePosition((x * sizeBoxX) + (sizeBoxX / 2), 25, (y* sizeBoxY) + (sizeBoxY/2));
+
                 SceneController.positions.push_back(cubePosition);
             }
         }

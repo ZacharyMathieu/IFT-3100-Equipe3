@@ -74,19 +74,22 @@ void SceneController::update()
 	ant.setScale(scale_ant, scale_ant, scale_ant);
 	
 	boxCollider.setPosition(ant.getPosition());
-	
+	glm::vec3 newPos = ant.getPosition();
 	if (ofGetKeyPressed(OF_KEY_LEFT)) {
-		ant.setPosition(ant.getPosition().x + speed, ant.getPosition().y, ant.getPosition().z - speed);
+		newPos.x += speed;
+		newPos.z -= speed;
 		ant.setRotation(0, rotation-90, 0 ,1,0);
 		
 	}
 	if (ofGetKeyPressed(OF_KEY_RIGHT)) {
-		ant.setPosition(ant.getPosition().x - speed, ant.getPosition().y, ant.getPosition().z+ speed);
+		newPos.x -= speed;
+		newPos.z += speed;
 		ant.setRotation(0, rotation, 0, 1, 0);
 		ant.setRotation(0, rotation+90, 0, 1, 0);
 	}
 	if (ofGetKeyPressed(OF_KEY_UP)) {
-		ant.setPosition(ant.getPosition().x + speed, ant.getPosition().y, ant.getPosition().z + speed);
+		newPos.x += speed;
+		newPos.z += speed;
 		ant.setRotation(0, rotation, 0, 1, 0);
 		if (ofGetKeyPressed(OF_KEY_RIGHT)) {
 			ant.setRotation(0, rotation+45, 0, 1, 0);
@@ -96,7 +99,8 @@ void SceneController::update()
 		}
 	}
 	if (ofGetKeyPressed(OF_KEY_DOWN)) {
-		ant.setPosition(ant.getPosition().x - speed, ant.getPosition().y, ant.getPosition().z - speed);
+		newPos.x -= speed;
+		newPos.z -= speed;
 		ant.setRotation(0, rotation - 180, 0, 1, 0);
 		if (ofGetKeyPressed(OF_KEY_RIGHT)) {
 			ant.setRotation(0, rotation +135, 0, 1, 0);
@@ -105,6 +109,9 @@ void SceneController::update()
 			ant.setRotation(0, rotation - 135, 0, 1, 0);
 		}
 		
+	}
+	if (!checkCollision(newPos)) {
+		ant.setPosition(newPos.x, newPos.y, newPos.z);
 	}
 	cam.setPosition(ant.getPosition().x - 100, 100, ant.getPosition().z - 100);
 	cam.lookAt(ofVec3f(ant.getPosition()));;
@@ -205,8 +212,8 @@ void SceneController::drawScene()
 	ant.draw(OF_MESH_FILL);
 	
 	shader.end();
-	ofSetColor(255, 0, 0); // Rouge pour visualiser le collider
-	boxCollider.draw(OF_MESH_WIREFRAME);
+	//ofSetColor(255, 0, 0); // Rouge pour visualiser le collider
+	//boxCollider.draw(OF_MESH_WIREFRAME);
 	for (auto& pos : positions)
 	{
 		ofPushMatrix();
@@ -236,4 +243,16 @@ ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
 
     return boundingBox;
 }
+bool SceneController::checkCollision(glm::vec3 newPos) {
+	float halfSize = (wallSize*1.5f)/2;
+
+	for (auto& pos : positions) {
+		if (abs(newPos.x - pos.x) < halfSize*scaleX &&
+			abs(newPos.z - pos.z) < halfSize*scaleY) {
+			return true;  
+		}
+	}
+	return false;
+}
+
 
