@@ -42,3 +42,9 @@
 .history/*
 obj/*
 *.DS_Store
+.vs/*
+bin/*
+Makefile
+Projet.xcconfig
+UpgradeLog.htm
+x64/*
