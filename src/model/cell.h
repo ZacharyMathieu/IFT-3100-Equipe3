@@ -21,13 +21,12 @@ public:
     const float DECAY_VALUE = 2;
     float value;
     CellType type;
-
     Cell(CellType = PHEROMONE, float = 0.0);
 
     void update();
     ofColor getCellColor();
     void addAntValue(float);
-
+    bool isSelected;
 private:
     ofColor adjustColor(ofColor *fullColor, ofColor *emptyColor);
 };

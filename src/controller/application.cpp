@@ -56,10 +56,11 @@ void Application::setupButtons()
     shapeModeIcon.load("images/shapeMode.png");
     penTypeChoiceIcon.load("images/penTypeChoice.png");
     shapeChoiceIcon.load("images/shapeChoice.png");
+    selectIcon.load("images/select.png");
     undoIcon.load("images/undo.png");
     redoIcon.load("images/redo.png");
 
-    vector<std::tuple<Button *, void (Application::*)(), ofImage *>> buttonMap = {
+    vector<std::tuple<Button*, void (Application::*)(), ofImage*>> buttonMap = {
         std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
         std::tuple(&exportImageButton, &Application::exportImage, &exportImageIcon),
         std::tuple(&playButton, &Application::play, &playIcon),
@@ -69,6 +70,7 @@ void Application::setupButtons()
         std::tuple(&shapeModeButton, &Application::shapeMode, &shapeModeIcon),
         std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
         std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon),
+        std::tuple(&selectButton, &Application::multipleSelection, &selectIcon),
         std::tuple(&undoButton, &Application::undo, &undoIcon),
         std::tuple(&redoButton, &Application::redo, &redoIcon),
     };
@@ -110,6 +112,12 @@ void Application::update()
 void Application::draw()
 {
     drawMenu();
+   
+
+    if (SceneController.showPopup)
+    {
+        SceneController.showPopup = !SceneController.showPopup;
+    }
    // gui.draw();
     if (imageLoaded)
     {
@@ -186,9 +194,14 @@ void Application::drawCustomCursors()
             ofFill();
             ofHideCursor();
         }
-        else 
+        else if (cursorMode == SELECT) {
+            ofShowCursor();
+            SetCursor(LoadCursor(NULL, IDC_HAND));
+        }
+        else if(ofGetMouseX() > ofGetWidth()/2 && ofGetMouseY() > MENU_HEIGHT)
         { 
             ofShowCursor();
+            SetCursor(LoadCursor(NULL,IDC_CROSS));
         }
     }
 }
@@ -225,9 +238,13 @@ void Application::keyPressed(int key)
     if (key == 'y') {
         gridController.keyPressed(key);
     }
-    if (key == ' '){
+    if (key == ' ') {
         gridController.update();
     }
+    
+        SceneController.keyPressed(key);
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -243,6 +260,8 @@ void Application::mouseMoved(int x, int y)
 //--------------------------------------------------------------
 void Application::mouseDragged(int x, int y, int button)
 {
+    gridController.mouse_current_x = x;
+    gridController.mouse_current_y = y;
     string cursor;
 
     switch (cursorMode)
@@ -253,7 +272,11 @@ void Application::mouseDragged(int x, int y, int button)
     case ERASE:
         cursor = "ERASE";
         break;
+    case SELECT:
+        cursor = "SELECT";
+        break;
     default:
+       
         break;
     }
 
@@ -263,6 +286,11 @@ void Application::mouseDragged(int x, int y, int button)
 //--------------------------------------------------------------
 void Application::mousePressed(int x, int y, int button)
 {
+    gridController.mouse_pressed_x = x;
+    gridController.mouse_pressed_y = y;
+    gridController.mouse_current_x = x;
+    gridController.mouse_current_y = y;
+
     if (y < MENU_HEIGHT)
     {
         int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
@@ -381,11 +409,32 @@ void Application::mousePressed(int x, int y, int button)
         isColorMenuCollapsed = !isColorMenuCollapsed;
         return;
     }
+    string cursor;
+
+    switch (cursorMode)
+    {
+    case DRAW:
+        cursor = "DRAW";
+        break;
+    case ERASE:
+        cursor = "ERASE";
+        break;
+    case SELECT:
+        cursor = "SELECT";
+        break;
+    default:
+
+        break;
+    }
+    ofLog() << cursorMode;
+    gridController.mousePressed(x, y, button, cursor);
 }
 
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
+   
+    gridController.mouseReleased(x, y, button);
 }
 
 //--------------------------------------------------------------
@@ -439,6 +488,7 @@ void Application::importImage()
             imageLoaded = false;
         }
     }
+    gridController.importGrid(importedImage);
 }
 
 //--------------------------------------------------------------
@@ -453,7 +503,7 @@ void Application::exportImage()
         std::string path = saveFile.getPath();
         path += ".png";
         ofImage screenshot;
-        screenshot.grabScreen(0, MENU_HEIGHT, ofGetWidth(), ofGetHeight() - MENU_HEIGHT);
+        screenshot.grabScreen(0, MENU_HEIGHT, ofGetWidth()/2, ofGetHeight() - MENU_HEIGHT);
 
         screenshot.save(path);
     }
@@ -529,6 +579,18 @@ void Application::shapeChoice()
     cursorMode = DEFAULT;
 }
 
+void Application::multipleSelection()
+{
+    cursorMode = SELECT;
+    
+    ofShowCursor();
+
+    showEraserMenu = false;
+    showDrawMenu = false;
+    showColorMenu = false;
+   
+}
+
 void Application::undo()
 {
     gridController.undo();
@@ -541,14 +603,29 @@ void Application::redo()
 
 void Application::wallPosition3D()
 {
+    
+    float size = SceneController.wallSize;
+
+    float sizeBoxX = gridController.scaleX * size;
+    float sizeBoxY = gridController.scaleY * size;
+    
+    SceneController.positions.clear();
+
     for (int y = 0; y < gridController.grid.grid.size(); y++) {
         for (int x = 0; x < gridController.grid.grid[y].size(); x++) {
             Cell* cell = gridController.grid.grid[y][x];
             if (cell->type == WALL) {
-                
-                glm::vec3 cubePosition((x * 100) + 50, 50, (y * 100) + 50); 
+
+                if (abs(SceneController.boxCollider.getPosition().x - ( (x * sizeBoxX) + (sizeBoxX / 2))) < (sizeBoxX * 1.5f) / 2
+                    && abs(SceneController.boxCollider.getPosition().z - ((y * sizeBoxY) + (sizeBoxY / 2))) < (sizeBoxY * 1.5) / 2)
+                    continue;
+
+                glm::vec3 cubePosition((x * sizeBoxX) + (sizeBoxX / 2), 25, (y* sizeBoxY) + (sizeBoxY/2));
+
                 SceneController.positions.push_back(cubePosition);
             }
         }
     }
 }
+
+
