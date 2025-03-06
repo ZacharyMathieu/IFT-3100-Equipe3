@@ -37,12 +37,22 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	shader = shader_ant;
 
-	mainCameraMode = true;
+	cameras.push_back(&mainCamera);
+	cameras.push_back(&topCamera);
+	cameras.push_back(&freeCamera);
+	numCam = 0;
+	activeCam = cameras[numCam];
+
 	mainCamera.setPosition(antModelLoader.getPosition().x - 100, 100, antModelLoader.getPosition().z - 100);
 	mainCamera.lookAt(ofVec3f(antModelLoader.getPosition()));
+	mainCamera.disableMouseInput();
 
 	topCamera.setPosition(antModelLoader.getPosition().x, 500, antModelLoader.getPosition().z);
 	topCamera.lookAt(ofVec3f(0, -1, 0));
+	topCamera.disableMouseInput();
+
+	freeCamera.setPosition(SCENE_WIDTH / 2, 50, SCENE_HEIGHT / 2);
+	freeCamera.lookAt(ofVec3f(0, -1, 0));
 
 	gui.setup();
 	checkPop.setName("Vu D'ensemble");
@@ -133,21 +143,11 @@ void SceneController::draw()
 	ofEnableDepthTest();
 	ofEnableLighting();
 	light.enable();
-	if (mainCameraMode) {
-		mainCamera.begin();
-	}
-	else {
-		topCamera.begin();
-	}
-
+	
+	activeCam->begin();
 	drawScene();
-	if (mainCameraMode) {
-		mainCamera.end();
-	}
-	else {
-		topCamera.end();
-	}
-
+	
+	activeCam->end();
 	light.disable();
 	ofDisableLighting();
 	ofDisableDepthTest();
@@ -155,8 +155,9 @@ void SceneController::draw()
 
 	if (checkPop) {
 		ofDrawLine(fullWidth / 2, halfHeight, fullWidth, halfHeight);
+
 		ofPushView();
-		ofViewport(fullWidth / 2, halfHeight + 50, fullWidth / 2, halfHeight);
+		ofViewport(fullWidth / 2, halfHeight, fullWidth / 2, halfHeight);
 
 		ofEnableDepthTest();
 		ofEnableLighting();
@@ -176,8 +177,11 @@ void SceneController::draw()
 void SceneController::keyPressed(int key)
 {
 	if (key == 'c') {
-		mainCameraMode = !mainCameraMode;
+		numCam = (numCam+1)% cameras.size();
+
+		activeCam = cameras[numCam];
 	}
+	
 }
 
 void SceneController::drawScene()
@@ -233,8 +237,8 @@ ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
 }
 
 bool SceneController::checkCollision(glm::vec3 newPos) {
-	float halfSize = (wallSize * 1.5f) / 2;
-	if (newPos.x < 0 || newPos.x > ofGetWidth() * 10 || newPos.z < 0 || newPos.z > ofGetHeight() * 10)
+	float halfSize = (wallSize) / 2;
+	if (newPos.x < 0 || newPos.x > SCENE_HEIGHT* wallSize || newPos.z < 0 || newPos.z > SCENE_WIDTH * wallSize)
 		return true;
 	for (auto& pos : wallPositions) {
 		if (abs(newPos.x - pos.x) < halfSize * gridController->scaleX &&
@@ -278,7 +282,7 @@ void SceneController::updateAntPositions() {
 	{
 		ofPoint posAnt;
 		posAnt = ant->pos;
-		glm::vec3 antPosition((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 5, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+		glm::vec3 antPosition((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0.5f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
 		antPositions.push_back(antPosition);
 	}

@@ -49,8 +49,11 @@ private:
 	ofVboMesh vboBoxMeshAnt;
 	glm::vec3 boundingSize;
 	ofEasyCam mainCamera;
-	ofCamera topCamera;
-
+	ofEasyCam topCamera;
+	ofEasyCam freeCamera;
+	ofEasyCam* activeCam;
+	vector<ofEasyCam*> cameras;
+	int numCam;
 	ofParameter<bool> checkPop;
 	ofxPanel gui;
 	ofRectangle sceneView;

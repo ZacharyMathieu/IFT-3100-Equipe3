@@ -492,13 +492,6 @@ void Application::exportImage()
 
 	if (saveFile.bSuccess)
 	{
-		/*std::string path = saveFile.getPath();
-		path += ".png";
-		ofImage screenshot;
-
-		screenshot.grabScreen(0, MENU_HEIGHT, ofGetWidth()/2, ofGetHeight() - MENU_HEIGHT);
-
-		screenshot.save(path);*/
 		createColorCanva(saveFile.getPath());
 	}
 
@@ -632,13 +625,19 @@ void Application::createColorCanva(string filepath)
 
 	for (int y = 0; y < gridController.grid.h; y++) {
 		for (int x = 0; x < gridController.grid.w; x++) {
-			ofColor color = gridController.grid.at(x, y)->getCellColor();
-			file << x << "," << y << ","
-				<< (int)color.r << ","
-				<< (int)color.g << ","
-				<< (int)color.b << "\n";
+			
+			float value = gridController.grid.at(x, y)->value;
+			string type = gridController.grid.at(x, y)->type == WALL ? "WALL" : "PHEROMONE";
+
+			file << x << ","
+				<< y << ","
+				<< value << ","
+				<< type <<"\n";
 		}
 	}
+	file << "ant" << "\n";
+	for (Ant* ant : gridController.ants)
+		file << ant->pos.x << "," << ant->pos.y << "\n";
 	file.close();
 
 }
