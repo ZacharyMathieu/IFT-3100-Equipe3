@@ -112,26 +112,8 @@ void Application::update()
 void Application::draw()
 {
     drawMenu();
-   
-
-    if (SceneController.showPopup)
-    {
-        SceneController.showPopup = !SceneController.showPopup;
-    }
-   // gui.draw();
-    if (imageLoaded)
-    {
-        ofSetColor(255);
-        importedImage.draw(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
-    }
     
     gridController.draw();
-
-    // Dans votre méthode de mise à jour de la grille
-    
-
-
-   
    
     if (showDrawMenu)
         penGui.draw();
@@ -142,6 +124,7 @@ void Application::draw()
 
     drawCustomCursors();
     wallPosition3D();
+    antPosition3D();
     SceneController.draw();
     
     
@@ -628,4 +611,23 @@ void Application::wallPosition3D()
     }
 }
 
+void Application::antPosition3D()
+{
+    float size = SceneController.wallSize;
 
+    float sizeBoxX = gridController.scaleX * size;
+    float sizeBoxY = gridController.scaleY * size;
+
+    SceneController.antPositions.clear();
+
+    for (Ant* ant : gridController.ants)
+    {
+        ofPoint posAnt;
+        posAnt = ant->pos;
+        glm::vec3 antPosition((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 5, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+        
+        SceneController.antPositions.push_back(antPosition);
+    }
+}
+
+  

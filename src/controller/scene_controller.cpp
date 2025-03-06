@@ -17,8 +17,6 @@ void SceneController::setup(int x, int y, int w, int h)
 	
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	
-	
-	// param�tres
 	scale_ant= 0.05f;
 
 	speed = 5.0f;
@@ -26,8 +24,13 @@ void SceneController::setup(int x, int y, int w, int h)
 	box.set(scaleX * wallSize, wallSize *5, scaleY * wallSize);
 	box.setPosition(0, 0, 0);
 	boxMesh = box.getMesh();
+	
 
-	// chargement du mod�le
+	ants.set(wallSize, 120);
+	ants.setPosition(0, 0, 0);
+	vboBoxMeshAnt = ants.getMesh();
+
+
 	ant.load("models/ant3.obj");
 	ant.setPosition(50, 0, 50);
 	ant.setRotation(0, 90 + 45, 0, 1, 0);
@@ -35,15 +38,11 @@ void SceneController::setup(int x, int y, int w, int h)
 	
 	boxCollider = createBoundingBox(ant);
 
-
-	// d�sactiver le mat�riau par d�faut du mod�le
 	ant.disableMaterials();
 
-	// chargement du shader
 	shader_ant.load("lambert_330_vs.glsl", "lambert_330_fs.glsl");
 	shader_normal.load("draw_normal_330_vs.glsl", "draw_normal_330_fs.glsl");
 
-	// s�lectionner le shader courant
 	shader = shader_ant;
 
 	cam.setPosition(ant.getPosition().x -100, 100, ant.getPosition().z -100);
@@ -51,26 +50,21 @@ void SceneController::setup(int x, int y, int w, int h)
 	mainCamera = true;
 	camera.setPosition(500, 700, 500);
 	camera.lookAt(ofVec3f(ant.getPosition().x +500, ant.getPosition().y, ant.getPosition().z +500 ));
-	popupCam = camera;
+	
 
 	gui.setup();
-	//openPopup.setup("Vu d'ensemble");
 	checkPop.setName("Vu D'ensemble");
 	gui.add(checkPop);
 	checkPop = false;
-
-	//openPopup.addListener(this, &SceneController::drawSecondWindow);
-	//gui.add(&openPopup);
 	gui.setPosition(ofGetWidth() - 200, 10);
+	
 }
 
 void SceneController::update()
 {
-	// position au centre de la fen�tre d'affichage
 	centre_x = 3*(ofGetWidth() / 4.0f) ;
 	centre_y = ofGetHeight() / 2.0f;
 
-	// transformation du teapot
 	ant.setScale(scale_ant, scale_ant, scale_ant);
 	
 	boxCollider.setPosition(ant.getPosition());
@@ -110,9 +104,11 @@ void SceneController::update()
 		}
 		
 	}
+
 	if (!checkCollision(newPos)) {
 		ant.setPosition(newPos.x, newPos.y, newPos.z);
 	}
+
 	cam.setPosition(ant.getPosition().x - 100, 100, ant.getPosition().z - 100);
 	cam.lookAt(ofVec3f(ant.getPosition()));;
 	camera.setPosition(ant.getPosition().x + 500, 2000, ant.getPosition().z + 500);
@@ -121,18 +117,17 @@ void SceneController::update()
 	light.setPointLight();
 	light.setDiffuseColor(255);
 	light.setGlobalPosition(centre_x, centre_y, 255.0f);
+
+	
+	
 }
 
 void SceneController::draw()
 {	
 	gui.draw();
 
-	
 	int halfHeight = ofGetHeight() / 2;
 	int fullWidth = ofGetWidth();
-	ofSetColor(0);
-	ofSetLineWidth(7);
-	ofDrawLine(fullWidth / 2, 0, fullWidth / 2, halfHeight * 2);
 	
 	ofPushView();
 	if (checkPop) {
@@ -141,7 +136,7 @@ void SceneController::draw()
 	else {
 		ofViewport(fullWidth / 2, 50, fullWidth/2, ofGetHeight());
 	}
-
+	
 	ofEnableDepthTest();
 	ofEnableLighting();
 	light.enable();
@@ -196,14 +191,10 @@ void SceneController::keyPressed(int key)
 	}
 }
 
-void SceneController::drawSecondWindow()
-{
-	showPopup = !showPopup;
-	ofLog() << "appel de deuxième fenetre" << (showPopup ? "on" : "off");
-}
 
 void SceneController::drawScene()
 {
+
 	shader.begin();
 	shader.setUniform3f("color_ambient", 1, 0, 0);
 	shader.setUniform3f("color_diffuse", 0, 0, 1);
@@ -212,8 +203,24 @@ void SceneController::drawScene()
 	ant.draw(OF_MESH_FILL);
 	
 	shader.end();
+
+	shader.begin();
+	shader.setUniform3f("color_ambient", 0, 0, 0);
+	shader.setUniform3f("color_diffuse", 1, 1, 1);
+	shader.setUniform3f("light_position", light.getGlobalPosition());
+
+	for (auto& pos : antPositions) {
+		if (abs(pos.x - ant.getPosition().x) > 500 && abs(pos.z - ant.getPosition().z) > 500) continue;
+		ofPushMatrix();
+		ofTranslate(pos);
+		vboBoxMeshAnt.draw();
+		ofPopMatrix();
+	}
+	shader.end();
+
 	//ofSetColor(255, 0, 0); // Rouge pour visualiser le collider
 	//boxCollider.draw(OF_MESH_WIREFRAME);
+
 	for (auto& pos : positions)
 	{
 		ofPushMatrix();
@@ -222,6 +229,8 @@ void SceneController::drawScene()
 		boxMesh.draw(OF_MESH_WIREFRAME);
 		ofPopMatrix();
 	}
+
+	
 
 	ofSetColor(100, 100, 100);
 	int step = 10;
@@ -245,13 +254,15 @@ ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
 }
 bool SceneController::checkCollision(glm::vec3 newPos) {
 	float halfSize = (wallSize*1.5f)/2;
-
+	if (newPos.x < 0 || newPos.x > ofGetWidth() * 10 || newPos.z < 0 || newPos.z > ofGetHeight() * 10) 
+		return true;
 	for (auto& pos : positions) {
-		if (abs(newPos.x - pos.x) < halfSize*scaleX &&
-			abs(newPos.z - pos.z) < halfSize*scaleY) {
-			return true;  
+		if (abs(newPos.x - pos.x) < halfSize * scaleX &&
+			abs(newPos.z - pos.z) < halfSize * scaleY) {
+			return true;
 		}
 	}
+		
 	return false;
 }
 
