@@ -23,6 +23,10 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	antSphere.setPosition(0, 0, 0);
 	vboBoxMeshAnt = antSphere.getMesh();
 
+	pheromoneSphere.set(5, 120);
+	pheromoneSphere.setPosition(0, 0, 0);
+	vboPheromone = pheromoneSphere.getMesh();
+
 	antModelLoader.load("models/ant3.obj");
 	antModelLoader.setPosition(50, 0, 50);
 	antModelLoader.setRotation(0, 90 + 45, 0, 1, 0);
@@ -209,6 +213,30 @@ void SceneController::drawScene()
 	}
 	shader.end();
 
+	shader.begin();
+	shader.setUniform3f("color_ambient", 0, 0, 1);
+	shader.setUniform3f("color_diffuse", 1,1 , 1);
+	shader.setUniform3f("light_position", light.getGlobalPosition());
+
+	for (auto& pos : pheromonePositions) {
+		//if (glm::distance(pos, antModelLoader.getPosition()) > 50) continue;
+		ofPushMatrix();
+		ofTranslate(pos);
+		ofPoint p = conversionPixelToGrid(pos.x, pos.z);
+		if (p.x >= 0 && p.x < gridController->grid.w*gridController->scaleX &&
+			p.y >= 0 && p.y < gridController->grid.h*gridController->scaleY) {
+			float scale = conversionColorToScale(gridController->grid.at(p));
+			
+			if (scale > 0) {
+				ofScale(scale, scale, scale);
+				vboPheromone.draw();
+			}
+		}
+		
+		ofPopMatrix();
+	}
+	shader.end();
+
 	for (auto& pos : wallPositions)
 	{
 		ofPushMatrix();
@@ -250,11 +278,34 @@ bool SceneController::checkCollision(glm::vec3 newPos) {
 	return false;
 }
 
+float SceneController::conversionColorToScale(Cell* cell)
+{
+	float scale = 1.0f - (cell->getCellColor().b + cell->getCellColor().r + cell->getCellColor().g) / (255.0f * 3.0f);
+
+
+	return ofClamp(scale, 0, 1.0f);
+}
+
+ofPoint SceneController::conversionPixelToGrid(float x, float y)
+{
+	float sizeBoxX = gridController->scaleX * wallSize;
+	float sizeBoxY = gridController->scaleY * wallSize;
+
+	int a = round((x - (sizeBoxX / 2)) / sizeBoxX );
+	int b = round((y - (sizeBoxY / 2)) / sizeBoxY );
+
+	ofPoint p = ofPoint(a, b);
+
+
+	return p;
+}
+
 void SceneController::updateWallPositions() {
 	float sizeBoxX = gridController->scaleX * wallSize;
 	float sizeBoxY = gridController->scaleY * wallSize;
 
 	wallPositions.clear();
+	pheromonePositions.clear();
 
 	for (int y = 0; y < gridController->grid.grid.size(); y++) {
 		for (int x = 0; x < gridController->grid.grid[y].size(); x++) {
@@ -267,6 +318,11 @@ void SceneController::updateWallPositions() {
 				glm::vec3 cubePosition((x * sizeBoxX) + (sizeBoxX / 2), wallSize / 2, (y * sizeBoxY) + (sizeBoxY / 2));
 
 				wallPositions.push_back(cubePosition);
+			}
+			else {
+				glm::vec3 PheromonePosition((x * sizeBoxX) + (sizeBoxX / 2), 0, (y * sizeBoxY) + (sizeBoxY / 2));
+
+				pheromonePositions.push_back(PheromonePosition);
 			}
 		}
 	}

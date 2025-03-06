@@ -45,8 +45,9 @@ private:
 	ofBoxPrimitive box;
 	ofVboMesh boxMesh;
 	ofSpherePrimitive antSphere;
-
 	ofVboMesh vboBoxMeshAnt;
+	ofSpherePrimitive pheromoneSphere;
+	ofVboMesh vboPheromone;
 	glm::vec3 boundingSize;
 	ofEasyCam mainCamera;
 	ofEasyCam topCamera;
@@ -64,9 +65,12 @@ private:
 	bool mainCameraMode;
 	vector<glm::vec3> wallPositions;
 	vector<glm::vec3> antPositions;
+	vector<glm::vec3> pheromonePositions;
 	Ant* ant;
 
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
+	float conversionColorToScale(Cell* cell);
+	ofPoint conversionPixelToGrid(float x, float y);
 };
