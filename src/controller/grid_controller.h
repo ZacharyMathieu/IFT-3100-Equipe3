@@ -11,6 +11,7 @@ class GridController
 public:
 	static const int GRID_WIDTH = 100;
 	static const int GRID_HEIGHT = 100;
+	static const int ANT_COUNT = 1000;
 
 	float scaleX;
 	float scaleY;
@@ -35,7 +36,7 @@ public:
 	ofRectangle zoneSelected;
 
 	void setup(int x, int y, int w, int h);
-	void draw();
+	void draw(Ant*);
 	void exit();
 
 	void drawZone(float x1, float y1, float x2, float y2);

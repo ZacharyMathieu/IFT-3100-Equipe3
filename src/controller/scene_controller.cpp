@@ -13,20 +13,13 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	scale_ant = 0.005f;
 
-	speed = 1.0f;
-
 	box.set(gridController->scaleX * wallSize, wallSize * 5, gridController->scaleY * wallSize);
-	box.setPosition(0, 0, 0);
 	boxMesh = box.getMesh();
 
 	antSphere.set(wallSize, 120);
-	antSphere.setPosition(0, 0, 0);
 	vboBoxMeshAnt = antSphere.getMesh();
 
 	antModelLoader.load("models/ant3.obj");
-	antModelLoader.setPosition(50, 0, 50);
-	antModelLoader.setRotation(0, 90 + 45, 0, 1, 0);
-	rotation = antModelLoader.getRotationAngle(0);
 
 	boxCollider = createBoundingBox(antModelLoader);
 
@@ -38,14 +31,14 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	shader = shader_ant;
 
 	mainCameraMode = true;
-	mainCamera.setPosition(antModelLoader.getPosition().x - 100, 100, antModelLoader.getPosition().z - 100);
-	mainCamera.lookAt(ofVec3f(antModelLoader.getPosition()));
+	mainCamera.setScale(-1, 1, 1);
 
-	topCamera.setPosition(antModelLoader.getPosition().x, 500, antModelLoader.getPosition().z);
-	topCamera.lookAt(ofVec3f(0, -1, 0));
+	topCamera.lookAt(ofVec3f(0, 1, 0));
+	topCamera.setScale(0.25, 0.25, -0.25);
+	topCamera.enableOrtho();
 
 	gui.setup();
-	checkPop.setName("Vu D'ensemble");
+	checkPop.setName("Vue D'ensemble");
 	gui.add(checkPop);
 	checkPop = false;
 	gui.setPosition(ofGetWidth() - 200, 10);
@@ -59,56 +52,46 @@ void SceneController::update()
 	antModelLoader.setScale(scale_ant, scale_ant, scale_ant);
 
 	boxCollider.setPosition(antModelLoader.getPosition());
-	glm::vec3 newPos = ant->pos;
-
-	if (ofGetKeyPressed(OF_KEY_LEFT)) {
-		newPos.x += speed;
-		newPos.y -= speed;
-		antModelLoader.setRotation(0, rotation - 90, 0, 1, 0);
-	}
+	ofVec3f newPos = ant->pos;
+	float newAngle = ant->a;
+	int keysPressed = 0;
 
 	if (ofGetKeyPressed(OF_KEY_RIGHT)) {
-		newPos.x -= speed;
-		newPos.y += speed;
-		antModelLoader.setRotation(0, rotation, 0, 1, 0);
-		antModelLoader.setRotation(0, rotation + 90, 0, 1, 0);
+		newPos.x = fmod((newPos.x + (ANT_MOVE_SPEED * 2)), gridController->GRID_WIDTH);
+		newAngle = 0;
+		keysPressed++;
+	}
+
+	if (ofGetKeyPressed(OF_KEY_LEFT)) {
+		newPos.x = fmod((newPos.x - (ANT_MOVE_SPEED * 2) + (float)gridController->GRID_WIDTH), gridController->GRID_WIDTH);
+		newAngle = PI;
+		keysPressed++;
 	}
 
 	if (ofGetKeyPressed(OF_KEY_UP)) {
-		newPos.x += speed;
-		newPos.y += speed;
-		antModelLoader.setRotation(0, rotation, 0, 1, 0);
-		if (ofGetKeyPressed(OF_KEY_RIGHT)) {
-			antModelLoader.setRotation(0, rotation + 45, 0, 1, 0);
-		}
-		if (ofGetKeyPressed(OF_KEY_LEFT)) {
-			antModelLoader.setRotation(0, rotation - 45, 0, 1, 0);
-		}
+		newPos.y = fmod((newPos.y + (ANT_MOVE_SPEED * 2)), gridController->GRID_HEIGHT);
+		newAngle = HALF_PI;
+		keysPressed++;
 	}
 
 	if (ofGetKeyPressed(OF_KEY_DOWN)) {
-		newPos.x -= speed;
-		newPos.y -= speed;
-		antModelLoader.setRotation(0, rotation - 180, 0, 1, 0);
-		if (ofGetKeyPressed(OF_KEY_RIGHT)) {
-			antModelLoader.setRotation(0, rotation + 135, 0, 1, 0);
-		}
-		if (ofGetKeyPressed(OF_KEY_LEFT)) {
-			antModelLoader.setRotation(0, rotation - 135, 0, 1, 0);
-		}
+		newPos.y = fmod((newPos.y - (ANT_MOVE_SPEED * 2) + gridController->GRID_HEIGHT), gridController->GRID_HEIGHT);
+		newAngle = 3 * HALF_PI;
+		keysPressed++;
 	}
 
 	if (!checkCollision(newPos)) {
-		antModelLoader.setPosition(newPos.x * gridController->scaleX * wallSize, 0, newPos.y * gridController->scaleY * wallSize);
+		ant->a = newAngle;
 		ant->pos = newPos;
 	}
 
-	mainCamera.setPosition(antModelLoader.getPosition().x - wallSize * 50, wallSize * 50, antModelLoader.getPosition().z - wallSize * 50);
+	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG + 90, 0, 1, 0);
+	antModelLoader.setPosition(ant->pos.x * gridController->scaleX * wallSize, 0, ant->pos.y * gridController->scaleY * wallSize);
+
+	mainCamera.setPosition(antModelLoader.getPosition().x, wallSize * 15, antModelLoader.getPosition().z - wallSize * 50);
 	mainCamera.lookAt(antModelLoader.getPosition());
 
-	topCamera.setPosition(antModelLoader.getPosition().x, wallSize * 100, antModelLoader.getPosition().z);
-	//topCamera.setPosition(ant.getPosition().x + 500, 2000, ant.getPosition().z + 500);
-	//camera.lookAt(ofVec3f(ant.getPosition().x + 500, ant.getPosition().y, ant.getPosition().z + 500));
+	topCamera.setPosition(antModelLoader.getPosition().x, wallSize * 10, antModelLoader.getPosition().z);
 
 	light.setPointLight();
 	light.setDiffuseColor(255);
@@ -126,7 +109,8 @@ void SceneController::draw()
 	if (checkPop) {
 		ofViewport(fullWidth / 2, 50, fullWidth / 2, halfHeight - 50);
 	}
-	else {
+	else
+	{
 		ofViewport(fullWidth / 2, 50, fullWidth / 2, ofGetHeight());
 	}
 
@@ -141,6 +125,7 @@ void SceneController::draw()
 	}
 
 	drawScene();
+
 	if (mainCameraMode) {
 		mainCamera.end();
 	}
@@ -183,8 +168,8 @@ void SceneController::keyPressed(int key)
 void SceneController::drawScene()
 {
 	shader.begin();
-	shader.setUniform3f("color_ambient", 1, 0, 0);
-	shader.setUniform3f("color_diffuse", 0, 0, 1);
+	shader.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r / 255.0f, ant->MAIN_ANT_COLOR.g / 255.0f, ant->MAIN_ANT_COLOR.b / 255.0f);
+	shader.setUniform3f("color_diffuse", 1, 1, 1);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
 	antModelLoader.draw(OF_MESH_FILL);
@@ -192,7 +177,7 @@ void SceneController::drawScene()
 	shader.end();
 
 	shader.begin();
-	shader.setUniform3f("color_ambient", 0, 0, 0);
+	shader.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
 	shader.setUniform3f("color_diffuse", 1, 1, 1);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
@@ -234,8 +219,7 @@ ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
 
 bool SceneController::checkCollision(glm::vec3 newPos) {
 	float halfSize = (wallSize * 1.5f) / 2;
-	if (newPos.x < 0 || newPos.x > ofGetWidth() * 10 || newPos.z < 0 || newPos.z > ofGetHeight() * 10)
-		return true;
+
 	for (auto& pos : wallPositions) {
 		if (abs(newPos.x - pos.x) < halfSize * gridController->scaleX &&
 			abs(newPos.z - pos.z) < halfSize * gridController->scaleY) {
@@ -260,7 +244,7 @@ void SceneController::updateWallPositions() {
 					&& abs(boxCollider.getPosition().z - ((y * sizeBoxY) + (sizeBoxY / 2))) < (sizeBoxY * 1.5) / 2)
 					continue;
 
-				glm::vec3 cubePosition((x * sizeBoxX) + (sizeBoxX / 2), wallSize / 2, (y * sizeBoxY) + (sizeBoxY / 2));
+				glm::vec3 cubePosition((x * sizeBoxX) + (sizeBoxX/2), 0, (y * sizeBoxY) + (sizeBoxY/2));
 
 				wallPositions.push_back(cubePosition);
 			}
@@ -276,10 +260,12 @@ void SceneController::updateAntPositions() {
 
 	for (Ant* ant : gridController->ants)
 	{
-		ofPoint posAnt;
-		posAnt = ant->pos;
-		glm::vec3 antPosition((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 5, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+		if (ant != this->ant) {
+			ofPoint posAnt;
+			posAnt = ant->pos;
+			glm::vec3 antPosition((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
-		antPositions.push_back(antPosition);
+			antPositions.push_back(antPosition);
+		}
 	}
 }

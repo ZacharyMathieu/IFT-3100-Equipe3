@@ -106,8 +106,8 @@ void Application::drawMenu()
 //--------------------------------------------------------------
 void Application::update()
 {
-	sceneController.color_ambient = color_picker_ambient;
-	sceneController.color_diffuse = color_picker_diffuse;
+	sceneController.COLOR_AMBIENT = color_picker_ambient;
+	sceneController.COLOR_DIFFUSE = color_picker_diffuse;
 	sceneController.update();
 
 	if (isRunning) {
@@ -123,7 +123,7 @@ void Application::draw()
 {
 	drawMenu();
 
-	gridController.draw();
+	gridController.draw(sceneController.ant);
 
 	if (showDrawMenu)
 		penGui.draw();
@@ -133,8 +133,6 @@ void Application::draw()
 		colorGui.draw();
 
 	drawCustomCursors();
-	//wallPosition3D();
-	//antPosition3D();
 	sceneController.draw();
 }
 

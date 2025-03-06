@@ -11,17 +11,15 @@ void GridController::setup(int x, int y, int w, int h)
 	isSelected = false;;
 	scaleX = ((float)displayWidth) / grid.w;
 	scaleY = ((float)displayHeight) / grid.h;
-	// TODO: Better init of ants
-	for (int i = 0; i < 200; i++)
+	for (int i = 0; i < ANT_COUNT; i++)
 	{
 		ants.push_back(new Ant(rand() % grid.w, rand() % grid.h, 0));
 	}
 }
 
 //--------------------------------------------------------------
-void GridController::draw()
+void GridController::draw(Ant* mainAnt)
 {
-
 	float scaleX = ((float)displayWidth) / grid.w;
 	float scaleY = ((float)displayHeight) / grid.h;
 
@@ -57,9 +55,15 @@ void GridController::draw()
 
 	for (Ant* ant : ants)
 	{
-		ofSetColor(ant->COLOR);
-		ofDrawCircle(ofPoint(ant->pos.x * scaleX + displayPosX, ant->pos.y * scaleY + displayPosY), 2);
+		if (ant != mainAnt)
+		{
+			ofSetColor(ant->COLOR);
+			ofDrawCircle(ofPoint(ant->pos.x * scaleX + displayPosX, ant->pos.y * scaleY + displayPosY), 2);
+		}
 	}
+
+	ofSetColor(mainAnt->MAIN_ANT_COLOR);
+	ofDrawCircle(ofPoint(mainAnt->pos.x* scaleX + displayPosX, mainAnt->pos.y* scaleY + displayPosY), 8);
 
 	ofSetColor(0, 0, 0, 150);
 	ofSetLineWidth(2);
@@ -177,8 +181,8 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
 		{
 			if ((x - eraserSize) >= displayPosX &&
 				(y - eraserSize) >= displayPosY &&
-				(x + eraserSize - scaleX) < displayWidth &&
-				(y + eraserSize - scaleY) < displayHeight)
+				(x + eraserSize) < displayWidth &&
+				(y + eraserSize) < displayHeight)
 			{
 				int xOrigine = ((x - eraserSize) / scaleX) * scaleX;
 				int yOrigine = ((y - eraserSize) / scaleY) * scaleY;
@@ -316,13 +320,10 @@ void GridController::mousePressed(int x, int y, int button, string cursor)
 		float scaleX = ((float)displayWidth) / grid.w;
 		float scaleY = ((float)displayHeight) / grid.h;
 
-		int xOrigine = ((x) / scaleX) * scaleX;
-		int yOrigine = ((y) / scaleY) * scaleY;
-		int gridX = (xOrigine - displayPosX) / scaleX;
-		int gridY = (yOrigine - displayPosY) / scaleY;
+		int gridX = (x - displayPosX) / scaleX;
+		int gridY = (y - displayPosY) / scaleY;
 		if (cursor == "SELECT")
 		{
-
 			if (grid.at(gridX, gridY)->type == WALL) {
 				grid.at(gridX, gridY)->isSelected = true;
 				CSposition.push_back({ gridX,gridY });
