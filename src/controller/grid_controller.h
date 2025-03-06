@@ -59,7 +59,7 @@ public:
     void processSelectionZone();
     bool alreadySelected(int x, int y);
     void update();
-    void importGrid(ofImage img);
+    void importGrid(ofFile file);
 };
 
 #endif
