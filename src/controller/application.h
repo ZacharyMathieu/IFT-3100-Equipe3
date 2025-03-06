@@ -141,6 +141,7 @@ private:
 	void undo();
 	void redo();
 	void wallPosition3D();
+	void antPosition3D();
 	
 
 };

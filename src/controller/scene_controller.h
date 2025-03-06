@@ -20,38 +20,38 @@ public :
 	float centre_x;
 	float centre_y;
 	int wallSize;
+
 	Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
 	vector<glm::vec3> positions;
+	vector<glm::vec3> antPositions;
 	ofColor color_ambient;
 	ofColor color_diffuse;
-	ofMesh mesh;
-	
-	bool showPopup ;
-	ofCamera popupCam;
-	ofCamera camera;
+	ofBoxPrimitive boxCollider;
+
 	void setup(int x, int y, int w, int h);
 	void update();
 	void draw();
 	void keyPressed(int key);
-	void drawSecondWindow();
+	//void drawSecondWindow();
 	
+	
+private:
 	ofShader shader_ant;
 	ofShader shader_normal;
 	ofShader shader;
 	ofLight light;
 	ofxAssimpModelLoader ant;
-	ofVboMesh boxMesh;
-private:
 	ofBoxPrimitive box;
+	ofVboMesh boxMesh;
+	ofSpherePrimitive ants;
 	
+	ofVboMesh vboBoxMeshAnt;
+	glm::vec3 boundingSize;
 	ofEasyCam cam;
+	ofCamera camera;
+
 	ofParameter<bool> checkPop;
-	ofxButton openPopup;
 	ofxPanel gui;
-
-
-	
-	
 	ofRectangle sceneView;
 	
 	float scaleX;
@@ -61,8 +61,8 @@ private:
 	float rotation;
 	bool mainCamera;
 	
-	shared_ptr<ofAppBaseWindow> secondWindow;
-	shared_ptr<class PopupView> secondWindowApp;
 	void drawScene();
+	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
+	bool checkCollision(glm::vec3 newPos);
 	
 };
