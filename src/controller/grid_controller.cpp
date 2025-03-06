@@ -9,7 +9,8 @@ void GridController::setup(int x, int y, int w, int h)
     displayHeight = h;
     drawZonePressed = false;
     isSelected = false;;
-
+    scaleX = ((float)displayWidth) / grid.w;
+    scaleY = ((float)displayHeight) / grid.h;
     // TODO: Better init of ants
     for (int i = 0; i < 200; i++)
     {
@@ -20,6 +21,7 @@ void GridController::setup(int x, int y, int w, int h)
 //--------------------------------------------------------------
 void GridController::draw()
 {
+    
     float scaleX = ((float)displayWidth) / grid.w;
     float scaleY = ((float)displayHeight) / grid.h;
 
@@ -76,7 +78,10 @@ void GridController::draw()
         drawZone(mouse_pressed_x, mouse_pressed_y, mouse_current_x, mouse_current_y);
 
     }
-
+    ofSetColor(255,0,0);
+    ofSetLineWidth(10);
+    ofDrawLine(displayWidth, 50, displayWidth, displayHeight+50);
+    ofDrawLine(0, 50, displayWidth*2,50);
 }
 
 //--------------------------------------------------------------

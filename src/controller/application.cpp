@@ -112,20 +112,8 @@ void Application::update()
 void Application::draw()
 {
     drawMenu();
-   // gui.draw();
-   /* if (imageLoaded)
-    {
-        ofSetColor(255);
-        importedImage.draw(0, MENU_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - MENU_HEIGHT);
-    }*/
-    
+
     gridController.draw();
-
-    // Dans votre méthode de mise à jour de la grille
-    
-
-
-   
    
     if (showDrawMenu)
         penGui.draw();
@@ -136,6 +124,7 @@ void Application::draw()
 
     drawCustomCursors();
     wallPosition3D();
+    antPosition3D();
     SceneController.draw();
     
     
@@ -192,10 +181,10 @@ void Application::drawCustomCursors()
             ofShowCursor();
             SetCursor(LoadCursor(NULL, IDC_HAND));
         }
-        else 
+        else if(ofGetMouseX() > ofGetWidth()/2 && ofGetMouseY() > MENU_HEIGHT)
         { 
             ofShowCursor();
-            SetCursor(LoadCursor(NULL, IDC_ARROW));
+            SetCursor(LoadCursor(NULL,IDC_CROSS));
         }
     }
 }
@@ -232,9 +221,13 @@ void Application::keyPressed(int key)
     if (key == 'y') {
         gridController.keyPressed(key);
     }
-    if (key == ' '){
+    if (key == ' ') {
         gridController.update();
     }
+    
+        SceneController.keyPressed(key);
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -600,17 +593,31 @@ void Application::redo()
 
 void Application::wallPosition3D()
 {
+    
+    float size = SceneController.wallSize;
+
+    float sizeBoxX = gridController.scaleX * size;
+    float sizeBoxY = gridController.scaleY * size;
+    
+    SceneController.positions.clear();
+
     for (int y = 0; y < gridController.grid.grid.size(); y++) {
         for (int x = 0; x < gridController.grid.grid[y].size(); x++) {
             Cell* cell = gridController.grid.grid[y][x];
             if (cell->type == WALL) {
-                
-                glm::vec3 cubePosition((x * 100) + 50, 50, (y * 100) + 50); 
+
+                if (abs(SceneController.boxCollider.getPosition().x - ( (x * sizeBoxX) + (sizeBoxX / 2))) < (sizeBoxX * 1.5f) / 2
+                    && abs(SceneController.boxCollider.getPosition().z - ((y * sizeBoxY) + (sizeBoxY / 2))) < (sizeBoxY * 1.5) / 2)
+                    continue;
+
+                glm::vec3 cubePosition((x * sizeBoxX) + (sizeBoxX / 2), 25, (y* sizeBoxY) + (sizeBoxY/2));
+
                 SceneController.positions.push_back(cubePosition);
             }
         }
     }
 }
+
 
 void Application::createColorCanva(string filepath)
 {
@@ -628,3 +635,25 @@ void Application::createColorCanva(string filepath)
     file.close();
     
 }
+
+void Application::antPosition3D()
+{
+    float size = SceneController.wallSize;
+
+    float sizeBoxX = gridController.scaleX * size;
+    float sizeBoxY = gridController.scaleY * size;
+
+    SceneController.antPositions.clear();
+
+    for (Ant* ant : gridController.ants)
+    {
+        ofPoint posAnt;
+        posAnt = ant->pos;
+        glm::vec3 antPosition((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 5, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+        
+        SceneController.antPositions.push_back(antPosition);
+    }
+}
+
+  
+

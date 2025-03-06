@@ -6,6 +6,7 @@
 #include "ofxGui.h"
 #include "scene_controller.h"
 
+
 #ifndef APPLICATION
 #define APPLICATION
 
@@ -140,7 +141,13 @@ private:
 	void undo();
 	void redo();
 	void wallPosition3D();
+
 	void createColorCanva(string filepath);
+
+	void antPosition3D();
+	
+
+
 };
 
 #endif

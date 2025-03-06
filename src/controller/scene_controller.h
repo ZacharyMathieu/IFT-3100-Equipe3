@@ -7,6 +7,7 @@
 #include <grid.h>
 #include <vector>
 
+
 class SceneController
 {
 public :
@@ -18,28 +19,50 @@ public :
 	int SCENE_y;
 	float centre_x;
 	float centre_y;
+	int wallSize;
+
 	Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
 	vector<glm::vec3> positions;
+	vector<glm::vec3> antPositions;
 	ofColor color_ambient;
 	ofColor color_diffuse;
-	ofMesh mesh;
-	
+	ofBoxPrimitive boxCollider;
+
 	void setup(int x, int y, int w, int h);
 	void update();
 	void draw();
 	void keyPressed(int key);
+	//void drawSecondWindow();
+	
+	
 private:
-	ofBoxPrimitive box;
-	ofVboMesh boxMesh;
-	ofEasyCam cam;
-	ofCamera camera;
-	ofRectangle sceneView;
 	ofShader shader_ant;
 	ofShader shader_normal;
 	ofShader shader;
 	ofLight light;
 	ofxAssimpModelLoader ant;
+	ofBoxPrimitive box;
+	ofVboMesh boxMesh;
+	ofSpherePrimitive ants;
+	
+	ofVboMesh vboBoxMeshAnt;
+	glm::vec3 boundingSize;
+	ofEasyCam cam;
+	ofCamera camera;
+
+	ofParameter<bool> checkPop;
+	ofxPanel gui;
+	ofRectangle sceneView;
+	
+	float scaleX;
+	float scaleY;
 	float scale_ant;
 	float speed;
 	float rotation;
+	bool mainCamera;
+	
+	void drawScene();
+	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
+	bool checkCollision(glm::vec3 newPos);
+	
 };
