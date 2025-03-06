@@ -21,12 +21,11 @@ enum CursorMode
 class Application : public ofBaseApp
 {
 public:
-	static const int WINDOW_WIDTH = 1024 * 2;
+	static const int WINDOW_WIDTH = 800 * 2;
 	static const int WINDOW_HEIGHT = 768;
 	static const int MENU_HEIGHT = 50;
 	static const int MENU_BUTTON_MARGIN = 10;
 	static const int MENU_BUTTON_WIDTH = MENU_HEIGHT;
-
 	static const int COLLAPSED_MENU_WIDTH = 30;
 	static const int COLLAPSED_MENU_HEIGHT = 30;
 	static const int OPENED_MENU_WIDTH = 220;
@@ -34,14 +33,14 @@ public:
 	static const int OPENED_MENU_HEIGHT_DRAW = 160;
 	static const int OPENED_MENU_HEIGHT_COLOR = 130;
 	static const int WHEEL_RADIUS = 40;
-
 	static const int COORD_MENU_X = 10;
 	static const int COORD_MENU_Y = 60;
 	static const int COORD_SLIDER_X = 20;
 	static const int SLIDER_WIDTH = 200;
+	static const int FAST_FORWARD_AMOUNT = 200;
 
 	bool isRunning = false;
-	SceneController SceneController;
+	SceneController sceneController;
 
 	void setup() override;
 	void update() override;
@@ -60,7 +59,7 @@ public:
 	void windowResized(int w, int h) override;
 	void dragEvent(ofDragInfo dragInfo) override;
 	void gotMessage(ofMessage msg) override;
-	void drawMenu(bool &showMenu, bool &isCollapsed, const string &title, int &sliderValue, int menuHeight);
+	void drawMenu(bool& showMenu, bool& isCollapsed, const string& title, int& sliderValue, int menuHeight);
 
 private:
 	CursorMode cursorMode = DEFAULT;
@@ -117,7 +116,7 @@ private:
 	Button selectButton;
 	Button undoButton;
 	Button redoButton;
-	vector<Button *> buttons;
+	vector<Button*> buttons;
 
 	ofParameter<ofColor> color_picker_ambient;
 	ofParameter<ofColor> color_picker_diffuse;
@@ -125,9 +124,9 @@ private:
 	void setupButtons();
 	void drawMenu();
 	void drawCustomCursors();
-	void onColorChanged(ofColor &color);
-	void onDrawCursorSizeChanged(int &size);
-	void onEraserSizeChanged(int &size);
+	void onColorChanged(ofColor& color);
+	void onDrawCursorSizeChanged(int& size);
+	void onEraserSizeChanged(int& size);
 	void importImage();
 	void exportImage();
 	void play();
@@ -145,9 +144,6 @@ private:
 	void createColorCanva(string filepath);
 
 	void antPosition3D();
-	
-
-
 };
 
 #endif
