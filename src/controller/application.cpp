@@ -122,7 +122,7 @@ void Application::update()
 void Application::draw()
 {
 	drawMenu();
-
+	
 	gridController.draw(sceneController.ant);
 
 	if (showDrawMenu)
@@ -199,6 +199,7 @@ void Application::drawCustomCursors()
 void Application::onColorChanged(ofColor& color)
 {
 	currentDrawColor = color;
+	gridController.ants[0]->MAIN_ANT_COLOR = color;
 }
 
 //--------------------------------------------------------------
