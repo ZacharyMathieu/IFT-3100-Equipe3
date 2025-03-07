@@ -22,7 +22,7 @@ class Application : public ofBaseApp
 {
 public:
 	static const int WINDOW_WIDTH = 800 * 2;
-	static const int WINDOW_HEIGHT = 768;
+	static const int WINDOW_HEIGHT = 800;
 	static const int MENU_HEIGHT = 50;
 	static const int MENU_BUTTON_MARGIN = 10;
 	static const int MENU_BUTTON_WIDTH = MENU_HEIGHT;

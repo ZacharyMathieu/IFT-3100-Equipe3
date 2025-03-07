@@ -17,7 +17,6 @@ void Ant::update(Grid* grid)
 
 	ofPoint point;
 	Cell* cell;
-	float dist;
 	float value;
 	float diff;
 	float maxValue = 0;
@@ -35,10 +34,9 @@ void Ant::update(Grid* grid)
 		{
 			point = ofPoint((_x + grid->w) % grid->w, (_y + grid->h) % grid->h);
 			cell = grid->at(point);
-			dist = point.distance(pos);
 			if (cell->type == CellType::PHEROMONE)
 			{
-				if (dist <= ANT_SEARCH_RADIUS)
+				if (point.distance(pos) <= ANT_SEARCH_RADIUS)
 				{
 					value = cell->value;
 					if (value >= maxValue)
@@ -61,6 +59,8 @@ void Ant::update(Grid* grid)
 
 		if (maxValue > 0)
 			turnToDiff(maxValueDiff);
+
+		a += pow((rand() / (float)RAND_MAX * 2 - 1), 3) * ANT_RANDOM_TURN_MAX;
 	}
 	else
 	{

@@ -285,6 +285,7 @@ bool SceneController::checkCollision(glm::vec3 newPos)
 	float halfSize = (wallSize) / 2;
 	if (newPos.x < 0 || newPos.x > SCENE_HEIGHT * wallSize || newPos.z < 0 || newPos.z > SCENE_WIDTH * wallSize)
 		return true;
+
 	for (auto& pos : wallPositions)
 	{
 		if (abs(newPos.x - pos.x) < halfSize * gridController->scaleX &&
