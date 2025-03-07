@@ -27,6 +27,7 @@ public:
 
     void update();
     ofColor getCellColor();
+    float getValueFactor();
     void addAntValue(float);
     bool isSelected;
 private:

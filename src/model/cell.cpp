@@ -20,10 +20,14 @@ ofColor Cell::getCellColor()
 	}
 }
 
+float Cell::getValueFactor() {
+	return value / CELL_MAX_VALUE;
+}
+
 ofColor Cell::adjustColor(ofColor* fullColor, ofColor* emptyColor)
 {
 	float r = value / CELL_MAX_VALUE;
-	float rInverse = 1 - r;
+	float rInverse = 1 - value / CELL_MAX_VALUE;
 	return (fullColor->operator*(r)) + (emptyColor->operator*(rInverse));
 }
 

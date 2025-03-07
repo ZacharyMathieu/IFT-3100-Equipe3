@@ -114,7 +114,7 @@ void Application::update()
 		gridController.update();
 	}
 
-	sceneController.updateWallPositions();
+	sceneController.updateCellPositions();
 	sceneController.updateAntPositions();
 }
 
@@ -477,8 +477,9 @@ void Application::importImage()
 			imageLoaded = false;
 		}
 		gridController.importGrid(file);
-	}
 
+		sceneController.updateGridController(&gridController);
+	}
 }
 
 //--------------------------------------------------------------
@@ -623,14 +624,14 @@ void Application::createColorCanva(string filepath)
 
 	for (int y = 0; y < gridController.grid.h; y++) {
 		for (int x = 0; x < gridController.grid.w; x++) {
-			
+
 			float value = gridController.grid.at(x, y)->value;
 			string type = gridController.grid.at(x, y)->type == WALL ? "WALL" : "PHEROMONE";
 
 			file << x << ","
 				<< y << ","
 				<< value << ","
-				<< type <<"\n";
+				<< type << "\n";
 		}
 	}
 	file << "ant" << "\n";
