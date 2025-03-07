@@ -59,7 +59,6 @@ public:
 	void windowResized(int w, int h) override;
 	void dragEvent(ofDragInfo dragInfo) override;
 	void gotMessage(ofMessage msg) override;
-	void drawMenu(bool& showMenu, bool& isCollapsed, const string& title, int& sliderValue, int menuHeight);
 
 private:
 	CursorMode cursorMode = DEFAULT;
@@ -96,9 +95,7 @@ private:
 	ofImage fastForwardIcon;
 	ofImage eraseModeIcon;
 	ofImage drawModeIcon;
-	ofImage shapeModeIcon;
 	ofImage penTypeChoiceIcon;
-	ofImage shapeChoiceIcon;
 	ofImage selectIcon;
 	ofImage redoIcon;
 	ofImage undoIcon;
@@ -110,9 +107,7 @@ private:
 	Button fastForwardButton;
 	Button eraseModeButton;
 	Button drawModeButton;
-	Button shapeModeButton;
 	Button penTypeChoiceButton;
-	Button shapeChoiceButton;
 	Button selectButton;
 	Button undoButton;
 	Button redoButton;
@@ -133,17 +128,11 @@ private:
 	void fastForward();
 	void eraseMode();
 	void drawMode();
-	void shapeMode();
 	void penTypeChoice();
-	void shapeChoice();
 	void multipleSelection();
 	void undo();
 	void redo();
-	void wallPosition3D();
-
 	void createColorCanva(string filepath);
-
-	void antPosition3D();
 };
 
 #endif

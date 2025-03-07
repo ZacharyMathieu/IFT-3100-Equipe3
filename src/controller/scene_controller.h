@@ -20,8 +20,8 @@ public:
 	int SCENE_X;
 	int SCENE_Y;
 	float RENDER_DISTANCE_WALLS = 300;
-	float RENDER_DISTANCE_PHEROMONES= 300;
-	float RENDER_DISTANCE_ANTS= 300;
+	float RENDER_DISTANCE_PHEROMONES = 300;
+	float RENDER_DISTANCE_ANTS = 300;
 	float centreX;
 	float centreY;
 	int wallSize;
@@ -73,8 +73,6 @@ private:
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
-	float conversionColorToScale(ofColor);
-	ofPoint conversionGridToPixel(float x, float y); 
-	vector<bool> objectBehindCam(glm::vec3 pos, int dist);
+	bool objectVisible(glm::vec3 pos, float);
 	//void drawObj(glm::vec3 pos);
 };

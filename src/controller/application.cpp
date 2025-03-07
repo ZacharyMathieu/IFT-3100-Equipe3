@@ -56,9 +56,7 @@ void Application::setupButtons()
 	fastForwardIcon.load("images/fastForward.png");
 	eraseModeIcon.load("images/eraseMode.png");
 	drawModeIcon.load("images/drawMode.png");
-	shapeModeIcon.load("images/shapeMode.png");
 	penTypeChoiceIcon.load("images/penTypeChoice.png");
-	shapeChoiceIcon.load("images/shapeChoice.png");
 	selectIcon.load("images/select.png");
 	undoIcon.load("images/undo.png");
 	redoIcon.load("images/redo.png");
@@ -70,9 +68,7 @@ void Application::setupButtons()
 		std::tuple(&fastForwardButton, &Application::fastForward, &fastForwardIcon),
 		std::tuple(&eraseModeButton, &Application::eraseMode, &eraseModeIcon),
 		std::tuple(&drawModeButton, &Application::drawMode, &drawModeIcon),
-		std::tuple(&shapeModeButton, &Application::shapeMode, &shapeModeIcon),
 		std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
-		std::tuple(&shapeChoiceButton, &Application::shapeChoice, &shapeChoiceIcon),
 		std::tuple(&selectButton, &Application::multipleSelection, &selectIcon),
 		std::tuple(&undoButton, &Application::undo, &undoIcon),
 		std::tuple(&redoButton, &Application::redo, &redoIcon),
@@ -86,8 +82,6 @@ void Application::setupButtons()
 		buttons.push_back(std::get<0>(bTuple));
 		i++;
 	}
-
-
 }
 
 //--------------------------------------------------------------
@@ -546,13 +540,6 @@ void Application::drawMode()
 }
 
 //--------------------------------------------------------------
-void Application::shapeMode()
-{
-	cursorMode = DEFAULT;
-	ofShowCursor();
-}
-
-//--------------------------------------------------------------
 void Application::penTypeChoice()
 {
 	cursorMode = DRAW;
@@ -560,13 +547,6 @@ void Application::penTypeChoice()
 	showEraserMenu = false;
 	showDrawMenu = false;
 	ofShowCursor();
-}
-
-//--------------------------------------------------------------
-void Application::shapeChoice()
-{
-	// TODO
-	cursorMode = DEFAULT;
 }
 
 void Application::multipleSelection()

@@ -36,10 +36,9 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	mainCamera.lookAt(ofVec3f(antModelLoader.getPosition()));
 	mainCamera.setScale(-1, 1, 1);
 	mainCamera.disableMouseInput();
-	mainCamera.setFarClip(150);
 
 	topCamera.lookAt(ofVec3f(0, -1, 0));
-	topCamera.setScale(0.25, 0.25, -0.25);
+	topCamera.setScale(0.25, -0.25, 0.25);
 	topCamera.enableOrtho();
 	topCamera.disableMouseInput();
 
@@ -190,7 +189,6 @@ void SceneController::keyPressed(int key)
 
 void SceneController::drawScene()
 {
-
 	shader_ant.begin();
 	shader_ant.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r / 255.0f, ant->MAIN_ANT_COLOR.g / 255.0f, ant->MAIN_ANT_COLOR.b / 255.0f);
 	shader_ant.setUniform3f("color_diffuse", 1, 1, 1);
@@ -205,20 +203,14 @@ void SceneController::drawScene()
 	shader.setUniform3f("color_diffuse", 1, 1, 1);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
+	bool visible;
+
 	for (auto& pos : antPositions)
 	{
-		vector<bool> visible = objectBehindCam(pos, RENDER_DISTANCE_ANTS);
+		visible = objectVisible(pos, RENDER_DISTANCE_ANTS);
 
-		if (!checkPop)
-		{
-			if (visible[0])
-				continue;
-		}
-		else
-		{
-			if (visible[0] && visible[1])
-				continue;
-		}
+		if (visible)
+			continue;
 
 		shader.setUniform3f("translation", pos.x, pos.y, pos.z);
 		shader.setUniform1f("scale_factor", 1);
@@ -235,28 +227,19 @@ void SceneController::drawScene()
 
 	glm::vec3 pos;
 	Cell* cell;
-	//float scale;
-	float sizeBoxX = gridController->scaleX * wallSize;
-	float sizeBoxY = gridController->scaleY * wallSize;
 	for (auto& pheromone : pheromonePositions)
 	{
 		pos = get<0>(pheromone);
 		cell = get<1>(pheromone);
 
-		vector<bool> visible = objectBehindCam(pos, RENDER_DISTANCE_PHEROMONES);
-		if (!checkPop)
-		{
-			if (visible[0]) continue;
-		}
-		else
-		{
-			if (visible[0] && visible[1]) continue;
-		}
+		visible = objectVisible(pos, RENDER_DISTANCE_PHEROMONES);
+
+		if (visible)
+			continue;
 
 		shader.setUniform3f("translation", pos);
 		shader.setUniform1f("scale_factor", cell->getValueFactor());
 		vboPheromone.draw();
-		//drawObj(pos);
 	}
 	shader.end();
 
@@ -267,13 +250,11 @@ void SceneController::drawScene()
 
 	for (auto& pos : wallPositions)
 	{
-		vector<bool> visible = objectBehindCam(pos, RENDER_DISTANCE_WALLS);
-		if (!checkPop) {
-			if (visible[0]) continue;
-		}
-		else {
-			if (visible[0] && visible[1])continue;
-		}
+		visible = objectVisible(pos, RENDER_DISTANCE_WALLS);
+
+		if (visible)
+			continue;
+
 		shader.setUniform3f("translation", pos.x, pos.y, pos.z);
 		shader.setUniform1f("scale_factor", 1);
 		boxMesh.draw(OF_MESH_WIREFRAME);
@@ -316,50 +297,9 @@ bool SceneController::checkCollision(glm::vec3 newPos)
 	return false;
 }
 
-float SceneController::conversionColorToScale(ofColor color)
+bool SceneController::objectVisible(glm::vec3 pos, float renderDistance)
 {
-	// float scale = 1.0f - (cell->getCellColor().b + cell->getCellColor().r + cell->getCellColor().g) / (255.0f * 3.0f);
-
-	return ofClamp(1, 0, 1.0f);
-}
-
-ofPoint SceneController::conversionGridToPixel(float x, float y)
-{
-	float sizeBoxX = gridController->scaleX * wallSize;
-	float sizeBoxY = gridController->scaleY * wallSize;
-
-	int a = round((x - (sizeBoxX / 2)) / sizeBoxX);
-	int b = round((y - (sizeBoxY / 2)) / sizeBoxY);
-
-	ofPoint p = ofPoint(a, b);
-
-	// return p;
-	return ofPoint(0);
-}
-
-vector<bool> SceneController::objectBehindCam(glm::vec3 pos, int dist)
-{
-	bool active = false;
-	bool checkPopCam = false;
-	vector<bool> objBehind;
-
-	if (glm::distance(pos, activeCam->getPosition()) > dist) active = true;
-	if (glm::distance(pos, popUpCam->getPosition()) > dist) checkPopCam = true;
-
-	// R�cup�rer la direction de la cam�ra
-	glm::vec3 camDirection = activeCam->getLookAtDir();
-	glm::vec3 camDirection2 = popUpCam->getLookAtDir();
-
-	glm::vec3 toObject = glm::normalize(pos - activeCam->getPosition());
-	glm::vec3 toObject2 = glm::normalize(pos - popUpCam->getPosition());
-
-	if (glm::dot(camDirection, toObject) < 0) active = true;
-	if (glm::dot(camDirection, toObject2) < 0) checkPopCam = true;
-
-	objBehind.push_back(active);
-	objBehind.push_back(checkPopCam);
-
-	return objBehind;
+	return (glm::dot(activeCam->getLookAtDir(), pos - activeCam->getPosition()) < 0) && (glm::distance2(activeCam->getPosition(), pos) < (renderDistance * renderDistance));
 }
 
 void SceneController::updateCellPositions()
@@ -387,7 +327,7 @@ void SceneController::updateCellPositions()
 
 				wallPositions.push_back(position);
 			}
-			else
+			else if (cell->type == PHEROMONE && cell->value > 0)
 			{
 				position = glm::vec3((x * sizeBoxX) + (sizeBoxX / 2), 0, (y * sizeBoxY) + (sizeBoxY / 2));
 
@@ -402,6 +342,7 @@ void SceneController::updateAntPositions()
 	float sizeBoxX = gridController->scaleX * wallSize;
 	float sizeBoxY = gridController->scaleY * wallSize;
 	glm::vec3 position;
+	ofPoint posAnt;
 
 	antPositions.clear();
 
@@ -409,9 +350,8 @@ void SceneController::updateAntPositions()
 	{
 		if (ant != this->ant)
 		{
-			ofPoint posAnt;
 			posAnt = ant->pos;
-			glm::vec3 antPosition((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0.5f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0.5f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
 			antPositions.push_back(position);
 		}
