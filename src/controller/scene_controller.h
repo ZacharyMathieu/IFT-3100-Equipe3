@@ -74,5 +74,4 @@ private:
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
 	bool objectVisible(glm::vec3 pos, float);
-	//void drawObj(glm::vec3 pos);
 };
