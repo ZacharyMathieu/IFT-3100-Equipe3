@@ -19,6 +19,10 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	antSphere.set(wallSize, 120);
 	vboBoxMeshAnt = antSphere.getMesh();
 
+	pheromoneSphere.set(5, 120);
+	pheromoneSphere.setPosition(0, 0, 0);
+	vboPheromone = pheromoneSphere.getMesh();
+
 	antModelLoader.load("models/ant3.obj");
 
 	boxCollider = createBoundingBox(antModelLoader);
@@ -30,12 +34,25 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	shader = shader_ant;
 
+	cameras.push_back(&mainCamera);
+	cameras.push_back(&topCamera);
+	cameras.push_back(&freeCamera);
+	numCam = 0;
+	activeCam = cameras[numCam];
+
 	mainCameraMode = true;
+	mainCamera.lookAt(ofVec3f(antModelLoader.getPosition()));
 	mainCamera.setScale(-1, 1, 1);
+	mainCamera.disableMouseInput();
+
 
 	topCamera.lookAt(ofVec3f(0, 1, 0));
 	topCamera.setScale(0.25, 0.25, -0.25);
 	topCamera.enableOrtho();
+	topCamera.disableMouseInput();
+
+	freeCamera.setPosition(SCENE_WIDTH / 2, 50, SCENE_HEIGHT / 2);
+	freeCamera.lookAt(ofVec3f(0, -1, 0));
 
 	gui.setup();
 	checkPop.setName("Vue D'ensemble");
@@ -117,21 +134,11 @@ void SceneController::draw()
 	ofEnableDepthTest();
 	ofEnableLighting();
 	light.enable();
-	if (mainCameraMode) {
-		mainCamera.begin();
-	}
-	else {
-		topCamera.begin();
-	}
-
+	
+	activeCam->begin();
 	drawScene();
-
-	if (mainCameraMode) {
-		mainCamera.end();
-	}
-	else {
-		topCamera.end();
-	}
+	
+	activeCam->end();
 
 	light.disable();
 	ofDisableLighting();
@@ -140,8 +147,9 @@ void SceneController::draw()
 
 	if (checkPop) {
 		ofDrawLine(fullWidth / 2, halfHeight, fullWidth, halfHeight);
+
 		ofPushView();
-		ofViewport(fullWidth / 2, halfHeight + 50, fullWidth / 2, halfHeight);
+		ofViewport(fullWidth / 2, halfHeight, fullWidth / 2, halfHeight);
 
 		ofEnableDepthTest();
 		ofEnableLighting();
@@ -161,8 +169,11 @@ void SceneController::draw()
 void SceneController::keyPressed(int key)
 {
 	if (key == 'c') {
-		mainCameraMode = !mainCameraMode;
+		numCam = (numCam+1)% cameras.size();
+
+		activeCam = cameras[numCam];
 	}
+	
 }
 
 void SceneController::drawScene()
@@ -180,9 +191,10 @@ void SceneController::drawScene()
 	shader.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
 	shader.setUniform3f("color_diffuse", 1, 1, 1);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
-
+	
 	for (auto& pos : antPositions) {
-		if (abs(pos.x - antModelLoader.getPosition().x) > 500 && abs(pos.z - antModelLoader.getPosition().z) > 500) continue;
+		if (objectBehindCam(pos, 400)) continue;
+		
 		ofPushMatrix();
 		ofTranslate(pos);
 		vboBoxMeshAnt.draw();
@@ -190,8 +202,35 @@ void SceneController::drawScene()
 	}
 	shader.end();
 
+	shader.begin();
+	shader.setUniform3f("color_ambient", 0, 0, 1);
+	shader.setUniform3f("color_diffuse", 1,1 , 1);
+	shader.setUniform3f("light_position", light.getGlobalPosition());
+
+	for (auto& pos : pheromonePositions) {
+		if (objectBehindCam(pos, 400)) continue;
+
+		ofPushMatrix();
+		ofTranslate(pos);
+		ofPoint p = conversionPixelToGrid(pos.x, pos.z);
+		if (p.x >= 0 && p.x < gridController->grid.w*gridController->scaleX &&
+			p.y >= 0 && p.y < gridController->grid.h*gridController->scaleY) {
+			float scale = conversionColorToScale(gridController->grid.at(p));
+			
+			if (scale > 0) {
+				ofScale(scale, scale, scale);
+				vboPheromone.draw();
+			}
+		}
+		
+		ofPopMatrix();
+	}
+	shader.end();
+
 	for (auto& pos : wallPositions)
 	{
+		if (objectBehindCam(pos, 400)) continue;
+
 		ofPushMatrix();
 		ofTranslate(pos);
 		ofSetColor(255, 175, 30, 200);
@@ -218,8 +257,9 @@ ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
 }
 
 bool SceneController::checkCollision(glm::vec3 newPos) {
-	float halfSize = (wallSize * 1.5f) / 2;
-
+	float halfSize = (wallSize) / 2;
+	if (newPos.x < 0 || newPos.x > SCENE_HEIGHT* wallSize || newPos.z < 0 || newPos.z > SCENE_WIDTH * wallSize)
+		return true;
 	for (auto& pos : wallPositions) {
 		if (abs(newPos.x - pos.x) < halfSize * gridController->scaleX &&
 			abs(newPos.z - pos.z) < halfSize * gridController->scaleY) {
@@ -230,11 +270,49 @@ bool SceneController::checkCollision(glm::vec3 newPos) {
 	return false;
 }
 
+float SceneController::conversionColorToScale(Cell* cell)
+{
+	float scale = 1.0f - (cell->getCellColor().b + cell->getCellColor().r + cell->getCellColor().g) / (255.0f * 3.0f);
+
+
+	return ofClamp(scale, 0, 1.0f);
+}
+
+ofPoint SceneController::conversionPixelToGrid(float x, float y)
+{
+	float sizeBoxX = gridController->scaleX * wallSize;
+	float sizeBoxY = gridController->scaleY * wallSize;
+
+	int a = round((x - (sizeBoxX / 2)) / sizeBoxX );
+	int b = round((y - (sizeBoxY / 2)) / sizeBoxY );
+
+	ofPoint p = ofPoint(a, b);
+
+
+	return p;
+}
+
+bool SceneController::objectBehindCam(glm::vec3 pos, int dist)
+{
+	if (glm::distance(pos, activeCam->getPosition()) > dist) return true;
+
+	// R�cup�rer la direction de la cam�ra
+	glm::vec3 camDirection = activeCam->getLookAtDir();
+
+	// Calculer le vecteur entre la cam�ra et l'objet
+	glm::vec3 toObject = glm::normalize(pos - activeCam->getPosition());
+
+	// Produit scalaire : Si n�gatif, l'objet est derri�re
+	if (glm::dot(camDirection, toObject) < 0) return true;
+	return false;
+}
+
 void SceneController::updateWallPositions() {
 	float sizeBoxX = gridController->scaleX * wallSize;
 	float sizeBoxY = gridController->scaleY * wallSize;
 
 	wallPositions.clear();
+	pheromonePositions.clear();
 
 	for (int y = 0; y < gridController->grid.grid.size(); y++) {
 		for (int x = 0; x < gridController->grid.grid[y].size(); x++) {
@@ -247,6 +325,11 @@ void SceneController::updateWallPositions() {
 				glm::vec3 cubePosition((x * sizeBoxX) + (sizeBoxX/2), 0, (y * sizeBoxY) + (sizeBoxY/2));
 
 				wallPositions.push_back(cubePosition);
+			}
+			else {
+				glm::vec3 PheromonePosition((x * sizeBoxX) + (sizeBoxX / 2), 0, (y * sizeBoxY) + (sizeBoxY / 2));
+
+				pheromonePositions.push_back(PheromonePosition);
 			}
 		}
 	}
@@ -261,9 +344,9 @@ void SceneController::updateAntPositions() {
 	for (Ant* ant : gridController->ants)
 	{
 		if (ant != this->ant) {
-			ofPoint posAnt;
-			posAnt = ant->pos;
-			glm::vec3 antPosition((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+		ofPoint posAnt;
+		posAnt = ant->pos;
+		glm::vec3 antPosition((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0.5f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
 			antPositions.push_back(antPosition);
 		}

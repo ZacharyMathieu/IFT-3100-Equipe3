@@ -15,7 +15,7 @@ void Ant::update(Grid* grid)
 	float value;
 	float diff;
 
-	if (grid->at(pos)->type == WALL) 
+	while (grid->at(pos)->type == WALL) 
 	{
 		pos.x += 1;
 		pos.y += 0.3;

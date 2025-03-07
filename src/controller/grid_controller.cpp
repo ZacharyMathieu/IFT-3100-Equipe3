@@ -487,23 +487,46 @@ void GridController::update()
 void GridController::importGrid(ofFile file)
 {
 	ofBuffer buffer = file.readToBuffer();
+	ants.clear();
+	bool readingAnts = false;
 
 	for (auto line : buffer.getLines())
 	{
+		if (line == "ant") {
+			readingAnts = true;
+			continue;
+		}
 		vector<string> tokens = ofSplitString(line, ",");
-		if (tokens.size() < 5) continue;
+		if (!readingAnts) {
 
-		int x = ofToInt(tokens[0]);
-		int y = ofToInt(tokens[1]);
-		int r = ofToInt(tokens[2]);
-		int g = ofToInt(tokens[3]);
-		int b = ofToInt(tokens[4]);
+			if (tokens.size() < 4) continue;
 
-		if (x >= 0 && x < grid.w && y >= 0 && y < grid.h)
-		{
-			if (r == 0) grid.at(x, y)->type = WALL;
+			int x = ofToInt(tokens[0]);
+			int y = ofToInt(tokens[1]);
+			float v = ofToFloat(tokens[2]);
+			string type = ofToString(tokens[3]);
+			CellType c = type == "WALL" ? WALL : PHEROMONE;
+
+
+			if (x >= 0 && x < grid.w && y >= 0 && y < grid.h)
+			{
+
+				grid.at(x, y)->type = c;
+				grid.at(x, y)->value = v;
+
+			}
+		}
+		else {
+			if (tokens.size() < 2) continue;
+
+			float x = ofToFloat(tokens[0]);
+			float y = ofToFloat(tokens[1]);
+
+			ants.push_back(new Ant(x, y, 0)); 
+		}
+
 		}
 	}
-}
+
 
 

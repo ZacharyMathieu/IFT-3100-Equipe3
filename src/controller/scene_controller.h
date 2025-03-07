@@ -23,11 +23,11 @@ public:
 	float centreY;
 	int wallSize;
 	GridController* gridController;
+	Ant* ant;
 
 	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
 	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
 	ofBoxPrimitive boxCollider;
-	Ant* ant;
 
 	void setup(int x, int y, int w, int h, GridController* gridController);
 	void update();
@@ -45,12 +45,16 @@ private:
 	ofBoxPrimitive box;
 	ofVboMesh boxMesh;
 	ofSpherePrimitive antSphere;
-
 	ofVboMesh vboBoxMeshAnt;
+	ofSpherePrimitive pheromoneSphere;
+	ofVboMesh vboPheromone;
 	glm::vec3 boundingSize;
 	ofEasyCam mainCamera;
-	ofCamera topCamera;
-
+	ofEasyCam topCamera;
+	ofEasyCam freeCamera;
+	ofEasyCam* activeCam;
+	vector<ofEasyCam*> cameras;
+	int numCam;
 	ofParameter<bool> checkPop;
 	ofxPanel gui;
 	ofRectangle sceneView;
@@ -59,8 +63,12 @@ private:
 	bool mainCameraMode;
 	vector<glm::vec3> wallPositions;
 	vector<glm::vec3> antPositions;
+	vector<glm::vec3> pheromonePositions;
 
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
+	float conversionColorToScale(Cell* cell);
+	ofPoint conversionPixelToGrid(float x, float y); 
+	bool objectBehindCam(glm::vec3 pos, int dist);
 };
