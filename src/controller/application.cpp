@@ -479,7 +479,6 @@ void Application::importImage()
 		}
 		gridController.importGrid(file);
 	}
-
 }
 
 //--------------------------------------------------------------
