@@ -521,7 +521,7 @@ void GridController::importGrid(ofFile file)
 			float x = ofToFloat(tokens[0]);
 			float y = ofToFloat(tokens[1]);
 
-			ants.push_back(new Ant(x, y, 0));
+			ants.push_back(new Ant(x, y, 0)); 
 		}
 
 		}

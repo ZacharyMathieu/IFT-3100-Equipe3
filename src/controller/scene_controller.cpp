@@ -203,9 +203,10 @@ void SceneController::drawScene()
 	shader.setUniform3f("color_ambient", 0, 0, 0);
 	shader.setUniform3f("color_diffuse", 1, 1, 1);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
-
+	
 	for (auto& pos : antPositions) {
-		if (abs(pos.x - antModelLoader.getPosition().x) > 500 && abs(pos.z - antModelLoader.getPosition().z) > 500) continue;
+		if (objectBehindCam(pos, 400)) continue;
+		
 		ofPushMatrix();
 		ofTranslate(pos);
 		vboBoxMeshAnt.draw();
@@ -219,7 +220,8 @@ void SceneController::drawScene()
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
 	for (auto& pos : pheromonePositions) {
-		//if (glm::distance(pos, antModelLoader.getPosition()) > 50) continue;
+		if (objectBehindCam(pos, 400)) continue;
+
 		ofPushMatrix();
 		ofTranslate(pos);
 		ofPoint p = conversionPixelToGrid(pos.x, pos.z);
@@ -239,6 +241,8 @@ void SceneController::drawScene()
 
 	for (auto& pos : wallPositions)
 	{
+		if (objectBehindCam(pos, 400)) continue;
+
 		ofPushMatrix();
 		ofTranslate(pos);
 		ofSetColor(255, 175, 30, 200);
@@ -298,6 +302,21 @@ ofPoint SceneController::conversionPixelToGrid(float x, float y)
 
 
 	return p;
+}
+
+bool SceneController::objectBehindCam(glm::vec3 pos, int dist)
+{
+	if (glm::distance(pos, activeCam->getPosition()) > dist) return true;
+
+	// Récupérer la direction de la caméra
+	glm::vec3 camDirection = activeCam->getLookAtDir();
+
+	// Calculer le vecteur entre la caméra et l'objet
+	glm::vec3 toObject = glm::normalize(pos - activeCam->getPosition());
+
+	// Produit scalaire : Si négatif, l'objet est derrière
+	if (glm::dot(camDirection, toObject) < 0) return true;
+	return false;
 }
 
 void SceneController::updateWallPositions() {

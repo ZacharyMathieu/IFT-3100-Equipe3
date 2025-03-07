@@ -72,5 +72,6 @@ private:
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
 	float conversionColorToScale(Cell* cell);
-	ofPoint conversionPixelToGrid(float x, float y);
+	ofPoint conversionPixelToGrid(float x, float y); 
+	bool objectBehindCam(glm::vec3 pos, int dist);
 };
