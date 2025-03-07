@@ -44,7 +44,6 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	topCamera.setScale(0.25, 0.25, -0.25);
 	topCamera.enableOrtho();
 	topCamera.disableMouseInput();
-	
 
 	popUpCam = &topCamera;
 	freeCamera.setPosition(SCENE_WIDTH / 2, 50, SCENE_HEIGHT / 2);
