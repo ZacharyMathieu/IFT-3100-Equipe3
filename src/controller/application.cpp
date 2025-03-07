@@ -583,11 +583,13 @@ void Application::multipleSelection()
 
 void Application::undo()
 {
+	if(!gridController.Undo.empty())
 	gridController.undo();
 }
 
 void Application::redo()
 {
+	if (!gridController.Redo.empty())
 	gridController.redo();
 }
 

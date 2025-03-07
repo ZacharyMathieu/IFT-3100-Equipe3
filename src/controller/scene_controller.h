@@ -38,7 +38,7 @@ public:
 
 private:
 	ofShader shader_ant;
-	ofShader shader_normal;
+	ofShader shader_obj;
 	ofShader shader;
 	ofLight light;
 	ofxAssimpModelLoader antModelLoader;
@@ -53,6 +53,7 @@ private:
 	ofEasyCam topCamera;
 	ofEasyCam freeCamera;
 	ofEasyCam* activeCam;
+	ofEasyCam* popUpCam;
 	vector<ofEasyCam*> cameras;
 	int numCam;
 	ofParameter<bool> checkPop;
@@ -73,5 +74,6 @@ private:
 	bool checkCollision(glm::vec3 newPos);
 	float conversionColorToScale(Cell* cell);
 	ofPoint conversionPixelToGrid(float x, float y); 
-	bool objectBehindCam(glm::vec3 pos, int dist);
+	vector<bool> objectBehindCam(glm::vec3 pos, int dist);
+	void drawObj(glm::vec3 pos);
 };

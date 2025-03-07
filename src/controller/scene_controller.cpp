@@ -36,10 +36,10 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	antModelLoader.disableMaterials();
 
-	shader_ant.load("lambert_330_vs.glsl", "lambert_330_fs.glsl");
-	shader_normal.load("draw_normal_330_vs.glsl", "draw_normal_330_fs.glsl");
+	shader_ant.load("ant_330_vs.glsl", "ant_330_fs.glsl");
+	shader_obj.load("obj_330_vs.glsl", "obj_330_fs.glsl");
 
-	shader = shader_ant;
+	shader = shader_obj;
 
 	cameras.push_back(&mainCamera);
 	cameras.push_back(&topCamera);
@@ -55,6 +55,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	topCamera.lookAt(ofVec3f(0, -1, 0));
 	topCamera.disableMouseInput();
 
+	popUpCam = &topCamera;
 	freeCamera.setPosition(SCENE_WIDTH / 2, 50, SCENE_HEIGHT / 2);
 	freeCamera.lookAt(ofVec3f(0, -1, 0));
 
@@ -167,9 +168,9 @@ void SceneController::draw()
 		ofEnableLighting();
 		light.enable();
 
-		topCamera.begin();
+		popUpCam->begin();
 		drawScene();
-		topCamera.end();
+		popUpCam->end();
 
 		light.disable();
 		ofDisableLighting();
@@ -190,28 +191,41 @@ void SceneController::keyPressed(int key)
 
 void SceneController::drawScene()
 {
-	shader.begin();
-	shader.setUniform3f("color_ambient", 1, 0, 0);
-	shader.setUniform3f("color_diffuse", 0, 0, 1);
-	shader.setUniform3f("light_position", light.getGlobalPosition());
+	
+	
+	shader_ant.begin();
+	shader_ant.setUniform3f("color_ambient", 1, 0, 0);
+	shader_ant.setUniform3f("color_diffuse", 0, 0, 1);
+	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
+	//shader.setUniform3f("translation", antModelLoader.getPosition().x, antModelLoader.getPosition().y, antModelLoader.getPosition().z);
+	//shader.setUniform1f("scale_factor", scale_ant);
 
 	antModelLoader.draw(OF_MESH_FILL);
 
-	shader.end();
+	shader_ant.end();
 
 	shader.begin();
 	shader.setUniform3f("color_ambient", 0, 0, 0);
 	shader.setUniform3f("color_diffuse", 1, 1, 1);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
-	
+
 	for (auto& pos : antPositions) {
-		if (objectBehindCam(pos, 400)) continue;
-		
-		ofPushMatrix();
-		ofTranslate(pos);
+		vector<bool> visible = objectBehindCam(pos, 300);
+		if (checkPop) {
+			if (visible[0]) continue;
+		}
+		else {
+			if (visible[0] && visible[1])continue;
+		}
+
+		// Envoyer la position comme uniform au shader
+		shader.setUniform3f("translation", pos.x, pos.y, pos.z);
+		shader.setUniform1f("scale_factor", 1);
+
+		// Dessiner l'objet sans pushMatrix ni translate
 		vboBoxMeshAnt.draw();
-		ofPopMatrix();
 	}
+
 	shader.end();
 
 	shader.begin();
@@ -220,36 +234,40 @@ void SceneController::drawScene()
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
 	for (auto& pos : pheromonePositions) {
-		if (objectBehindCam(pos, 400)) continue;
-
-		ofPushMatrix();
-		ofTranslate(pos);
-		ofPoint p = conversionPixelToGrid(pos.x, pos.z);
-		if (p.x >= 0 && p.x < gridController->grid.w*gridController->scaleX &&
-			p.y >= 0 && p.y < gridController->grid.h*gridController->scaleY) {
-			float scale = conversionColorToScale(gridController->grid.at(p));
-			
-			if (scale > 0) {
-				ofScale(scale, scale, scale);
-				vboPheromone.draw();
-			}
+		vector<bool> visible = objectBehindCam(pos, 300);
+		if (checkPop) {
+			if (visible[0]) continue;
+		}
+		else {
+			if (visible[0] && visible[1])continue;
 		}
 		
-		ofPopMatrix();
+			
+			drawObj(pos);
+			
+
 	}
 	shader.end();
+	shader.begin();
+	shader.setUniform3f("color_ambient", 0, 1, 1);
+	shader.setUniform3f("color_diffuse", 0, 1, 1);
+	shader.setUniform3f("light_position", light.getGlobalPosition());
 
 	for (auto& pos : wallPositions)
 	{
-		if (objectBehindCam(pos, 400)) continue;
-
-		ofPushMatrix();
-		ofTranslate(pos);
-		ofSetColor(255, 175, 30, 200);
+		vector<bool> visible = objectBehindCam(pos, 300);
+		if (checkPop) {
+			if (visible[0]) continue;
+		}
+		else {
+			if (visible[0] && visible[1])continue;
+		}
+		shader.setUniform3f("translation", pos.x, pos.y, pos.z);
+		shader.setUniform1f("scale_factor", 1);
 		boxMesh.draw(OF_MESH_WIREFRAME);
-		ofPopMatrix();
+		
 	}
-
+	shader.end();
 	ofSetColor(100, 100, 100);
 
 	for (int x = 0; x <= gridController->GRID_WIDTH; x++) {
@@ -304,19 +322,45 @@ ofPoint SceneController::conversionPixelToGrid(float x, float y)
 	return p;
 }
 
-bool SceneController::objectBehindCam(glm::vec3 pos, int dist)
+vector<bool> SceneController::objectBehindCam(glm::vec3 pos, int dist)
 {
-	if (glm::distance(pos, activeCam->getPosition()) > dist) return true;
+	bool active = false;
+	bool checkPopCam = false;
+	vector<bool> objBehind;
 
-	// Récupérer la direction de la caméra
+	if (glm::distance(pos, activeCam->getPosition()) > dist) active = true;
+	if (glm::distance(pos, popUpCam->getPosition()) > dist) checkPopCam = true;
+	
 	glm::vec3 camDirection = activeCam->getLookAtDir();
+	glm::vec3 camDirection2 = popUpCam->getLookAtDir();
 
-	// Calculer le vecteur entre la caméra et l'objet
 	glm::vec3 toObject = glm::normalize(pos - activeCam->getPosition());
+	glm::vec3 toObject2 = glm::normalize(pos - popUpCam->getPosition());
 
-	// Produit scalaire : Si négatif, l'objet est derrière
-	if (glm::dot(camDirection, toObject) < 0) return true;
-	return false;
+	if (glm::dot(camDirection, toObject) < 0) active = true;
+	if (glm::dot(camDirection, toObject2) < 0) checkPopCam = true;
+
+	objBehind.push_back(active);
+	objBehind.push_back(checkPopCam);
+
+	return objBehind;
+}
+
+void SceneController::drawObj(glm::vec3 pos)
+{
+	shader.setUniform3f("translation", pos.x, pos.y, pos.z);
+	ofPoint p = conversionPixelToGrid(pos.x, pos.z);
+	if (p.x >= 0 && p.x < gridController->grid.w * gridController->scaleX &&
+		p.y >= 0 && p.y < gridController->grid.h * gridController->scaleY) {
+		float scale = conversionColorToScale(gridController->grid.at(p));
+
+		if (scale > 0) {
+			
+			
+			shader.setUniform1f("scale_factor", scale);
+			vboPheromone.draw();
+		}
+	}
 }
 
 void SceneController::updateWallPositions() {
