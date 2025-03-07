@@ -23,10 +23,10 @@ public:
 	float centreY;
 	int wallSize;
 	GridController* gridController;
+	Ant* ant;
 
-	//Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
-	ofColor color_ambient;
-	ofColor color_diffuse;
+	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
+	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
 	ofBoxPrimitive boxCollider;
 
 	void setup(int x, int y, int w, int h, GridController* gridController);
@@ -61,13 +61,10 @@ private:
 	ofRectangle sceneView;
 
 	float scale_ant;
-	float speed;
-	float rotation;
 	bool mainCameraMode;
 	vector<glm::vec3> wallPositions;
 	vector<glm::vec3> antPositions;
 	vector<glm::vec3> pheromonePositions;
-	Ant* ant;
 
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);

@@ -37,7 +37,7 @@ public:
 	static const int COORD_MENU_Y = 60;
 	static const int COORD_SLIDER_X = 20;
 	static const int SLIDER_WIDTH = 200;
-	static const int FAST_FORWARD_AMOUNT = 200;
+	static const int FAST_FORWARD_AMOUNT = 250;
 
 	bool isRunning = false;
 	SceneController sceneController;
