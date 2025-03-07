@@ -19,6 +19,9 @@ public:
 	int SCENE_HEIGHT;
 	int SCENE_X;
 	int SCENE_Y;
+	float RENDER_DISTANCE_WALLS = 300;
+	float RENDER_DISTANCE_PHEROMONES= 300;
+	float RENDER_DISTANCE_ANTS= 300;
 	float centreX;
 	float centreY;
 	int wallSize;
@@ -33,8 +36,9 @@ public:
 	void update();
 	void draw();
 	void keyPressed(int key);
-	void updateWallPositions();
+	void updateCellPositions();
 	void updateAntPositions();
+	void updateGridController(GridController*);
 
 private:
 	ofShader shader_ant;
@@ -64,13 +68,13 @@ private:
 	bool mainCameraMode;
 	vector<glm::vec3> wallPositions;
 	vector<glm::vec3> antPositions;
-	vector<glm::vec3> pheromonePositions;
+	vector<tuple<glm::vec3, Cell*>> pheromonePositions;
 
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
-	float conversionColorToScale(Cell* cell);
-	ofPoint conversionPixelToGrid(float x, float y); 
+	float conversionColorToScale(ofColor);
+	ofPoint conversionGridToPixel(float x, float y); 
 	vector<bool> objectBehindCam(glm::vec3 pos, int dist);
 	void drawObj(glm::vec3 pos);
 };

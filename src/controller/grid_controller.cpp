@@ -63,7 +63,7 @@ void GridController::draw(Ant* mainAnt)
 	}
 
 	ofSetColor(mainAnt->MAIN_ANT_COLOR);
-	ofDrawCircle(ofPoint(mainAnt->pos.x* scaleX + displayPosX, mainAnt->pos.y* scaleY + displayPosY), 8);
+	ofDrawCircle(ofPoint(mainAnt->pos.x * scaleX + displayPosX, mainAnt->pos.y * scaleY + displayPosY), 8);
 
 	ofSetColor(0, 0, 0, 150);
 	ofSetLineWidth(2);
@@ -374,7 +374,6 @@ void GridController::windowResized(int w, int h)
 
 void GridController::multipleSelection()
 {
-
 }
 
 void GridController::undo()
@@ -449,8 +448,10 @@ void GridController::processSelectionZone()
 	int maxY = (int)((max(mouse_pressed_y, mouse_current_y) - displayPosY) / scaleY);
 
 
-	for (int i = minX; i <= maxX; i++) {
-		for (int j = minY; j <= maxY; j++) {
+	for (int i = minX; i <= maxX; i++)
+	{
+		for (int j = minY; j <= maxY; j++)
+		{
 			if (i >= 0 && i < grid.w && j >= 0 && j < grid.h) {
 				if (grid.at(i, j)->type == WALL) {
 					grid.at(i, j)->isSelected = true;
@@ -465,7 +466,8 @@ void GridController::processSelectionZone()
 
 bool GridController::alreadySelected(int x, int y)
 {
-	for (auto pos : CSposition) {
+	for (auto pos : CSposition)
+	{
 		if (pos.first == x && pos.second == y) return true;
 	}
 	return false;
@@ -497,7 +499,8 @@ void GridController::importGrid(ofFile file)
 			continue;
 		}
 		vector<string> tokens = ofSplitString(line, ",");
-		if (!readingAnts) {
+		if (!readingAnts)
+		{
 
 			if (tokens.size() < 4) continue;
 
@@ -507,26 +510,23 @@ void GridController::importGrid(ofFile file)
 			string type = ofToString(tokens[3]);
 			CellType c = type == "WALL" ? WALL : PHEROMONE;
 
-
 			if (x >= 0 && x < grid.w && y >= 0 && y < grid.h)
 			{
-
 				grid.at(x, y)->type = c;
 				grid.at(x, y)->value = v;
-
 			}
 		}
-		else {
+		else
+		{
 			if (tokens.size() < 2) continue;
 
 			float x = ofToFloat(tokens[0]);
 			float y = ofToFloat(tokens[1]);
 
-			ants.push_back(new Ant(x, y, 0)); 
-		}
-
+			ants.push_back(new Ant(x, y, 0));
 		}
 	}
+}
 
 
 

@@ -9,28 +9,29 @@ Ant::Ant(float x, float y, float a)
 
 void Ant::update(Grid* grid)
 {
+	while (grid->at(pos)->type == WALL)
+	{
+		pos.x += 1;
+		pos.y += 0.3;
+	}
+
 	ofPoint point;
 	Cell* cell;
 	float dist;
 	float value;
 	float diff;
-
-	while (grid->at(pos)->type == WALL) 
-	{
-		pos.x += 1;
-		pos.y += 0.3;
-	}
 	float maxValue = 0;
 	float maxValueDiff = 0;
+	int _x, _y;
 
 	if (pheromoneLevel < ANT_NORMAL_PHEROMONE_LEVEL)
 		pheromoneLevel += ANT_PHEROMONE_LEVEL_DECAY_VALUE;
 	else if (pheromoneLevel > ANT_NORMAL_PHEROMONE_LEVEL)
 		pheromoneLevel -= ANT_PHEROMONE_LEVEL_DECAY_VALUE;
 
-	for (int _y = pos.y - ANT_SEARCH_RADIUS; _y < pos.y + ANT_SEARCH_RADIUS; _y++)
+	for (_y = pos.y - ANT_SEARCH_RADIUS; _y < pos.y + ANT_SEARCH_RADIUS; _y++)
 	{
-		for (int _x = pos.x - ANT_SEARCH_RADIUS; _x < pos.x + ANT_SEARCH_RADIUS; _x++)
+		for (_x = pos.x - ANT_SEARCH_RADIUS; _x < pos.x + ANT_SEARCH_RADIUS; _x++)
 		{
 			point = ofPoint((_x + grid->w) % grid->w, (_y + grid->h) % grid->h);
 			cell = grid->at(point);
@@ -87,10 +88,10 @@ float Ant::angleTo(ofPoint point) {
 }
 
 float Ant::angleDiff(float angle) {
-	float a1 = angle - a;
-	float a2 = a1 - TWO_PI;
-	if (abs(a2) < abs(a1)) {
-		return a2;
+	//float a1 = angle - a;
+	//float a2 = a1 - TWO_PI;
+	if (angle < a) {
+		return angle - a;
 	}
-	return a1;
+	return angle - a - TWO_PI;
 }
