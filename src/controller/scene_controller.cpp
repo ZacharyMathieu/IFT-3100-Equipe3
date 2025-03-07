@@ -34,26 +34,27 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	shader = shader_obj;
 
-	cameras.push_back(&mainCamera);
-	cameras.push_back(&topCamera);
-	cameras.push_back(&freeCamera);
-	numCam = 0;
-	activeCam = cameras[numCam];
-
 	mainCameraMode = true;
 	mainCamera.lookAt(ofVec3f(antModelLoader.getPosition()));
 	mainCamera.setScale(-1, 1, 1);
 	mainCamera.disableMouseInput();
-
+	mainCamera.setFarClip(150);
 
 	topCamera.lookAt(ofVec3f(0, 1, 0));
 	topCamera.setScale(0.25, 0.25, -0.25);
 	topCamera.enableOrtho();
 	topCamera.disableMouseInput();
+	
 
 	popUpCam = &topCamera;
 	freeCamera.setPosition(SCENE_WIDTH / 2, 50, SCENE_HEIGHT / 2);
 	freeCamera.lookAt(ofVec3f(0, -1, 0));
+
+	cameras.push_back(&mainCamera);
+	cameras.push_back(&topCamera);
+	cameras.push_back(&freeCamera);
+	numCam = 0;
+	activeCam = cameras[numCam];
 
 	gui.setup();
 	checkPop.setName("Vue D'ensemble");
@@ -196,7 +197,7 @@ void SceneController::drawScene()
 
 	for (auto& pos : antPositions) {
 		vector<bool> visible = objectBehindCam(pos, 300);
-		if (checkPop) {
+		if (!checkPop) {
 			if (visible[0]) continue;
 		}
 		else {
@@ -220,7 +221,7 @@ void SceneController::drawScene()
 
 	for (auto& pos : pheromonePositions) {
 		vector<bool> visible = objectBehindCam(pos, 300);
-		if (checkPop) {
+		if (!checkPop) {
 			if (visible[0]) continue;
 		}
 		else {
@@ -241,7 +242,7 @@ void SceneController::drawScene()
 	for (auto& pos : wallPositions)
 	{
 		vector<bool> visible = objectBehindCam(pos, 300);
-		if (checkPop) {
+		if (!checkPop) {
 			if (visible[0]) continue;
 		}
 		else {

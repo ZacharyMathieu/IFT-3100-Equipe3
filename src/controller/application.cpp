@@ -24,9 +24,9 @@ void Application::setup()
 	penGui.setup("Crayon");
 	drawCursorSize.set("Taille du crayon", 5, 1, 50);
 	colorPicker.set("Couleur", ofColor(255, 0, 0), ofColor(0, 0), ofColor(255, 255));
-	penGui.add(colorPicker);
+	//penGui.add(colorPicker);
 	penGui.add(drawCursorSize);
-	colorPicker.addListener(this, &Application::onColorChanged);
+	//colorPicker.addListener(this, &Application::onColorChanged);
 	drawCursorSize.addListener(this, &Application::onDrawCursorSizeChanged);
 	penGui.setPosition(10, MENU_HEIGHT + 10);
 
