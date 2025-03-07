@@ -5,6 +5,10 @@
 
 using namespace std;
 
+constexpr float CELL_MAX_VALUE = 256;
+constexpr float CELL_DECAY_VALUE = 1;
+constexpr float CELL_DECAY_FACTOR = 1;
+
 enum CellType
 {
     WALL,
@@ -17,8 +21,6 @@ public:
     ofColor *WALL_COLOR = new ofColor(0);
     ofColor *PHEROMONE_COLOR = new ofColor(0, 0, 255);
     ofColor *EMPTY_COLOR = new ofColor(255, 255, 255);
-    const float MAX_VALUE = 256;
-    const float DECAY_VALUE = 2;
     float value;
     CellType type;
     Cell(CellType = PHEROMONE, float = 0.0);
