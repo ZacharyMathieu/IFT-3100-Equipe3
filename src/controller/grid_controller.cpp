@@ -182,7 +182,7 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
 			if ((x - eraserSize) >= displayPosX &&
 				(y - eraserSize) >= displayPosY &&
 				(x + eraserSize) < displayWidth &&
-				(y + eraserSize) < displayHeight)
+				(y + eraserSize) < displayHeight + displayPosY)
 			{
 				int xOrigine = ((x - eraserSize) / scaleX) * scaleX;
 				int yOrigine = ((y - eraserSize) / scaleY) * scaleY;
