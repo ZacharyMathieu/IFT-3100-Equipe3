@@ -244,8 +244,8 @@ void SceneController::drawScene()
 	shader.end();
 
 	shader.begin();
-	shader.setUniform3f("color_ambient", 0, 1, 1);
-	shader.setUniform3f("color_diffuse", 0, 1, 1);
+	shader.setUniform3f("color_ambient", 0, 0, 0);
+	shader.setUniform3f("color_diffuse", 1, 1, 1);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
 	for (auto& pos : wallPositions)
@@ -257,7 +257,7 @@ void SceneController::drawScene()
 
 		shader.setUniform3f("translation", pos.x, pos.y, pos.z);
 		shader.setUniform1f("scale_factor", 1);
-		boxMesh.draw(OF_MESH_WIREFRAME);
+		boxMesh.draw(OF_MESH_FILL);
 	}
 	shader.end();
 	ofSetColor(100, 100, 100);
@@ -300,7 +300,7 @@ bool SceneController::checkCollision(glm::vec3 newPos)
 
 bool SceneController::objectVisible(glm::vec3 pos, float renderDistance)
 {
-	return (glm::dot(activeCam->getLookAtDir(), pos - activeCam->getPosition()) < 0) && (glm::distance2(activeCam->getPosition(), pos) < (renderDistance * renderDistance));
+	return (glm::dot(activeCam->getLookAtDir(), pos - activeCam->getPosition()) < 0) && (glm::distance(activeCam->getPosition(), pos) < renderDistance);
 }
 
 void SceneController::updateCellPositions()
@@ -324,7 +324,7 @@ void SceneController::updateCellPositions()
 				if (abs(boxCollider.getPosition().x - ((x * sizeBoxX) + (sizeBoxX / 2))) < (sizeBoxX * 1.5f) / 2 && abs(boxCollider.getPosition().z - ((y * sizeBoxY) + (sizeBoxY / 2))) < (sizeBoxY * 1.5) / 2)
 					continue;
 
-				position = glm::vec3((x * sizeBoxX) + (sizeBoxX / 2), 0, (y * sizeBoxY) + (sizeBoxY / 2));
+				position = glm::vec3((x * sizeBoxX) + (sizeBoxX / 2), box.getHeight()/2, (y * sizeBoxY) + (sizeBoxY / 2));
 
 				wallPositions.push_back(position);
 			}

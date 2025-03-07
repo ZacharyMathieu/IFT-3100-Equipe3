@@ -161,7 +161,7 @@ void Application::drawCustomCursors()
 	else
 	{
 		// Dessiner le curseur du crayon
-		if (cursorMode == DRAW)
+		if (cursorMode == DRAW && ofGetMouseX() < ofGetWidth() / 2 && ofGetMouseY() > MENU_HEIGHT)
 		{
 			int cursorSize = drawCursorSize;
 			ofSetColor(currentDrawColor);
@@ -170,14 +170,14 @@ void Application::drawCustomCursors()
 			ofHideCursor();
 		}
 		// Dessiner le curseur de l'efface
-		else if (cursorMode == ERASE)
+		else if (cursorMode == ERASE && ofGetMouseX() < ofGetWidth() / 2 && ofGetMouseY() > MENU_HEIGHT)
 		{
 			ofNoFill();
 			ofDrawCircle(ofGetMouseX(), ofGetMouseY(), eraserSize);
 			ofFill();
 			ofHideCursor();
 		}
-		else if (cursorMode == SELECT) {
+		else if (cursorMode == SELECT && ofGetMouseX() < ofGetWidth() / 2 && ofGetMouseY() > MENU_HEIGHT) {
 			ofShowCursor();
 			SetCursor(LoadCursor(NULL, IDC_HAND));
 		}
@@ -277,7 +277,7 @@ void Application::mousePressed(int x, int y, int button)
 	gridController.mouse_current_x = x;
 	gridController.mouse_current_y = y;
 
-	if (y < MENU_HEIGHT)
+	if (y < MENU_HEIGHT && x < MENU_BUTTON_WIDTH*buttons.size())
 	{
 		int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
 		Button* pressedButton = buttons[buttonNumber];
