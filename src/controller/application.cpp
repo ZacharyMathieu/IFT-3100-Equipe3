@@ -186,6 +186,10 @@ void Application::drawCustomCursors()
 			ofShowCursor();
 			SetCursor(LoadCursor(NULL, IDC_CROSS));
 		}
+		else if(cursorMode == DEFAULT){
+			ofShowCursor();
+			SetCursor(LoadCursor(NULL, IDC_ARROW));
+		}
 	}
 }
 
@@ -300,6 +304,7 @@ void Application::mousePressed(int x, int y, int button)
 			showColorMenu = !showColorMenu;
 			showDrawMenu = false;
 			showEraserMenu = false;
+			cursorMode = DEFAULT;
 			return;
 		}
 
@@ -405,7 +410,7 @@ void Application::mousePressed(int x, int y, int button)
 		cursor = "SELECT";
 		break;
 	default:
-
+		cursor = "DEFAULT";
 		break;
 	}
 	ofLog() << cursorMode;
@@ -542,7 +547,7 @@ void Application::drawMode()
 //--------------------------------------------------------------
 void Application::penTypeChoice()
 {
-	cursorMode = DRAW;
+	cursorMode = DEFAULT;
 	showColorMenu = !showColorMenu;
 	showEraserMenu = false;
 	showDrawMenu = false;
