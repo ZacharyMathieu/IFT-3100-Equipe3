@@ -23,11 +23,11 @@ public:
 	float centreY;
 	int wallSize;
 	GridController* gridController;
+	Ant* ant;
 
 	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
 	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
 	ofBoxPrimitive boxCollider;
-	Ant* ant;
 
 	void setup(int x, int y, int w, int h, GridController* gridController);
 	void update();
@@ -64,7 +64,6 @@ private:
 	vector<glm::vec3> wallPositions;
 	vector<glm::vec3> antPositions;
 	vector<glm::vec3> pheromonePositions;
-	Ant* ant;
 
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
