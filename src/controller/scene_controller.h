@@ -76,5 +76,5 @@ private:
 	float conversionColorToScale(ofColor);
 	ofPoint conversionGridToPixel(float x, float y); 
 	vector<bool> objectBehindCam(glm::vec3 pos, int dist);
-	void drawObj(glm::vec3 pos);
+	//void drawObj(glm::vec3 pos);
 };

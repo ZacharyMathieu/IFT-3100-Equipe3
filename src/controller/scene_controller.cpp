@@ -1,6 +1,6 @@
 #include "scene_controller.h"
 
-void SceneController::setup(int x, int y, int w, int h, GridController *gridController)
+void SceneController::setup(int x, int y, int w, int h, GridController* gridController)
 {
 	SCENE_X = x;
 	SCENE_Y = y;
@@ -18,7 +18,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController *gridCont
 	antSphere.set(wallSize, 120);
 	vboBoxMeshAnt = antSphere.getMesh();
 
-	pheromoneSphere.set(5, 12);
+	pheromoneSphere.set(wallSize, 12);
 	vboPheromone = pheromoneSphere.getMesh();
 
 	antModelLoader.load("models/ant3.obj");
@@ -38,7 +38,6 @@ void SceneController::setup(int x, int y, int w, int h, GridController *gridCont
 	mainCamera.disableMouseInput();
 	mainCamera.setFarClip(150);
 
-	topCamera.lookAt(ofVec3f(0, -1, 0));
 	topCamera.lookAt(ofVec3f(0, -1, 0));
 	topCamera.setScale(0.25, 0.25, -0.25);
 	topCamera.enableOrtho();
@@ -61,7 +60,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController *gridCont
 	gui.setPosition(ofGetWidth() - 200, 10);
 }
 
-void SceneController::updateGridController(GridController *gridController)
+void SceneController::updateGridController(GridController* gridController)
 {
 	this->gridController = gridController;
 	this->ant = gridController->ants[0];
@@ -206,7 +205,7 @@ void SceneController::drawScene()
 	shader.setUniform3f("color_diffuse", 1, 1, 1);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
-	for (auto &pos : antPositions)
+	for (auto& pos : antPositions)
 	{
 		vector<bool> visible = objectBehindCam(pos, RENDER_DISTANCE_ANTS);
 
@@ -235,15 +234,15 @@ void SceneController::drawScene()
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
 	glm::vec3 pos;
-	Cell *cell;
-	float scale;
+	Cell* cell;
+	//float scale;
 	float sizeBoxX = gridController->scaleX * wallSize;
 	float sizeBoxY = gridController->scaleY * wallSize;
-	for (auto &pheromone : pheromonePositions)
+	for (auto& pheromone : pheromonePositions)
 	{
 		pos = get<0>(pheromone);
 		cell = get<1>(pheromone);
-		
+
 		vector<bool> visible = objectBehindCam(pos, RENDER_DISTANCE_PHEROMONES);
 		if (!checkPop)
 		{
@@ -254,16 +253,19 @@ void SceneController::drawScene()
 			if (visible[0] && visible[1]) continue;
 		}
 
-		drawObj(pos);
+		shader.setUniform3f("translation", pos);
+		shader.setUniform1f("scale_factor", cell->getValueFactor());
+		vboPheromone.draw();
+		//drawObj(pos);
 	}
-
 	shader.end();
+
 	shader.begin();
 	shader.setUniform3f("color_ambient", 0, 1, 1);
 	shader.setUniform3f("color_diffuse", 0, 1, 1);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
-	for (auto &pos : wallPositions)
+	for (auto& pos : wallPositions)
 	{
 		vector<bool> visible = objectBehindCam(pos, RENDER_DISTANCE_WALLS);
 		if (!checkPop) {
@@ -289,7 +291,7 @@ void SceneController::drawScene()
 	}
 }
 
-ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader &model)
+ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
 {
 	ofBoxPrimitive boundingBox;
 	boundingBox.set(model.getPosition().x, 50, model.getPosition().z);
@@ -302,7 +304,7 @@ bool SceneController::checkCollision(glm::vec3 newPos)
 	float halfSize = (wallSize) / 2;
 	if (newPos.x < 0 || newPos.x > SCENE_HEIGHT * wallSize || newPos.z < 0 || newPos.z > SCENE_WIDTH * wallSize)
 		return true;
-	for (auto &pos : wallPositions)
+	for (auto& pos : wallPositions)
 	{
 		if (abs(newPos.x - pos.x) < halfSize * gridController->scaleX &&
 			abs(newPos.z - pos.z) < halfSize * gridController->scaleY)
@@ -337,8 +339,12 @@ ofPoint SceneController::conversionGridToPixel(float x, float y)
 
 vector<bool> SceneController::objectBehindCam(glm::vec3 pos, int dist)
 {
-	if (glm::distance(pos, activeCam->getPosition()) > dist)
-		return true;
+	bool active = false;
+	bool checkPopCam = false;
+	vector<bool> objBehind;
+
+	if (glm::distance(pos, activeCam->getPosition()) > dist) active = true;
+	if (glm::distance(pos, popUpCam->getPosition()) > dist) checkPopCam = true;
 
 	// R�cup�rer la direction de la cam�ra
 	glm::vec3 camDirection = activeCam->getLookAtDir();
@@ -360,7 +366,7 @@ void SceneController::updateCellPositions()
 {
 	float sizeBoxX = gridController->scaleX * wallSize;
 	float sizeBoxY = gridController->scaleY * wallSize;
-	Cell *cell;
+	Cell* cell;
 	glm::vec3 position;
 	int x, y;
 
@@ -377,15 +383,15 @@ void SceneController::updateCellPositions()
 				if (abs(boxCollider.getPosition().x - ((x * sizeBoxX) + (sizeBoxX / 2))) < (sizeBoxX * 1.5f) / 2 && abs(boxCollider.getPosition().z - ((y * sizeBoxY) + (sizeBoxY / 2))) < (sizeBoxY * 1.5) / 2)
 					continue;
 
-				glm::vec3 cubePosition((x * sizeBoxX) + (sizeBoxX / 2), 0, (y * sizeBoxY) + (sizeBoxY / 2));
+				position = glm::vec3((x * sizeBoxX) + (sizeBoxX / 2), 0, (y * sizeBoxY) + (sizeBoxY / 2));
 
-				wallPositions.push_back(cubePosition);
+				wallPositions.push_back(position);
 			}
 			else
 			{
-				glm::vec3 PheromonePosition((x * sizeBoxX) + (sizeBoxX / 2), 0, (y * sizeBoxY) + (sizeBoxY / 2));
+				position = glm::vec3((x * sizeBoxX) + (sizeBoxX / 2), 0, (y * sizeBoxY) + (sizeBoxY / 2));
 
-				pheromonePositions.push_back(PheromonePosition);
+				pheromonePositions.push_back(tuple(position, cell));
 			}
 		}
 	}
@@ -399,7 +405,7 @@ void SceneController::updateAntPositions()
 
 	antPositions.clear();
 
-	for (Ant *ant : gridController->ants)
+	for (Ant* ant : gridController->ants)
 	{
 		if (ant != this->ant)
 		{
