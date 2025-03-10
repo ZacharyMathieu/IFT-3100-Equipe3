@@ -46,6 +46,7 @@ private:
 	ofShader shader;
 	ofLight light;
 	ofxAssimpModelLoader antModelLoader;
+	ofxAssimpModelLoader ants;
 	ofBoxPrimitive box;
 	ofVboMesh boxMesh;
 	ofSpherePrimitive antSphere;

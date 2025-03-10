@@ -22,7 +22,9 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	vboPheromone = pheromoneSphere.getMesh();
 
 	antModelLoader.load("models/ant3.obj");
-
+	ants.load("models/ant3.obj");
+	ants.disableMaterials();
+	
 	boxCollider = createBoundingBox(antModelLoader);
 
 	antModelLoader.disableMaterials();
@@ -71,6 +73,7 @@ void SceneController::update()
 	centreY = ofGetHeight() / 2.0f;
 
 	antModelLoader.setScale(scale_ant, scale_ant, scale_ant);
+	ants.setScale(scale_ant, scale_ant, scale_ant);
 
 	boxCollider.setPosition(antModelLoader.getPosition());
 	ofVec3f newPos = ant->pos;
@@ -111,6 +114,7 @@ void SceneController::update()
 		ant->pos = newPos;
 	}
 
+	
 	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG + 90, 0, 1, 0);
 	antModelLoader.setPosition(ant->pos.x * gridController->scaleX * wallSize, 0, ant->pos.y * gridController->scaleY * wallSize);
 
@@ -198,10 +202,10 @@ void SceneController::drawScene()
 
 	shader_ant.end();
 
-	shader.begin();
-	shader.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
-	shader.setUniform3f("color_diffuse", 1, 1, 1);
-	shader.setUniform3f("light_position", light.getGlobalPosition());
+	shader_ant.begin();
+	shader_ant.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
+	shader_ant.setUniform3f("color_diffuse", 1, 1, 1);
+	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
 
 	bool visible;
 
@@ -211,14 +215,19 @@ void SceneController::drawScene()
 
 		if (visible)
 			continue;
+		ofPushMatrix();
+		ofTranslate(pos);
+		ants.drawFaces();
+		ofPopMatrix();
+		//shader.setUniform3f("translation", pos.x, pos.y, pos.z);
+		//shader.setUniform1f("scale_factor", 1);
 
-		shader.setUniform3f("translation", pos.x, pos.y, pos.z);
-		shader.setUniform1f("scale_factor", 1);
-
-		vboBoxMeshAnt.draw();
+		//vboBoxMeshAnt.draw();
+		//ants.draw(OF_MESH_FILL);
+	
 	}
 
-	shader.end();
+	shader_ant.end();
 
 	shader.begin();
 	shader.setUniform3f("color_ambient", 0, 0, 1);
