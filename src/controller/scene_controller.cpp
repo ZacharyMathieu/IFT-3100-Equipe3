@@ -20,10 +20,16 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	pheromoneSphere.set(wallSize, 12);
 	vboPheromone = pheromoneSphere.getMesh();
+	slimes.load("models/slimes.obj");
+	slimes.disableMaterials();
+	//slimes.setScale(1.5, 1.5f, 1.5f);
+	slimesMesh = slimes.getMesh(0);
+	
 
 	antModelLoader.load("models/ant3.obj");
 	ants.load("models/ant3.obj");
 	ants.disableMaterials();
+	ants.setRotation(0, 180, 0, 1, 0);
 	
 	boxCollider = createBoundingBox(antModelLoader);
 
@@ -74,6 +80,7 @@ void SceneController::update()
 
 	antModelLoader.setScale(scale_ant, scale_ant, scale_ant);
 	ants.setScale(scale_ant, scale_ant, scale_ant);
+	
 
 	boxCollider.setPosition(antModelLoader.getPosition());
 	ofVec3f newPos = ant->pos;
@@ -193,6 +200,7 @@ void SceneController::keyPressed(int key)
 
 void SceneController::drawScene()
 {
+	
 	shader_ant.begin();
 	shader_ant.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r / 255.0f, ant->MAIN_ANT_COLOR.g / 255.0f, ant->MAIN_ANT_COLOR.b / 255.0f);
 	shader_ant.setUniform3f("color_diffuse", 1, 1, 1);
@@ -209,52 +217,54 @@ void SceneController::drawScene()
 
 	bool visible;
 
-	for (auto& pos : antPositions)
+	for (size_t i = 0; i < antPositions.size(); i++)
 	{
-		visible = objectVisible(pos, RENDER_DISTANCE_ANTS);
+		if (!objectVisible(antPositions[i], RENDER_DISTANCE_ANTS))
+		{
+			ofPushMatrix();
+			ofTranslate(antPositions[i]);  
+			ants.setRotation(0, antAngles[i], 0, 1, 0);
 
-		if (visible)
-			continue;
-		ofPushMatrix();
-		ofTranslate(pos);
-		ants.drawFaces();
-		ofPopMatrix();
-		//shader.setUniform3f("translation", pos.x, pos.y, pos.z);
-		//shader.setUniform1f("scale_factor", 1);
+			ants.drawFaces(); 
 
-		//vboBoxMeshAnt.draw();
-		//ants.draw(OF_MESH_FILL);
-	
+			ofPopMatrix();
+		}
 	}
+
 
 	shader_ant.end();
 
 	shader.begin();
 	shader.setUniform3f("color_ambient", 0, 0, 1);
-	shader.setUniform3f("color_diffuse", 1, 1, 1);
+	shader.setUniform3f("color_diffuse", 0, 1, 0);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
 	glm::vec3 pos;
 	Cell* cell;
+	int x = 0;
 	for (auto& pheromone : pheromonePositions)
 	{
+		
 		pos = get<0>(pheromone);
 		cell = get<1>(pheromone);
-
+		float color = pheromoneColorCache[pos];
+			x++;
 		visible = objectVisible(pos, RENDER_DISTANCE_PHEROMONES);
 
 		if (visible)
 			continue;
-
-		shader.setUniform3f("translation", pos);
-		shader.setUniform1f("scale_factor", cell->getValueFactor());
-		vboPheromone.draw();
+	
+		shader.setUniform3f("translation", pos );
+		shader.setUniform1f("scale_factor", cell->getValueFactor()*5);
+		slimesMesh.draw();
+		//vboPheromone.draw();
+		
 	}
-	shader.end();
+	shader_ant.end();
 
 	shader.begin();
 	shader.setUniform3f("color_ambient", 0, 0, 0);
-	shader.setUniform3f("color_diffuse", 1, 1, 1);
+	shader.setUniform3f("color_diffuse", 0.5f, 0.5f, 0.5f);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
 	for (auto& pos : wallPositions)
@@ -318,10 +328,12 @@ void SceneController::updateCellPositions()
 	float sizeBoxY = gridController->scaleY * wallSize;
 	Cell* cell;
 	glm::vec3 position;
+	ofPoint p;
 	int x, y;
 
 	wallPositions.clear();
 	pheromonePositions.clear();
+	
 
 	for (y = 0; y < gridController->grid.grid.size(); y++)
 	{
@@ -339,8 +351,10 @@ void SceneController::updateCellPositions()
 			}
 			else if (cell->type == PHEROMONE && cell->value > 0)
 			{
-				position = glm::vec3((x * sizeBoxX) + (sizeBoxX / 2), 0, (y * sizeBoxY) + (sizeBoxY / 2));
 
+				position = glm::vec3(((x * sizeBoxX) + (sizeBoxX / 2)), 0, (y * sizeBoxY) + (sizeBoxY / 2));
+
+				pheromoneColorCache[position] = ofRandom(0, 1);
 				pheromonePositions.push_back(tuple(position, cell));
 			}
 		}
@@ -355,6 +369,7 @@ void SceneController::updateAntPositions()
 	ofPoint posAnt;
 
 	antPositions.clear();
+	antAngles.clear();
 
 	for (Ant* ant : gridController->ants)
 	{
@@ -364,6 +379,7 @@ void SceneController::updateAntPositions()
 			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0.5f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
 			antPositions.push_back(position);
+			antAngles.push_back(ant->a * RAD_TO_DEG + 90);
 		}
 	}
 }

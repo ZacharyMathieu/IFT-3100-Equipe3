@@ -8,6 +8,17 @@
 #include <vector>
 #include <ant.h>
 #include <grid_controller.h>
+#include <unordered_map>
+#include <glm/gtx/hash.hpp> 
+namespace std {
+	template <>
+	struct hash<glm::vec3> {
+		size_t operator()(const glm::vec3& v) const {
+			return hash<float>()(v.x) ^ hash<float>()(v.y) ^ hash<float>()(v.z);
+		}
+	};
+}
+
 
 
 class SceneController
@@ -25,9 +36,11 @@ public:
 	float centreX;
 	float centreY;
 	int wallSize;
+	std::unordered_map < glm::vec3, float> pheromoneColorCache;
+
 	GridController* gridController;
 	Ant* ant;
-
+	
 	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
 	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
 	ofBoxPrimitive boxCollider;
@@ -47,6 +60,8 @@ private:
 	ofLight light;
 	ofxAssimpModelLoader antModelLoader;
 	ofxAssimpModelLoader ants;
+	ofxAssimpModelLoader slimes;
+	ofVboMesh slimesMesh;
 	ofBoxPrimitive box;
 	ofVboMesh boxMesh;
 	ofSpherePrimitive antSphere;
@@ -70,6 +85,7 @@ private:
 	vector<glm::vec3> wallPositions;
 	vector<glm::vec3> antPositions;
 	vector<tuple<glm::vec3, Cell*>> pheromonePositions;
+	vector<float> antAngles;
 
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
