@@ -3,10 +3,12 @@
 // Attributs de sommet
 in vec4 position;
 in vec4 normal;
+in vec2 texcoord;
 
 // Attributs en sortie
 out vec3 surface_position;
 out vec3 surface_normal;
+
 
 // Matrices et paramètres uniformes
 uniform mat4 modelViewMatrix;
@@ -16,6 +18,7 @@ uniform float scale_factor; // Échelle de l’objet
 
 void main()
 {
+	
   // Appliquer la translation et l'échelle
   vec4 transformedPosition = vec4(position.xyz * scale_factor, 1.0) + vec4(translation, 0.0);
 
