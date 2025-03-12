@@ -44,7 +44,7 @@ public:
 	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
 	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
 	ofBoxPrimitive boxCollider;
-
+	ofImage wood;
 	void setup(int x, int y, int w, int h, GridController* gridController);
 	void update();
 	void draw();
@@ -74,6 +74,7 @@ private:
 	ofEasyCam freeCamera;
 	ofEasyCam* activeCam;
 	ofEasyCam* popUpCam;
+	ofEasyCam POV;
 	vector<ofEasyCam*> cameras;
 	int numCam;
 	ofParameter<bool> checkPop;
