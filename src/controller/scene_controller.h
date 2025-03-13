@@ -77,6 +77,9 @@ private:
 	ofEasyCam POV;
 	vector<ofEasyCam*> cameras;
 	int numCam;
+	ofCubeMap cubeMap;
+
+
 	ofParameter<bool> checkPop;
 	ofxPanel gui;
 	ofRectangle sceneView;

@@ -18,6 +18,9 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	antSphere.set(wallSize, 120);
 	vboBoxMeshAnt = antSphere.getMesh();
 
+	cubeMap.load("images/sky.png",2048, false);
+	
+
 	pheromoneSphere.set(wallSize, 12);
 	vboPheromone = pheromoneSphere.getMesh();
 	slimes.load("models/slimes.obj");
@@ -208,7 +211,7 @@ void SceneController::draw()
 	{
 		ofViewport(fullWidth / 2, 50, fullWidth / 2, ofGetHeight());
 	}
-
+	
 	ofEnableDepthTest();
 	ofEnableLighting();
 	light.enable();
@@ -257,7 +260,7 @@ void SceneController::keyPressed(int key)
 
 void SceneController::drawScene()
 {
-	
+	cubeMap.draw();
 	shader_ant.begin();
 	shader_ant.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r / 255.0f, ant->MAIN_ANT_COLOR.g / 255.0f, ant->MAIN_ANT_COLOR.b / 255.0f);
 	shader_ant.setUniform3f("color_diffuse", 1, 1, 1);
@@ -311,9 +314,15 @@ void SceneController::drawScene()
 		if (visible)
 			continue;
 	
-		shader.setUniform3f("translation", pos );
-		shader.setUniform1f("scale_factor", cell->getValueFactor()*5);
+		shader.setUniform3f("translation", pos.x + ofRandom(-1, 1), pos.y, pos.z + ofRandom(-1, 1));
+		shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(2, 5));
 		slimesMesh.draw();
+		//shader.setUniform3f("translation", pos.x +ofRandom(-3,3), pos.y, pos.z + ofRandom(-3, 3));
+		//shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(1, 4));
+		//slimesMesh.draw();
+		//shader.setUniform3f("translation", pos.x + ofRandom(-3, 3), pos.y, pos.z + ofRandom(-3, 3));
+		//shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(1, 4));
+		//slimesMesh.draw();
 		//vboPheromone.draw();
 		
 	}
@@ -339,16 +348,26 @@ void SceneController::drawScene()
 		
 	}
 	shader.end();
-	ofSetColor(100, 100, 100);
-
+	ofFill();
+	ofSetLineWidth(10);
+	ofSetColor(250);
+	
+	ofPushMatrix();
+	ofTranslate(0, 0, 0); 
+	ofRotateDeg(-90, 1, 0, 0);  
+	ofDrawRectangle(0, 0, SCENE_WIDTH * wallSize, -SCENE_HEIGHT * wallSize);
+	ofPopMatrix();
 	for (int x = 0; x <= gridController->GRID_WIDTH; x++)
 	{
+		ofSetColor(0);
 		ofDrawLine(x * (gridController->scaleX * wallSize), 0, 0, x * (gridController->scaleX * wallSize), 0, SCENE_HEIGHT * wallSize);
 	}
 	for (int z = 0; z <= gridController->GRID_HEIGHT; z++)
 	{
+		ofSetColor(0);
 		ofDrawLine(0, 0, z * (gridController->scaleY * wallSize), SCENE_WIDTH * wallSize, 0, z * (gridController->scaleY * wallSize));
 	}
+	
 }
 
 ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
