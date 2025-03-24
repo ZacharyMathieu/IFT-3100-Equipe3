@@ -2,36 +2,22 @@
 
 #version 330
 
-// attributs interpolés à partir des valeurs en sortie du shader de sommets
-in vec3 surface_position;
-in vec3 surface_normal;
+#define light_intensity 0.5
 
+in vec3 frag_position;
+in vec3 frag_normal;
 
-// attribut en sortie
 out vec4 fragment_color;
 
-
-// couleurs de réflexion du matériau
-uniform vec3 color_ambient;
-uniform vec3 color_diffuse;
-
-// position d'une source de lumière
-uniform vec3 light_position;
-
+uniform vec4 color_ambient;
+uniform vec4 light_color;
+uniform vec3 light_direction;
 
 void main()
 {
-	
-  // re-normaliser la normale après interpolation (N)
-  vec3 n = normalize(surface_normal);
+    vec3 n = normalize(frag_normal);
 
-  // calculer la direction de la surface vers la lumière (L)
-  vec3 l = normalize(light_position - surface_position);
+    float d = dot(n, light_direction) * light_intensity;
 
-  // calculer le niveau de réflexion diffuse (N • L)
-  float reflection_diffuse = max(dot(n, l), 0.0);
-
-  // déterminer la couleur du fragment
-  fragment_color = vec4(color_ambient + color_diffuse * reflection_diffuse, 1.0);
-
+    fragment_color = light_color * d + color_ambient * (1 - d);
 }

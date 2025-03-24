@@ -220,14 +220,16 @@ void Application::exit()
 //--------------------------------------------------------------
 void Application::keyPressed(int key)
 {
-	if (key == 'z') {
+	switch (key) {
+	case 'z':
 		gridController.keyPressed(key);
-	}
-	if (key == 'y') {
+		break;
+	case 'y':
 		gridController.keyPressed(key);
-	}
-	if (key == ' ') {
+		break;
+	case ' ':
 		gridController.update();
+		break;
 	}
 
 	sceneController.keyPressed(key);

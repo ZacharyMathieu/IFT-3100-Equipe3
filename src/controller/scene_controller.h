@@ -8,8 +8,7 @@
 #include <vector>
 #include <ant.h>
 #include <grid_controller.h>
-#include <unordered_map>
-#include <glm/gtx/hash.hpp> 
+
 namespace std {
 	template <>
 	struct hash<glm::vec3> {
@@ -19,11 +18,18 @@ namespace std {
 	};
 }
 
-
+constexpr float BOUND = 200;
+constexpr float MAX_X = BOUND;
+constexpr float MIN_X = -BOUND;
+constexpr float MAX_Y = BOUND;
+constexpr float MIN_Y = -BOUND;
+constexpr float MAX_Z = BOUND;
+constexpr float MIN_Z = -BOUND;
 
 class SceneController
 {
 public:
+	float CELL_SIZE = 10;
 	static const int GRID_WIDTH = 100;
 	static const int GRID_HEIGHT = 100;
 	int SCENE_WIDTH;
@@ -33,17 +39,16 @@ public:
 	float RENDER_DISTANCE_WALLS = 300;
 	float RENDER_DISTANCE_PHEROMONES = 300;
 	float RENDER_DISTANCE_ANTS = 300;
-	float centreX;
-	float centreY;
 	int wallSize;
 	std::unordered_map < glm::vec3, float> pheromoneColorCache;
-
 	GridController* gridController;
 	Ant* ant;
-	
+	ofPoint globalLightDirection = ofPoint(0.2, 0.5, 0.3);
+
 	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
 	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
 	ofBoxPrimitive boxCollider;
+	ofPlanePrimitive *plane;
 	ofImage wood;
 	void setup(int x, int y, int w, int h, GridController* gridController);
 	void update();
@@ -52,11 +57,11 @@ public:
 	void updateCellPositions();
 	void updateAntPositions();
 	void updateGridController(GridController*);
+	void loadShaders();
 
 private:
 	ofShader shader_ant;
 	ofShader shader_obj;
-	ofShader shader;
 	ofLight light;
 	ofxAssimpModelLoader antModelLoader;
 	ofxAssimpModelLoader ants;
@@ -85,9 +90,8 @@ private:
 	ofRectangle sceneView;
 
 	float scale_ant;
-	bool mainCameraMode;
 	vector<glm::vec3> wallPositions;
-	vector<glm::vec3> antPositions;
+	vector<ofPoint> antPositions;
 	vector<tuple<glm::vec3, Cell*>> pheromonePositions;
 	vector<float> antAngles;
 
@@ -95,4 +99,5 @@ private:
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
 	bool objectVisible(glm::vec3 pos, float);
+	ofPlanePrimitive* genPlane(float w, float h, ofPoint pos, ofPoint lookAt);
 };
