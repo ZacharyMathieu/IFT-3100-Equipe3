@@ -38,6 +38,36 @@ void Application::setup()
 	tempColor.addListener(this, &Application::onColorChanged);
 	colorGui.setPosition(10, MENU_HEIGHT + 10);
 
+	//GUI texture 
+	textureGui.setup("Wall textures");
+	woodPick.setName("Wood");
+	crackWallPick.setName("Crack wall");
+	rockPick.setName("Rock");
+	paintPick.setName("Paint");
+	glitterPick.setName("Glitter");
+	firePick.setName("Fire");
+	textureGui.add(woodPick);
+	textureGui.add(crackWallPick);
+	textureGui.add(rockPick);
+	textureGui.add(paintPick);
+	textureGui.add(glitterPick);
+	textureGui.add(firePick);
+	textureGui.setPosition(10, MENU_HEIGHT + 10);
+	
+	sceneController.texture = sceneController.wallTextures[0];
+	textureSelection.push_back(&woodPick);
+	textureSelection.push_back(&crackWallPick);
+	textureSelection.push_back(&rockPick);
+	textureSelection.push_back(&paintPick);
+	textureSelection.push_back(&glitterPick);
+	textureSelection.push_back(&firePick);
+
+	for (auto* param : textureSelection) {
+		param->addListener(this, &Application::onTextureSelected);
+	}
+	texturesToFalse();
+	
+
 	gui.setup();
 
 	gui.add(color_picker_ambient.set("ambient color", ofColor(63, 63, 63), ofColor(0, 0), ofColor(255, 255)));
@@ -58,6 +88,7 @@ void Application::setupButtons()
 	drawModeIcon.load("images/drawMode.png");
 	penTypeChoiceIcon.load("images/penTypeChoice.png");
 	selectIcon.load("images/select.png");
+	textureIcon.load("images/texture.png");
 	undoIcon.load("images/undo.png");
 	redoIcon.load("images/redo.png");
 
@@ -70,6 +101,7 @@ void Application::setupButtons()
 		std::tuple(&drawModeButton, &Application::drawMode, &drawModeIcon),
 		std::tuple(&penTypeChoiceButton, &Application::penTypeChoice, &penTypeChoiceIcon),
 		std::tuple(&selectButton, &Application::multipleSelection, &selectIcon),
+		std::tuple(&textureButton, &Application::textureChoice, &textureIcon),
 		std::tuple(&undoButton, &Application::undo, &undoIcon),
 		std::tuple(&redoButton, &Application::redo, &redoIcon),
 	};
@@ -125,6 +157,8 @@ void Application::draw()
 		eraserGui.draw();
 	if (showColorMenu)
 		colorGui.draw();
+	if (showTextureMenu)
+		textureGui.draw();
 
 	drawCustomCursors();
 	sceneController.draw();
@@ -288,12 +322,14 @@ void Application::mousePressed(int x, int y, int button)
 			showEraserMenu = !showEraserMenu;
 			showDrawMenu = false;
 			showColorMenu = false;
+			showTextureMenu = false;
 			cursorMode = showEraserMenu ? ERASE : DEFAULT;
 			return;
 		}
 		if (pressedButton == &drawModeButton)
 		{
 			showDrawMenu = !showDrawMenu;
+			showTextureMenu = false;
 			showEraserMenu = false;
 			showColorMenu = false;
 			cursorMode = showDrawMenu ? DRAW : DEFAULT;
@@ -303,10 +339,22 @@ void Application::mousePressed(int x, int y, int button)
 		{
 			showColorMenu = !showColorMenu;
 			showDrawMenu = false;
+			showTextureMenu = false;
 			showEraserMenu = false;
 			cursorMode = DEFAULT;
 			return;
 		}
+		if (pressedButton == &textureButton)
+		{
+			showTextureMenu = !showTextureMenu;
+			showDrawMenu = false;
+			showEraserMenu = false;
+			showColorMenu = false;
+			cursorMode = DEFAULT;
+			return;
+
+		}
+		 
 
 
 		// Si on clique ailleurs, tout fermer
@@ -370,6 +418,11 @@ void Application::mousePressed(int x, int y, int button)
 		}
 	}
 
+	if (showTextureMenu)
+	{
+		
+	}
+
 	// Vérifier si on clique sur la flêche du menu du crayon
 	if (showDrawMenu && x >= (10 + (isDrawMenuCollapsed ? 20 : 200)) - 10 &&
 		x <= (20 + (isDrawMenuCollapsed ? 30 : 200)) &&
@@ -391,6 +444,14 @@ void Application::mousePressed(int x, int y, int button)
 	// Vérifier si on clique sur la flêche du menu de sélection de couleur
 	if (showColorMenu && x >= (10 + (isColorMenuCollapsed ? 20 : 200)) - 10 &&
 		x <= (20 + (isColorMenuCollapsed ? 30 : 200)) &&
+		y >= 60 && y <= 75)
+	{
+		isColorMenuCollapsed = !isColorMenuCollapsed;
+		return;
+	}
+
+	if (showTextureMenu && x >= (10 + (isTextureMenuCollapsed ? 20 : 200)) - 10 &&
+		x <= (20 + (isTextureMenuCollapsed ? 30 : 200)) &&
 		y >= 60 && y <= 75)
 	{
 		isColorMenuCollapsed = !isColorMenuCollapsed;
@@ -530,6 +591,7 @@ void Application::eraseMode()
 	showEraserMenu = true;
 	showDrawMenu = false;
 	showColorMenu = false;
+	showTextureMenu = false;
 }
 
 //--------------------------------------------------------------
@@ -540,6 +602,7 @@ void Application::drawMode()
 
 	showDrawMenu = true;
 	showEraserMenu = false;
+	showTextureMenu = false;
 
 	showColorMenu = true; // Affiche la roue de sélection de couleur automatiquement
 }
@@ -551,6 +614,7 @@ void Application::penTypeChoice()
 	showColorMenu = !showColorMenu;
 	showEraserMenu = false;
 	showDrawMenu = false;
+	showTextureMenu = false;
 	ofShowCursor();
 }
 
@@ -563,7 +627,41 @@ void Application::multipleSelection()
 	showEraserMenu = false;
 	showDrawMenu = false;
 	showColorMenu = false;
+	showTextureMenu = false;
 
+}
+
+void Application::textureChoice()
+{
+	cursorMode = DEFAULT;
+	ofShowCursor;
+	showTextureMenu = true;
+	showEraserMenu = false;
+	showDrawMenu = false;
+	showColorMenu = false;
+}
+
+void Application::texturesToFalse()
+{
+	for (int i = 0; i < textureSelection.size(); i++) {
+		textureSelection[i]->set(false);
+	}
+}
+
+void Application::onTextureSelected(bool &value)
+{
+	if (value) {
+		int x = 0;
+		for (auto* param : textureSelection) {
+			if (&(param->get()) != &value) {  // comparer les adresses
+				param->set(false);
+				x++;
+			}
+			else {
+				sceneController.texture = sceneController.wallTextures[x];
+			}
+		}
+	}
 }
 
 void Application::undo()
