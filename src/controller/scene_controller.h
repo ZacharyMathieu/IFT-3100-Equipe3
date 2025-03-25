@@ -84,16 +84,14 @@ private:
 	int numCam;
 	ofCubeMap cubeMap;
 
-
 	ofParameter<bool> checkPop;
 	ofxPanel gui;
 	ofRectangle sceneView;
 
 	float scale_ant;
 	vector<glm::vec3> wallPositions;
-	vector<ofPoint> antPositions;
+	vector<tuple<ofPoint, float>> antData;
 	vector<tuple<glm::vec3, Cell*>> pheromonePositions;
-	vector<float> antAngles;
 
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
