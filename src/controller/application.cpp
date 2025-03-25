@@ -66,6 +66,7 @@ void Application::setup()
 		param->addListener(this, &Application::onTextureSelected);
 	}
 	texturesToFalse();
+	textureSelection[0]->set(true);
 	
 
 	gui.setup();
@@ -73,6 +74,36 @@ void Application::setup()
 	gui.add(color_picker_ambient.set("ambient color", ofColor(63, 63, 63), ofColor(0, 0), ofColor(255, 255)));
 	gui.add(color_picker_diffuse.set("diffuse color", ofColor(174, 223, 134), ofColor(0, 0), ofColor(255, 255)));
 
+	cameraGui.setup();
+	checkPop.setName("Deuxième vue");
+	cameraChoice.setName("Camera choice");
+	mainCamera.setName("Main Camera");
+	topCamera.setName("Top Camera");
+	freeCamera.setName("Free Camera");
+	POVCamera.setName("POV Camera");
+	cameraGui.add(checkPop);
+
+	cameraChoice.add(mainCamera);
+	cameraSelection.push_back(&mainCamera);
+	cameraChoice.add(topCamera);
+	cameraSelection.push_back(&topCamera);
+	cameraChoice.add(freeCamera);
+	cameraSelection.push_back(&freeCamera);
+	cameraChoice.add(POVCamera);
+	cameraSelection.push_back(&POVCamera);
+
+	cameraGui.add(cameraChoice);
+	
+	checkPop = false;
+	checkPop.addListener(this, &Application::onCheckPopChanged);
+
+	cameraGui.setPosition(WINDOW_WIDTH/2-cameraGui.getWidth()-10, MENU_HEIGHT + 10);
+	
+	for (auto* param : cameraSelection) {
+		param->addListener(this, &Application::onCameraSelected);
+	}
+	camerasToFalse();
+	cameraSelection[0]->set(true);
 
 }
 
@@ -91,6 +122,7 @@ void Application::setupButtons()
 	textureIcon.load("images/texture.png");
 	undoIcon.load("images/undo.png");
 	redoIcon.load("images/redo.png");
+	cameraIcon.load("images/camera.png");
 
 	vector<std::tuple<Button*, void (Application::*)(), ofImage*>> buttonMap = {
 		std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
@@ -104,13 +136,20 @@ void Application::setupButtons()
 		std::tuple(&textureButton, &Application::textureChoice, &textureIcon),
 		std::tuple(&undoButton, &Application::undo, &undoIcon),
 		std::tuple(&redoButton, &Application::redo, &redoIcon),
+		std::tuple(&cameraButton, &Application::cameraMode, &cameraIcon)
 	};
 
 	int i = 0;
 	for (auto bTuple : buttonMap)
 	{
 		int xPos = i * (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
-		std::get<0>(bTuple)->setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, std::get<1>(bTuple), std::get<2>(bTuple));
+		if (std::get<0>(bTuple) == &cameraButton) {
+			std::get<0>(bTuple)->setup(WINDOW_WIDTH/2, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, std::get<1>(bTuple), std::get<2>(bTuple));
+		}
+		else {
+			std::get<0>(bTuple)->setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, std::get<1>(bTuple), std::get<2>(bTuple));
+		}
+		
 		buttons.push_back(std::get<0>(bTuple));
 		i++;
 	}
@@ -159,6 +198,8 @@ void Application::draw()
 		colorGui.draw();
 	if (showTextureMenu)
 		textureGui.draw();
+	if (showCameraMenu)
+		cameraGui.draw();
 
 	drawCustomCursors();
 	sceneController.draw();
@@ -311,9 +352,10 @@ void Application::mousePressed(int x, int y, int button)
 	gridController.mouse_current_x = x;
 	gridController.mouse_current_y = y;
 
-	if (y < MENU_HEIGHT && x < MENU_BUTTON_WIDTH*buttons.size())
+	if (y < MENU_HEIGHT && x < (MENU_BUTTON_WIDTH+ MENU_BUTTON_MARGIN)*(buttons.size()-1) || y < MENU_HEIGHT && x < MENU_BUTTON_WIDTH + (WINDOW_WIDTH/2) && x > WINDOW_WIDTH/2)
 	{
 		int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
+		if (buttonNumber > 12) buttonNumber = 11;
 		Button* pressedButton = buttons[buttonNumber];
 
 		// Toggle (ouverture/fermeture) pour chaque menu
@@ -322,6 +364,7 @@ void Application::mousePressed(int x, int y, int button)
 			showEraserMenu = !showEraserMenu;
 			showDrawMenu = false;
 			showColorMenu = false;
+			showCameraMenu = false;
 			showTextureMenu = false;
 			cursorMode = showEraserMenu ? ERASE : DEFAULT;
 			return;
@@ -332,7 +375,9 @@ void Application::mousePressed(int x, int y, int button)
 			showTextureMenu = false;
 			showEraserMenu = false;
 			showColorMenu = false;
+			showCameraMenu = false;
 			cursorMode = showDrawMenu ? DRAW : DEFAULT;
+			
 			return;
 		}
 		if (pressedButton == &penTypeChoiceButton)
@@ -341,6 +386,7 @@ void Application::mousePressed(int x, int y, int button)
 			showDrawMenu = false;
 			showTextureMenu = false;
 			showEraserMenu = false;
+			showCameraMenu = false;
 			cursorMode = DEFAULT;
 			return;
 		}
@@ -350,7 +396,20 @@ void Application::mousePressed(int x, int y, int button)
 			showDrawMenu = false;
 			showEraserMenu = false;
 			showColorMenu = false;
+			showCameraMenu = false;
 			cursorMode = DEFAULT;
+			return;
+
+		}
+		if (pressedButton == &cameraButton)
+		{
+			showCameraMenu = !showCameraMenu;
+			showDrawMenu = false;
+			showEraserMenu = false;
+			showColorMenu = false;
+			showTextureMenu = false;
+			cursorMode = DEFAULT;
+			
 			return;
 
 		}
@@ -566,10 +625,12 @@ void Application::play()
 	if (isRunning)
 	{
 		playButton.setIcon(&pauseIcon);
+		sceneController.animation = true;
 	}
 	else
 	{
 		playButton.setIcon(&playIcon);
+		sceneController.animation = false;
 	}
 }
 
@@ -647,6 +708,12 @@ void Application::texturesToFalse()
 		textureSelection[i]->set(false);
 	}
 }
+void Application::camerasToFalse()
+{
+	for (int i = 0; i < cameraSelection.size(); i++) {
+		cameraSelection[i]->set(false);
+	}
+}
 
 void Application::onTextureSelected(bool &value)
 {
@@ -663,6 +730,21 @@ void Application::onTextureSelected(bool &value)
 		}
 	}
 }
+void Application::onCameraSelected(bool& value)
+{
+	if (value) {
+		int x = 0;
+		for (auto* param : cameraSelection) {
+			if (&(param->get()) != &value) {  // comparer les adresses
+				param->set(false);
+				x++;
+			}
+			else {
+				sceneController.activeCam = sceneController.cameras[x];
+			}
+		}
+	}
+}
 
 void Application::undo()
 {
@@ -674,6 +756,18 @@ void Application::redo()
 {
 	if (!gridController.Redo.empty())
 	gridController.redo();
+}
+
+void Application::cameraMode()
+{
+	//sceneController.checkPop = this->checkPop ? true : false;
+	cursorMode = DEFAULT;
+	showCameraMenu = !showCameraMenu;
+	showEraserMenu = false;
+	showDrawMenu = false;
+	showTextureMenu = false;
+	ofShowCursor();
+	
 }
 
 //void Application::wallPosition3D()
@@ -726,6 +820,10 @@ void Application::createColorCanva(string filepath)
 	file.close();
 
 }
+void Application::onCheckPopChanged(bool& value) {
+	sceneController.checkPop = value;
+}
+
 
 //void Application::antPosition3D()
 //{

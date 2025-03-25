@@ -2,8 +2,9 @@
 
 void SceneController::setup(int x, int y, int w, int h, GridController* gridController)
 {
-	ofEnableDepthTest();
+	
 	ofDisableArbTex();
+	checkPop = false;
 
 	SCENE_X = x;
 	SCENE_Y = y;
@@ -39,7 +40,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	wood.load("images/wood.jpg");
 	rock.load("images/rock.jpg");
 	paint.load("images/paint.jpg");
-	antTexture.load("models/antTexture.jpg");
+	
 
 	
 
@@ -58,10 +59,9 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	
 
 	
-	antModelLoader.load("models/ant3.obj");
-	antModelLoader.disableMaterials();
-	
-	
+	antModelLoader.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
+	antTexture.load("models/newAnt4/tex/Ant_color.jpg");
+	antModelLoader.enableMaterials();
 
 	albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
 	normalMap.load("models/newAnt3/Textures/material_normal.png");
@@ -76,8 +76,8 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	ants.load("models/ant3.obj");
 	
-	ants.disableMaterials();
-	ants.setRotation(0, 180, 0, 1, 0);
+	//ants.disableMaterials();
+	//ants.setRotation(0, 180, 0, 1, 0);
 	
 	
 	
@@ -114,11 +114,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	numCam = 0;
 	activeCam = cameras[numCam];
 
-	gui.setup();
-	checkPop.setName("Vue D'ensemble");
-	gui.add(checkPop);
-	checkPop = false;
-	gui.setPosition(ofGetWidth() - 200, 10);
+
 }
 
 void SceneController::updateGridController(GridController* gridController)
@@ -133,7 +129,7 @@ void SceneController::update()
 	centreX = 3 * (ofGetWidth() / 4.0f);
 	centreY = ofGetHeight() / 2.0f;
 
-	antModelLoader.setScale(scale_ant, scale_ant, scale_ant);
+	antModelLoader.setScale(scale_ant, -scale_ant, scale_ant);
 	ants.setScale(scale_ant, scale_ant, scale_ant);
 	
 
@@ -141,6 +137,7 @@ void SceneController::update()
 	ofVec3f newPos = ant->pos;
 	float newAngle = ant->a;
 	int keysPressed = 0;
+
 	//merci ChatGPT pour quelques conseils
 	glm::vec3 lookDir = glm::normalize(POV.getLookAtDir()); 
 
@@ -214,8 +211,9 @@ void SceneController::update()
 	}
 
 	
-	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG + 90, 0, 1, 0);
-	antModelLoader.setPosition(ant->pos.x * gridController->scaleX * wallSize, 0, ant->pos.y * gridController->scaleY * wallSize);
+	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG , 0, 1, 0);
+	
+	antModelLoader.setPosition(ant->pos.x * gridController->scaleX * wallSize, 1, ant->pos.y * gridController->scaleY * wallSize);
 	
 	mainCamera.setPosition(antModelLoader.getPosition().x, wallSize * 5, antModelLoader.getPosition().z - wallSize * 10);
 	
@@ -249,11 +247,19 @@ void SceneController::update()
 	texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
 	textureAnt.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
 	textureAnt.setTextureWrap(GL_REPEAT, GL_REPEAT);
+
+	antModelLoader.update();
+	if (animation) {
+		antModelLoader.playAllAnimations();
+	}
+	else {
+		antModelLoader.stopAllAnimations();
+	}
+	
 }
 
 void SceneController::draw()
 {
-	gui.draw();
 
 	int halfHeight = ofGetHeight() / 2;
 	int fullWidth = ofGetWidth();
@@ -318,21 +324,23 @@ void SceneController::drawScene()
 {
 	cubeMap.draw();
 
-	shader_ant.begin();
-	shader_ant.setUniformTexture("texture0",glitter.getTexture(), 0);
-	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
-	shader_ant.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r/255, ant->MAIN_ANT_COLOR.g/255, ant->MAIN_ANT_COLOR.b/255);
-	shader_ant.setUniform3f("color_diffuse", light.getDiffuseColor().r/255, light.getDiffuseColor().g / 255, light.getDiffuseColor().b / 255);
-	shader_ant.setUniform3f("color_specular", light.getSpecularColor().r / 255, light.getSpecularColor().g / 255, light.getSpecularColor().b / 255);
-	shader_ant.setUniform1f("brightness",2);
+	
 
 	antModelLoader.drawFaces();
 
-	shader_ant.setUniform3f("color_ambient", ant->COLOR.r/255, ant->COLOR.g / 255, ant->COLOR.b / 255);
+	
+	shader_ant.begin();
+	//shader_ant.setUniformTexture("texture0", antModelLoader.getMeshHelper(0).getTextureRef(), 0);
+	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
+	shader_ant.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r / 255, ant->MAIN_ANT_COLOR.g / 255, ant->MAIN_ANT_COLOR.b / 255);
+	shader_ant.setUniform3f("color_diffuse", light.getDiffuseColor().r / 255, light.getDiffuseColor().g / 255, light.getDiffuseColor().b / 255);
+	shader_ant.setUniform3f("color_specular", light.getSpecularColor().r / 255, light.getSpecularColor().g / 255, light.getSpecularColor().b / 255);
+	shader_ant.setUniform1f("brightness", 2);
+	shader_ant.setUniform3f("color_ambient", ant->COLOR.r / 255, ant->COLOR.g / 255, ant->COLOR.b / 255);
 
 	for (size_t i = 0; i < antPositions.size(); i++)
 	{
-		if (!objectVisible(antPositions[i], RENDER_DISTANCE_ANTS))
+		if (objectVisible(antPositions[i], RENDER_DISTANCE_ANTS))
 		{
 			ofPushMatrix();
 			ofTranslate(antPositions[i]);  
@@ -364,7 +372,7 @@ void SceneController::drawScene()
 			x++;
 		visible = objectVisible(pos, RENDER_DISTANCE_PHEROMONES);
 
-		if (visible)
+		if (!visible)
 			continue;
 	
 		shader.setUniform3f("translation", pos.x + ofRandom(-1, 1), pos.y, pos.z + ofRandom(-1, 1));
@@ -393,7 +401,7 @@ void SceneController::drawScene()
 	{
 		visible = objectVisible(pos, RENDER_DISTANCE_WALLS);
 
-		if (visible)
+		if (!visible)
 			continue;
 
 		shader_texture_wall.setUniform3f("translation", pos.x, pos.y, pos.z);
@@ -459,7 +467,7 @@ bool SceneController::checkCollision(glm::vec3 newPos)
 
 bool SceneController::objectVisible(glm::vec3 pos, float renderDistance)
 {
-	return (glm::dot(activeCam->getLookAtDir(), pos - activeCam->getPosition()) < 0) && (glm::distance(activeCam->getPosition(), pos) < renderDistance);
+	return (glm::dot(glm::normalize(activeCam->getLookAtDir()), glm::normalize(pos - activeCam->getPosition())) < 0) || (glm::distance(activeCam->getPosition(), pos) < renderDistance);
 }
 
 void SceneController::updateCellPositions()

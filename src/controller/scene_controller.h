@@ -36,6 +36,8 @@ public:
 	float centreX;
 	float centreY;
 	int wallSize;
+	bool animation = false;
+	bool checkPop;
 	std::unordered_map < glm::vec3, float> pheromoneColorCache;
 
 	GridController* gridController;
@@ -62,6 +64,9 @@ public:
 	vector<ofTexture> wallTextures;
 	ofTexture texture;
 	ofTexture textureAnt;
+
+	ofEasyCam* activeCam;
+	vector<ofEasyCam*> cameras;
 
 	void setup(int x, int y, int w, int h, GridController* gridController);
 	void update();
@@ -94,10 +99,10 @@ private:
 	ofEasyCam mainCamera;
 	ofEasyCam topCamera;
 	ofEasyCam freeCamera;
-	ofEasyCam* activeCam;
+	
 	ofEasyCam* popUpCam;
 	ofEasyCam POV;
-	vector<ofEasyCam*> cameras;
+	
 	int numCam;
 	ofCubeMap cubeMap;
 
@@ -105,8 +110,8 @@ private:
 	ofTexture n;
 	ofTexture m;
 
-	ofParameter<bool> checkPop;
-	ofxPanel gui;
+	//ofParameter<bool> checkPop;
+	//ofxPanel gui;
 	ofRectangle sceneView;
 
 	float scale_ant;

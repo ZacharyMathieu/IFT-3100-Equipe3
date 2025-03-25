@@ -6,7 +6,7 @@
 
 using namespace std;
 
-constexpr float ANT_MOVE_SPEED = 0.15;
+constexpr float ANT_MOVE_SPEED = 0.10;
 constexpr float ANT_SEARCH_RADIUS = 13;
 constexpr float ANT_TURN_SPEED = ANT_MOVE_SPEED / ANT_SEARCH_RADIUS * TWO_PI;
 constexpr float ANT_MAX_PHEROMONE_LEVEL = 40;

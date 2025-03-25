@@ -53,9 +53,6 @@ void main()
     reflection_specular = pow(max(dot(n, h), 0.0), brightness);
   }
 
-    vec3 litColor = (color_ambient *0.3+ color_diffuse * reflection_diffuse *0.3 + color_specular * reflection_specular) * texColor.rgb;
-    vec3 finalColor = mix(texColor.rgb, litColor, 0.3);
-
-  // calculer la couleur du fragment
-  fragment_color = vec4(finalColor, texColor.a );
+    vec3 litColor = (color_ambient + color_diffuse * reflection_diffuse + color_specular * reflection_specular) * texColor.rgb;
+fragment_color = vec4(litColor, texColor.a);
 }

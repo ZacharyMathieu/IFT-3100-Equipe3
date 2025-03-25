@@ -70,10 +70,12 @@ private:
 	bool showDrawMenu = false;
 	bool showColorMenu = false;
 	bool showTextureMenu = false;
+	bool showCameraMenu = false;
 	bool isEraserMenuCollapsed = false;
 	bool isDrawMenuCollapsed = false;
 	bool isColorMenuCollapsed = false;
 	bool isTextureMenuCollapsed = false;
+	bool isCameraMenuCollapsed = false;
 	bool menuHidden = false;
 
 	// Taille du crayon et de la gomme
@@ -91,11 +93,20 @@ private:
 	ofParameter<bool> firePick;
 	ofParameter<bool> glitterPick;
 
+	//paramètre CameraGui
+	ofParameter<bool> checkPop;
+	ofParameterGroup cameraChoice;
+	ofParameter<bool> mainCamera;
+	ofParameter<bool> topCamera;
+	ofParameter<bool> freeCamera;
+	ofParameter<bool> POVCamera;
+
 	// Interfaces graphiques (GUI)
 	ofxPanel eraserGui; // GUI pour la gomme (taille uniquement)
 	ofxPanel penGui;	// GUI pour le crayon (taille + couleur)
 	ofxPanel colorGui;	// GUI pour la roue de couleur seule
 	ofxPanel textureGui;
+	ofxPanel cameraGui;
 	ofxPanel gui;
 	ofColor currentDrawColor = ofColor(255, 0, 0);
 
@@ -111,6 +122,7 @@ private:
 	ofImage textureIcon;
 	ofImage redoIcon;
 	ofImage undoIcon;
+	ofImage cameraIcon;
 
 	Button importImageButton;
 	Button exportImageButton;
@@ -124,8 +136,10 @@ private:
 	Button textureButton;
 	Button undoButton;
 	Button redoButton;
+	Button cameraButton;
 	vector<Button*> buttons;
 	vector<ofParameter<bool>*> textureSelection;
+	vector<ofParameter<bool>*> cameraSelection;
 
 	ofParameter<ofColor> color_picker_ambient;
 	ofParameter<ofColor> color_picker_diffuse;
@@ -146,10 +160,14 @@ private:
 	void multipleSelection();
 	void textureChoice();
 	void texturesToFalse();
+	void camerasToFalse();
 	void onTextureSelected(bool &value);
+	void onCameraSelected(bool& value);
 	void undo();
 	void redo();
+	void cameraMode();
 	void createColorCanva(string filepath);
+	void onCheckPopChanged(bool& value);
 };
 
 #endif
