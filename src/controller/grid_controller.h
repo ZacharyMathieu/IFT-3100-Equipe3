@@ -35,6 +35,7 @@ public:
 	bool isSelected;
 	ofRectangle zoneSelected;
 
+	vector<Cell*> tasCell;
 	void setup(int x, int y, int w, int h);
 	void draw(Ant*);
 	void exit();

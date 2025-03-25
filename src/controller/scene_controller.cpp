@@ -2,6 +2,9 @@
 
 void SceneController::setup(int x, int y, int w, int h, GridController* gridController)
 {
+	ofEnableDepthTest();
+	ofDisableArbTex();
+
 	SCENE_X = x;
 	SCENE_Y = y;
 	SCENE_WIDTH = w;
@@ -13,6 +16,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	scale_ant = 0.005f;
 
 	box.set(gridController->scaleX * wallSize, wallSize * 5, gridController->scaleY * wallSize);
+	box.mapTexCoords(0,0,2,2);
 	boxMesh = box.getMesh();
 
 	antSphere.set(wallSize, 120);
@@ -25,22 +29,64 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	vboPheromone = pheromoneSphere.getMesh();
 	slimes.load("models/slimes.obj");
 	slimes.disableMaterials();
-	//slimes.setScale(1.5, 1.5f, 1.5f);
+	
 	slimesMesh = slimes.getMesh(0);
-	ofDisableArbTex;
+	
+	
+	crackWall.load("images/crackWall.jpg");
+	glitter.load("images/glitter.jpg");
+	fire.load("images/fire.jpg");
 	wood.load("images/wood.jpg");
+	rock.load("images/rock.jpg");
+	paint.load("images/paint.jpg");
+	antTexture.load("models/antTexture.jpg");
+
+	
+
+	wallTextures.push_back(wood.getTexture());
+	wallTextures.push_back(crackWall.getTexture());
+	wallTextures.push_back(rock.getTexture());
+	wallTextures.push_back(paint.getTexture());
+	wallTextures.push_back(glitter.getTexture());
+	wallTextures.push_back(fire.getTexture());
+	
+
+	
+	
+	texture.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+	texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
+	
+
+	
 	antModelLoader.load("models/ant3.obj");
+	antModelLoader.disableMaterials();
+	
+	
+
+	albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
+	normalMap.load("models/newAnt3/Textures/material_normal.png");
+	metallicRoughnessMap.load("models/newAnt3/Textures/material_metallicRoughness.png");
+
+	a = albedo.getTexture();
+	n = normalMap.getTexture();
+	m = metallicRoughnessMap.getTexture();
+	a.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+	n.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+	m.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+
 	ants.load("models/ant3.obj");
+	
 	ants.disableMaterials();
 	ants.setRotation(0, 180, 0, 1, 0);
 	
+	
+	
 	boxCollider = createBoundingBox(antModelLoader);
 
-	antModelLoader.disableMaterials();
-
-	
 	shader_ant.load("ant_330_vs.glsl", "ant_330_fs.glsl");
 	shader_obj.load("obj_330_vs.glsl", "obj_330_fs.glsl");
+	shader_texture_wall.load("texture_wall_330_vs.glsl", "texture_wall_330_fs.glsl");
+	
 
 	shader = shader_obj;
 
@@ -83,6 +129,7 @@ void SceneController::updateGridController(GridController* gridController)
 
 void SceneController::update()
 {
+	
 	centreX = 3 * (ofGetWidth() / 4.0f);
 	centreY = ofGetHeight() / 2.0f;
 
@@ -169,8 +216,9 @@ void SceneController::update()
 	
 	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG + 90, 0, 1, 0);
 	antModelLoader.setPosition(ant->pos.x * gridController->scaleX * wallSize, 0, ant->pos.y * gridController->scaleY * wallSize);
-
-	mainCamera.setPosition(antModelLoader.getPosition().x, wallSize * 15, antModelLoader.getPosition().z - wallSize * 50);
+	
+	mainCamera.setPosition(antModelLoader.getPosition().x, wallSize * 5, antModelLoader.getPosition().z - wallSize * 10);
+	
 	mainCamera.lookAt(antModelLoader.getPosition());
 
 	topCamera.setPosition(antModelLoader.getPosition().x, wallSize * 10, antModelLoader.getPosition().z);
@@ -190,9 +238,17 @@ void SceneController::update()
 	
 	POV.lookAt(lookTarget);
 
-	light.setPointLight();
-	light.setDiffuseColor(255);
+	light.setDirectional();
+	light.setDiffuseColor(ofColor(31, 255, 31));
+	light.setSpecularColor(ofColor(191, 191, 191));
+	light.setOrientation(ofVec3f(-45, 60, 0));
+	
+
 	light.setGlobalPosition(centreX, centreY, 255.0f);
+	texture.setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+	texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
+	textureAnt.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+	textureAnt.setTextureWrap(GL_REPEAT, GL_REPEAT);
 }
 
 void SceneController::draw()
@@ -261,21 +317,18 @@ void SceneController::keyPressed(int key)
 void SceneController::drawScene()
 {
 	cubeMap.draw();
-	shader_ant.begin();
-	shader_ant.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r / 255.0f, ant->MAIN_ANT_COLOR.g / 255.0f, ant->MAIN_ANT_COLOR.b / 255.0f);
-	shader_ant.setUniform3f("color_diffuse", 1, 1, 1);
-	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
-
-	antModelLoader.draw(OF_MESH_FILL);
-
-	shader_ant.end();
 
 	shader_ant.begin();
-	shader_ant.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
-	shader_ant.setUniform3f("color_diffuse", 1, 1, 1);
+	shader_ant.setUniformTexture("texture0",glitter.getTexture(), 0);
 	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
+	shader_ant.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r/255, ant->MAIN_ANT_COLOR.g/255, ant->MAIN_ANT_COLOR.b/255);
+	shader_ant.setUniform3f("color_diffuse", light.getDiffuseColor().r/255, light.getDiffuseColor().g / 255, light.getDiffuseColor().b / 255);
+	shader_ant.setUniform3f("color_specular", light.getSpecularColor().r / 255, light.getSpecularColor().g / 255, light.getSpecularColor().b / 255);
+	shader_ant.setUniform1f("brightness",2);
 
-	bool visible;
+	antModelLoader.drawFaces();
+
+	shader_ant.setUniform3f("color_ambient", ant->COLOR.r/255, ant->COLOR.g / 255, ant->COLOR.b / 255);
 
 	for (size_t i = 0; i < antPositions.size(); i++)
 	{
@@ -284,7 +337,7 @@ void SceneController::drawScene()
 			ofPushMatrix();
 			ofTranslate(antPositions[i]);  
 			ants.setRotation(0, antAngles[i], 0, 1, 0);
-
+			
 			ants.drawFaces(); 
 
 			ofPopMatrix();
@@ -293,7 +346,7 @@ void SceneController::drawScene()
 
 
 	shader_ant.end();
-
+	bool visible;
 	shader.begin();
 	shader.setUniform3f("color_ambient", 0, 0, 1);
 	shader.setUniform3f("color_diffuse", 0, 1, 0);
@@ -317,23 +370,25 @@ void SceneController::drawScene()
 		shader.setUniform3f("translation", pos.x + ofRandom(-1, 1), pos.y, pos.z + ofRandom(-1, 1));
 		shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(2, 5));
 		slimesMesh.draw();
-		//shader.setUniform3f("translation", pos.x +ofRandom(-3,3), pos.y, pos.z + ofRandom(-3, 3));
-		//shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(1, 4));
-		//slimesMesh.draw();
-		//shader.setUniform3f("translation", pos.x + ofRandom(-3, 3), pos.y, pos.z + ofRandom(-3, 3));
-		//shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(1, 4));
-		//slimesMesh.draw();
-		//vboPheromone.draw();
+		
+		//*****Décommenter si on veut ajouter des pheromones autour.***
+
+		/*shader.setUniform3f("translation", pos.x +ofRandom(-3,3), pos.y, pos.z + ofRandom(-3, 3));
+		shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(1, 4));
+		slimesMesh.draw();
+		shader.setUniform3f("translation", pos.x + ofRandom(-3, 3), pos.y, pos.z + ofRandom(-3, 3));
+		shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(1, 4));
+		slimesMesh.draw();
+		vboPheromone.draw();*/
 		
 	}
-	shader_ant.end();
+	shader.end();
 
-	shader.begin();
-	shader.setUniform3f("color_ambient", 0, 0, 0);
-	shader.setUniform3f("color_diffuse", 0.5f, 0.5f, 0.5f);
-	shader.setUniform3f("light_position", light.getGlobalPosition());
-	
-
+	shader_texture_wall.begin();
+	shader_texture_wall.setUniformTexture("texture0", texture, 0);
+	shader_texture_wall.setUniform3f("color_ambient", 0.5f, 0.5f, 0.5f);
+	shader_texture_wall.setUniform3f("color_diffuse", 1, 1, 1);
+	shader_texture_wall.setUniform3f("light_position", light.getGlobalPosition());
 	for (auto& pos : wallPositions)
 	{
 		visible = objectVisible(pos, RENDER_DISTANCE_WALLS);
@@ -341,13 +396,19 @@ void SceneController::drawScene()
 		if (visible)
 			continue;
 
-		shader.setUniform3f("translation", pos.x, pos.y, pos.z);
-		shader.setUniform1f("scale_factor", 1);
-		
+		shader_texture_wall.setUniform3f("translation", pos.x, pos.y, pos.z);
+		shader_texture_wall.setUniform1f("scale_factor", 1);
+		float maxAniso;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+		texture.bind();
 		boxMesh.draw(OF_MESH_FILL);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+		texture.unbind();
 		
 	}
-	shader.end();
+	
+	shader_texture_wall.end();
+
 	ofFill();
 	ofSetLineWidth(10);
 	ofSetColor(250);
@@ -462,3 +523,25 @@ void SceneController::updateAntPositions()
 		}
 	}
 }
+void SceneController::bindAntTextures()
+{
+	glActiveTexture(GL_TEXTURE0);
+	albedo.getTexture().bind(0);
+
+	glActiveTexture(GL_TEXTURE1);
+	normalMap.getTexture().bind(1);
+
+	glActiveTexture(GL_TEXTURE2);
+	metallicRoughnessMap.getTexture().bind(2);
+}
+
+void SceneController::unbindAntTextures()
+{
+	glActiveTexture(GL_TEXTURE0);
+	albedo.getTexture().unbind(0);
+	glActiveTexture(GL_TEXTURE1);
+	normalMap.getTexture().unbind(1);
+	glActiveTexture(GL_TEXTURE2);
+	metallicRoughnessMap.getTexture().unbind(2);
+}
+

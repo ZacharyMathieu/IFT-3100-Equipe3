@@ -69,9 +69,11 @@ private:
 	bool showEraserMenu = false;
 	bool showDrawMenu = false;
 	bool showColorMenu = false;
+	bool showTextureMenu = false;
 	bool isEraserMenuCollapsed = false;
 	bool isDrawMenuCollapsed = false;
 	bool isColorMenuCollapsed = false;
+	bool isTextureMenuCollapsed = false;
 	bool menuHidden = false;
 
 	// Taille du crayon et de la gomme
@@ -81,10 +83,19 @@ private:
 	// Couleur du crayon
 	ofParameter<ofColor> colorPicker;
 
+	//Choix de texture
+	ofParameter<bool> woodPick;
+	ofParameter<bool> crackWallPick;
+	ofParameter<bool> rockPick;
+	ofParameter<bool> paintPick;
+	ofParameter<bool> firePick;
+	ofParameter<bool> glitterPick;
+
 	// Interfaces graphiques (GUI)
 	ofxPanel eraserGui; // GUI pour la gomme (taille uniquement)
 	ofxPanel penGui;	// GUI pour le crayon (taille + couleur)
 	ofxPanel colorGui;	// GUI pour la roue de couleur seule
+	ofxPanel textureGui;
 	ofxPanel gui;
 	ofColor currentDrawColor = ofColor(255, 0, 0);
 
@@ -97,6 +108,7 @@ private:
 	ofImage drawModeIcon;
 	ofImage penTypeChoiceIcon;
 	ofImage selectIcon;
+	ofImage textureIcon;
 	ofImage redoIcon;
 	ofImage undoIcon;
 
@@ -109,9 +121,11 @@ private:
 	Button drawModeButton;
 	Button penTypeChoiceButton;
 	Button selectButton;
+	Button textureButton;
 	Button undoButton;
 	Button redoButton;
 	vector<Button*> buttons;
+	vector<ofParameter<bool>*> textureSelection;
 
 	ofParameter<ofColor> color_picker_ambient;
 	ofParameter<ofColor> color_picker_diffuse;
@@ -130,6 +144,9 @@ private:
 	void drawMode();
 	void penTypeChoice();
 	void multipleSelection();
+	void textureChoice();
+	void texturesToFalse();
+	void onTextureSelected(bool &value);
 	void undo();
 	void redo();
 	void createColorCanva(string filepath);

@@ -140,7 +140,7 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
 	{
 		float scaleX = ((float)displayWidth) / grid.w;
 		float scaleY = ((float)displayHeight) / grid.h;
-		vector<Cell*> tasCell;
+		
 
 		// changer pheromone en mur
 		if (cursor == "DRAW")
@@ -173,11 +173,10 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
 						}
 					}
 				}
-				if (!tasCell.empty())
-					Undo.push({ "DRAW", tasCell });
+				
 			}
 		}
-		else if (cursor == "ERASE") // changer mur en pheromone
+		else if (cursor == "ERASE" ) // changer mur en pheromone
 		{
 			if ((x - eraserSize) >= displayPosX &&
 				(y - eraserSize) >= displayPosY &&
@@ -207,10 +206,9 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
 						}
 					}
 				}
-				if (!tasCell.empty())
-					Undo.push({ "ERASE", tasCell });
+				
 			}
-			if (!tasCell.empty()) Undo.push({ "ERASE",tasCell });
+			
 		}
 		if (cursor == "SELECT")
 		{
@@ -350,6 +348,20 @@ void GridController::mouseReleased(int x, int y, int button)
 		CSposition.clear();
 	}
 	isSelected = false;
+
+	vector<Cell*> cells;
+	if (!tasCell.empty()) {
+		cells = tasCell;
+		if (cells[0]->type == WALL) {
+			Undo.push({ "DRAW", cells });
+			
+		}
+		else {
+			Undo.push({ "ERASE", cells });
+			
+		}
+	}
+	tasCell.clear();
 }
 
 //--------------------------------------------------------------
@@ -378,49 +390,52 @@ void GridController::multipleSelection()
 
 void GridController::undo()
 {
-
-	if (Undo.top().first == "DRAW")
+	auto action = Undo.top();
+	Undo.pop();
+	Redo.push(action);
+	ofLog() << "undo action : " << Redo.top().first;
+	if (action.first == "DRAW")
 	{
-		Redo.push(Undo.top());
-		for (auto c : Undo.top().second)
+		for (auto c : action.second)
 		{
 			c->type = PHEROMONE;
 		}
-		Undo.pop();
+		
 	}
 	else
 	{
-		Redo.push(Undo.top());
 
-		for (auto c : Undo.top().second)
+		for (auto c : action.second)
 		{
 			c->type = WALL;
 		}
-		Undo.pop();
 	}
+		
 }
 
 void GridController::redo()
 {
-
-	if (Redo.top().first == "DRAW")
+	auto action = Redo.top();
+	Redo.pop();
+	Undo.push(action);
+	
+	if (action.first == "DRAW")
 	{
-		Undo.push(Redo.top());
-		for (auto c : Redo.top().second)
+		
+		for (auto c : action.second)
 		{
 			c->type = WALL;
+			
 		}
-		Redo.pop();
+		
 	}
 	else
 	{
-		Undo.push(Redo.top());
-
-		for (auto c : Redo.top().second)
+		for (auto c : action.second)
 		{
 			c->type = PHEROMONE;
 		}
-		Redo.pop();
+		
 	}
 }
 
