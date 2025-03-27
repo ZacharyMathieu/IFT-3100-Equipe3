@@ -168,6 +168,7 @@ private:
 	void cameraMode();
 	void createColorCanva(string filepath);
 	void onCheckPopChanged(bool& value);
+	void changeCameraSelected(int num);
 };
 
 #endif

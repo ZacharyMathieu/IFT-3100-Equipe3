@@ -67,6 +67,7 @@ public:
 
 	ofEasyCam* activeCam;
 	vector<ofEasyCam*> cameras;
+	int numCam;
 
 	void setup(int x, int y, int w, int h, GridController* gridController);
 	void update();
@@ -91,7 +92,8 @@ private:
 	ofBoxPrimitive box;
 	ofVboMesh boxMesh;
 	ofSpherePrimitive antSphere;
-	ofVboMesh vboBoxMeshAnt;
+	ofMesh antMesh;
+	ofVboMesh vboAntMesh;
 	ofVboMesh vboAntModelLoader;
 	ofSpherePrimitive pheromoneSphere;
 	ofVboMesh vboPheromone;
@@ -103,15 +105,13 @@ private:
 	ofEasyCam* popUpCam;
 	ofEasyCam POV;
 	
-	int numCam;
+	
 	ofCubeMap cubeMap;
 
 	ofTexture a;
 	ofTexture n;
 	ofTexture m;
 
-	//ofParameter<bool> checkPop;
-	//ofxPanel gui;
 	ofRectangle sceneView;
 
 	float scale_ant;

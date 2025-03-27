@@ -304,8 +304,13 @@ void Application::keyPressed(int key)
 	if (key == ' ') {
 		gridController.update();
 	}
+	if (key == 'c')
+	{
+		sceneController.keyPressed(key);
+		changeCameraSelected(sceneController.numCam);
+	}
 
-	sceneController.keyPressed(key);
+	//sceneController.keyPressed(key);
 }
 
 //--------------------------------------------------------------
@@ -741,6 +746,7 @@ void Application::onCameraSelected(bool& value)
 			}
 			else {
 				sceneController.activeCam = sceneController.cameras[x];
+				sceneController.numCam = x;
 			}
 		}
 	}
@@ -822,6 +828,15 @@ void Application::createColorCanva(string filepath)
 }
 void Application::onCheckPopChanged(bool& value) {
 	sceneController.checkPop = value;
+}
+
+void Application::changeCameraSelected(int num)
+{
+	for (int i = 0; i < cameraSelection.size(); i ++)
+	{
+		if (i == num) cameraSelection[i]->set(true);
+		else cameraSelection[i]->set(false);
+	}
 }
 
 
