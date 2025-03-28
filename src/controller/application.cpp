@@ -631,11 +631,13 @@ void Application::play()
 	{
 		playButton.setIcon(&pauseIcon);
 		sceneController.animation = true;
+		sceneController.playMode = true;
 	}
 	else
 	{
 		playButton.setIcon(&playIcon);
 		sceneController.animation = false;
+		sceneController.playMode = false;
 	}
 }
 

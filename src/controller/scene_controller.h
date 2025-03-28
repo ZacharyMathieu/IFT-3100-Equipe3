@@ -38,6 +38,7 @@ public:
 	int wallSize;
 	bool animation = false;
 	bool checkPop;
+	bool playMode;
 	std::unordered_map < glm::vec3, float> pheromoneColorCache;
 
 	GridController* gridController;

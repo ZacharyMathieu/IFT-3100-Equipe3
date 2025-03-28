@@ -411,9 +411,13 @@ void SceneController::drawScene()
 
 		if (!visible)
 			continue;
-	
-		shader.setUniform3f("translation", pos.x + ofRandom(-1, 1), pos.y, pos.z + ofRandom(-1, 1));
-		shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(2, 5));
+
+		int posX = playMode ? pos.x + ofRandom(-1, 1) : pos.x;
+		int posZ = playMode ? pos.z + ofRandom(-1, 1) : pos.z;
+		int scalePheromone = playMode ? cell->getValueFactor() * +ofRandom(2, 5) : cell->getValueFactor() * 2;
+		
+		shader.setUniform3f("translation", posX, pos.y, posZ);
+		shader.setUniform1f("scale_factor", scalePheromone);
 		slimesMesh.draw();
 		
 		//*****Décommenter si on veut ajouter des pheromones autour.***
