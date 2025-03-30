@@ -44,18 +44,39 @@ public:
 	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
 	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
 	ofBoxPrimitive boxCollider;
+
 	ofImage wood;
+	ofImage crackWall;
+	ofImage rock;
+	ofImage fire;
+	ofImage glitter;
+	ofImage paint;
+	ofImage antTexture;
+
+	//texture image
+	ofImage albedo;
+	ofImage normalMap;
+	ofImage metallicRoughnessMap;
+	
+
+	vector<ofTexture> wallTextures;
+	ofTexture texture;
+	ofTexture textureAnt;
+
 	void setup(int x, int y, int w, int h, GridController* gridController);
 	void update();
 	void draw();
 	void keyPressed(int key);
 	void updateCellPositions();
 	void updateAntPositions();
+	void bindAntTextures();
+	void unbindAntTextures();
 	void updateGridController(GridController*);
 
 private:
 	ofShader shader_ant;
 	ofShader shader_obj;
+	ofShader shader_texture_wall;
 	ofShader shader;
 	ofLight light;
 	ofxAssimpModelLoader antModelLoader;
@@ -66,6 +87,7 @@ private:
 	ofVboMesh boxMesh;
 	ofSpherePrimitive antSphere;
 	ofVboMesh vboBoxMeshAnt;
+	ofVboMesh vboAntModelLoader;
 	ofSpherePrimitive pheromoneSphere;
 	ofVboMesh vboPheromone;
 	glm::vec3 boundingSize;
@@ -79,6 +101,9 @@ private:
 	int numCam;
 	ofCubeMap cubeMap;
 
+	ofTexture a;
+	ofTexture n;
+	ofTexture m;
 
 	ofParameter<bool> checkPop;
 	ofxPanel gui;
@@ -90,7 +115,7 @@ private:
 	vector<glm::vec3> antPositions;
 	vector<tuple<glm::vec3, Cell*>> pheromonePositions;
 	vector<float> antAngles;
-
+	
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);

@@ -3,7 +3,7 @@
 // Attributs de sommet
 in vec4 position;
 in vec4 normal;
-in vec2 texcoord;
+
 
 // Attributs en sortie
 out vec3 surface_position;
