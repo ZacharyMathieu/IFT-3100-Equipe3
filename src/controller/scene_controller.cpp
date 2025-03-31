@@ -22,7 +22,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	antSphere.set(boxSize, 64);
 	vboBoxMeshAnt = antSphere.getMesh();
 
-	//cubeMap.load("images/sky.png", 2048, false);
+	cubeMap.load("images/sky.png", 2048, false);
 
 	pheromoneSphere.set(boxSize, 12);
 	vboPheromone = pheromoneSphere.getMesh();
@@ -31,37 +31,37 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	slimesMesh = slimes.getMesh(0);
 
-	//crackWall.load("images/crackWall.jpg");
-	//glitter.load("images/glitter.jpg");
-	//fire.load("images/fire.jpg");
-	//wood.load("images/wood.jpg");
-	//rock.load("images/rock.jpg");
-	//paint.load("images/paint.jpg");
-	//antTexture.load("models/antTexture.jpg");
+	crackWall.load("images/crackWall.jpg");
+	glitter.load("images/glitter.jpg");
+	fire.load("images/fire.jpg");
+	wood.load("images/wood.jpg");
+	rock.load("images/rock.jpg");
+	paint.load("images/paint.jpg");
+	antTexture.load("models/antTexture.jpg");
 
-	//wallTextures.push_back(wood.getTexture());
-	//wallTextures.push_back(crackWall.getTexture());
-	//wallTextures.push_back(rock.getTexture());
-	//wallTextures.push_back(paint.getTexture());
-	//wallTextures.push_back(glitter.getTexture());
-	//wallTextures.push_back(fire.getTexture());
+	wallTextures.push_back(wood.getTexture());
+	wallTextures.push_back(crackWall.getTexture());
+	wallTextures.push_back(rock.getTexture());
+	wallTextures.push_back(paint.getTexture());
+	wallTextures.push_back(glitter.getTexture());
+	wallTextures.push_back(fire.getTexture());
 
-	//texture.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
-	//texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
+	texture.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+	texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
 
 	antModelLoader.load("models/ant3.obj");
 	antModelLoader.disableMaterials();
 
-	//albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
-	//normalMap.load("models/newAnt3/Textures/material_normal.png");
-	//metallicRoughnessMap.load("models/newAnt3/Textures/material_metallicRoughness.png");
+	albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
+	normalMap.load("models/newAnt3/Textures/material_normal.png");
+	metallicRoughnessMap.load("models/newAnt3/Textures/material_metallicRoughness.png");
 
-	//a = albedo.getTexture();
-	//n = normalMap.getTexture();
-	//m = metallicRoughnessMap.getTexture();
-	//a.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
-	//n.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
-	//m.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+	a = albedo.getTexture();
+	n = normalMap.getTexture();
+	m = metallicRoughnessMap.getTexture();
+	a.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+	n.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+	m.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
 
 	ants.load("models/ant3.obj");
 
@@ -299,7 +299,7 @@ void SceneController::drawScene()
 	cubeMap.draw();
 
 	shader_ant.begin();
-	//shader_ant.setUniformTexture("texture0", glitter.getTexture(), 0);
+	shader_ant.setUniformTexture("texture0", glitter.getTexture(), 0);
 	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
 	shader_ant.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r / 255, ant->MAIN_ANT_COLOR.g / 255, ant->MAIN_ANT_COLOR.b / 255);
 	shader_ant.setUniform3f("color_diffuse", light.getDiffuseColor().r / 255, light.getDiffuseColor().g / 255, light.getDiffuseColor().b / 255);
