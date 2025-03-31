@@ -35,7 +35,7 @@ public:
 	float RENDER_DISTANCE_ANTS = 300;
 	float centreX;
 	float centreY;
-	int wallSize;
+	float boxSize;
 	std::unordered_map < glm::vec3, float> pheromoneColorCache;
 
 	GridController* gridController;
