@@ -1,5 +1,6 @@
 #include "application.h"
 
+
 //--------------------------------------------------------------
 void Application::setup()
 {
@@ -10,6 +11,8 @@ void Application::setup()
 	gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT);
 
 	sceneController.setup(0 + WINDOW_WIDTH / 2, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT, &gridController);
+
+
 
 	setupButtons();
 
@@ -123,6 +126,7 @@ void Application::setupButtons()
 	undoIcon.load("images/undo.png");
 	redoIcon.load("images/redo.png");
 	cameraIcon.load("images/camera.png");
+	antIcon.load("images/ant.png");
 
 	vector<std::tuple<Button*, void (Application::*)(), ofImage*>> buttonMap = {
 		std::tuple(&importImageButton, &Application::importImage, &importImageIcon),
@@ -136,6 +140,7 @@ void Application::setupButtons()
 		std::tuple(&textureButton, &Application::textureChoice, &textureIcon),
 		std::tuple(&undoButton, &Application::undo, &undoIcon),
 		std::tuple(&redoButton, &Application::redo, &redoIcon),
+		std::tuple(&antButton, &Application::customAnt, &antIcon),
 		std::tuple(&cameraButton, &Application::cameraMode, &cameraIcon)
 	};
 
@@ -360,7 +365,7 @@ void Application::mousePressed(int x, int y, int button)
 	if (y < MENU_HEIGHT && x < (MENU_BUTTON_WIDTH+ MENU_BUTTON_MARGIN)*(buttons.size()-1) || y < MENU_HEIGHT && x < MENU_BUTTON_WIDTH + (WINDOW_WIDTH/2) && x > WINDOW_WIDTH/2)
 	{
 		int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
-		if (buttonNumber > 12) buttonNumber = 11;
+		if (buttonNumber > buttons.size()-1) buttonNumber = buttons.size() -1 ;
 		Button* pressedButton = buttons[buttonNumber];
 
 		// Toggle (ouverture/fermeture) pour chaque menu
@@ -417,6 +422,16 @@ void Application::mousePressed(int x, int y, int button)
 			
 			return;
 
+		}
+		if (pressedButton == &antButton) {
+			showCameraMenu = false;
+			showDrawMenu = false;
+			showEraserMenu = false;
+			showColorMenu = false;
+			showTextureMenu = false;
+			cursorMode = DEFAULT;
+			customAnt();
+			return;
 		}
 		 
 
@@ -838,6 +853,23 @@ void Application::changeCameraSelected(int num)
 	{
 		if (i == num) cameraSelection[i]->set(true);
 		else cameraSelection[i]->set(false);
+	}
+}
+
+void Application::customAnt()
+{
+	if (!antWindow) {
+		ofGLFWWindowSettings settings;
+		settings.setSize(1024, 612);
+		settings.setPosition(ofVec2f(300, 300));
+		settings.resizable = true;
+		settings.setGLVersion(3, 3);
+
+		antWindow = ofCreateWindow(settings);
+
+		antApp = make_shared<CustomSceneController>();
+
+		ofRunApp(antWindow, antApp);
 	}
 }
 

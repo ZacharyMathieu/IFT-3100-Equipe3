@@ -5,6 +5,7 @@
 #include "button.h"
 #include "ofxGui.h"
 #include "scene_controller.h"
+#include "custom_scene_controller.h"
 
 
 #ifndef APPLICATION
@@ -41,6 +42,11 @@ public:
 
 	bool isRunning = false;
 	SceneController sceneController;
+	CustomSceneController customSceneController;
+
+	shared_ptr<ofAppBaseWindow> antWindow;
+    shared_ptr<CustomSceneController> antApp;
+
 
 	void setup() override;
 	void update() override;
@@ -123,6 +129,7 @@ private:
 	ofImage redoIcon;
 	ofImage undoIcon;
 	ofImage cameraIcon;
+	ofImage antIcon;
 
 	Button importImageButton;
 	Button exportImageButton;
@@ -137,6 +144,7 @@ private:
 	Button undoButton;
 	Button redoButton;
 	Button cameraButton;
+	Button antButton;
 	vector<Button*> buttons;
 	vector<ofParameter<bool>*> textureSelection;
 	vector<ofParameter<bool>*> cameraSelection;
@@ -169,6 +177,7 @@ private:
 	void createColorCanva(string filepath);
 	void onCheckPopChanged(bool& value);
 	void changeCameraSelected(int num);
+	void customAnt();
 };
 
 #endif

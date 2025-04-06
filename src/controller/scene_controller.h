@@ -79,6 +79,7 @@ public:
 	void bindAntTextures();
 	void unbindAntTextures();
 	void updateGridController(GridController*);
+	ofxAssimpModelLoader& getAntModel();
 
 private:
 	ofShader shader_ant;

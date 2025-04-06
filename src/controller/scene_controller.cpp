@@ -60,7 +60,9 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	
 
 	
-	antModelLoader.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
+	//antModelLoader.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
+	antModelLoader.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
+	
 	antTexture.load("models/newAnt4/tex/Ant_color.jpg");
 	antModelLoader.enableTextures();
 
@@ -121,10 +123,14 @@ void SceneController::updateGridController(GridController* gridController)
 	this->ant = gridController->ants[0];
 }
 
+ofxAssimpModelLoader& SceneController::getAntModel()
+{
+	return antModelLoader;
+}
+
 void SceneController::update()
 {
 	antModelLoader.enableMaterials();
-	
 	centreX = 3 * (ofGetWidth() / 4.0f);
 	centreY = ofGetHeight() / 2.0f;
 
@@ -209,11 +215,13 @@ void SceneController::update()
 	}
 
 	
-	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG , 0, 1, 0);
+	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG -90, 0, 1, 0);
+	antModelLoader.setRotation(1, -90, 1, 0, 0);
+	
 	
 	antModelLoader.setPosition(ant->pos.x * gridController->scaleX * wallSize, 1, ant->pos.y * gridController->scaleY * wallSize);
 	
-	mainCamera.setPosition(antModelLoader.getPosition().x, wallSize * 5, antModelLoader.getPosition().z - wallSize * 10);
+	mainCamera.setPosition(antModelLoader.getPosition().x, wallSize * 10, antModelLoader.getPosition().z - wallSize * 10);
 	
 	mainCamera.lookAt(antModelLoader.getPosition());
 
@@ -250,11 +258,12 @@ void SceneController::update()
 
 	antModelLoader.update();
 	if (animation) {
-		antModelLoader.playAllAnimations();
+		antModelLoader.getAnimation(1).play();
 		
 	}
 	else {
-		antModelLoader.stopAllAnimations();
+		antModelLoader.getAnimation(1).stop();
+		antModelLoader.getAnimation(0).play();
 		
 	}
 	
@@ -326,11 +335,7 @@ void SceneController::keyPressed(int key)
 void SceneController::drawScene()
 {
 	cubeMap.draw();
-	
-	
-
 	antModelLoader.drawFaces();
-
 	
 	shader_ant.begin();
 
@@ -414,7 +419,7 @@ void SceneController::drawScene()
 
 		int posX = playMode ? pos.x + ofRandom(-1, 1) : pos.x;
 		int posZ = playMode ? pos.z + ofRandom(-1, 1) : pos.z;
-		int scalePheromone = playMode ? cell->getValueFactor() * +ofRandom(2, 5) : cell->getValueFactor() * 2;
+		int scalePheromone = playMode ? cell->getValueFactor() * +ofRandom(2, 5) : cell->getValueFactor() * 3;
 		
 		shader.setUniform3f("translation", posX, pos.y, posZ);
 		shader.setUniform1f("scale_factor", scalePheromone);
