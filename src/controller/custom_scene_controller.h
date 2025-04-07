@@ -11,8 +11,6 @@ private:
 	ofCylinderPrimitive plateform;
 
 	void openPosterChoicer();
-	ofTexture* getSpecificTextureForMesh(ofxAssimpModelLoader& model, int meshIndex, aiTextureType type, const std::string& basePath);
-	ofTexture* getEmbeddedTextureForMesh(ofxAssimpModelLoader& model, int meshIndex, aiTextureType type);
 	bool posterSet;
 	bool colorChanged;
 	float newAngle = 115.0f;
@@ -27,14 +25,22 @@ public:
 	ofxPanel gui;
 	ofParameter<bool> posterChoice;
 	ofParameter<bool> defaultAnt;
-	ofParameter<ofColor> antTint;
+	ofParameter<ofColor> baseTint;
+	ofParameter<ofColor> normalTint;
+	ofParameter<ofColor> metallicTint;
+	ofParameter<ofColor> roughnessTint;
+	ofMaterial* mat;
 
 	ofColor antColor;
-	ofTexture* baseColorTexture;
-	ofTexture* normalMapTexture;
-	ofTexture* metallicTexture;
-	ofTexture* roughnessTexture;
-	ofTexture* aoTexture;
+	ofColor normalColor;
+	ofColor metallicColor;
+	ofColor roughnessColor;
+
+	ofTexture baseColorTexture;
+	ofTexture normalMapTexture;
+	ofTexture metallicTexture;
+	ofTexture roughnessTexture;
+	ofTexture aoTexture;
 
 	ofShader shader;
 	ofTexture antTexture;
@@ -47,6 +53,9 @@ public:
 	void update() ;
 	void draw();
 	void onColorChanged(ofColor& color);
+	void onNormalColorChanged(ofColor& color);
+	void onMetallicColorChanged(ofColor& color);
+	void onRoughnessColorChanged(ofColor& color);
 	void onDefaultSelect(bool& value);
 };
 

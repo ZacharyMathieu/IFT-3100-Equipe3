@@ -2,19 +2,40 @@
 
 void CustomSceneController::setup()
 {
-
+    ofEnableLighting();
+    ofSetFrameRate(60);
     light.setup();
-    light.setPosition(0, 300, 300);
-    light.enable();
+    light.setSpotlight();
+    light.setSpotlightCutOff(25);
+    light.setSpotConcentration(20);
+    light.setDiffuseColor(ofFloatColor(0.8, 0.8, 0.8));   // Lumière blanche douce
+    light.setSpecularColor(ofFloatColor(0.1, 0.1, 0.1));  // Reflet doux
+    light.setAmbientColor(ofFloatColor(0.05));
 
     // Load ton modèle
-    ant.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
+    ant.loadModel("models/sci-fiAnt/ant-SciFi.gltf");
     ofLog() << "Has texcoords: " << ant.getMesh(0).hasTexCoords();
+    
 
     shader.load("custom_ant_330_vs.glsl", "custom_ant_330_fs.glsl");
     
     antTexture = ant.getTextureForMesh(0);
-    
+    ofImage baseColorImg;
+    baseColorImg.load("models/sci-fiAnt/texture/Image_0.png");  // Remplace par le vrai chemin
+    baseColorTexture = baseColorImg.getTexture();
+
+    ofImage normalImg;
+    normalImg.load("models/sci-fiAnt/texture/Image_3.png");  // Remplace par le vrai chemin
+    normalMapTexture = normalImg.getTexture();
+
+    ofImage metallicImg;
+    metallicImg.load("models/sci-fiAnt/texture/Image_2.png");  // Remplace par le vrai chemin
+    metallicTexture = metallicImg.getTexture();
+
+    ofImage roughnessImg;
+    roughnessImg.load("models/sci-fiAnt/texture/Image_1.png");  // Remplace par le vrai chemin
+    roughnessTexture = roughnessImg.getTexture();
+
     img.load("images/glitter.jpg");
 
     imgTexture = img.getTexture();
@@ -75,10 +96,19 @@ void CustomSceneController::setup()
     defaultAnt.setName("Default ant color");
     gui.add(defaultAnt);
     defaultAnt.addListener(this, &CustomSceneController::onDefaultSelect);
-    antTint.set("Ant tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
-    gui.add(antTint);
-    antTint.addListener(this, &CustomSceneController::onColorChanged);
-    antColor.set(0);
+    baseTint.set("Base tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
+    gui.add(baseTint);
+    baseTint.addListener(this, &CustomSceneController::onColorChanged);
+    normalTint.set("Normal tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
+    gui.add(normalTint);
+    normalTint.addListener(this, &CustomSceneController::onNormalColorChanged);
+    metallicTint.set("Metallic tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
+    gui.add(metallicTint);
+    metallicTint.addListener(this, &CustomSceneController::onMetallicColorChanged);
+    roughnessTint.set("Roughness tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
+    gui.add(roughnessTint);
+    roughnessTint.addListener(this, &CustomSceneController::onRoughnessColorChanged);
+    
 
 }
 
@@ -93,11 +123,13 @@ void CustomSceneController::update()
     {
         newAngle += turnSpeed;
     }
+
     if (colorChanged) defaultAnt = false;
 	ant.setScale(0.15, 0.15, 0.15);
 	ant.setRotation(0, -90, 1, 0, 0);
 	ant.setRotation(1, newAngle, 0, 0, 1);
     plateform.setOrientation(glm::vec3(0, -newAngle, 0));
+
     if (posterChoice)
     {
         openPosterChoicer();
@@ -105,6 +137,12 @@ void CustomSceneController::update()
 
     ant.update();
     ant.getAnimation(0).play();
+
+    
+    light.lookAt(ant.getPosition());
+
+    light.setGlobalPosition(glm::vec3(0,40, 0));
+
 }
 
 void CustomSceneController::draw()
@@ -113,7 +151,6 @@ void CustomSceneController::draw()
     ofEnableDepthTest();
     ofBackground(0);
     cam.begin();
-
     // Lumière
     light.enable();
 
@@ -145,23 +182,39 @@ void CustomSceneController::draw()
     plateform.draw();
     texPlateform.unbind();
     // Modèle
-    ofSetColor(255); // Reset couleur
-
+   
+    
     if (!defaultAnt) {
        
         ant.disableMaterials();
+        ant.disableTextures();
         shader.begin();
-        shader.setUniformTexture("tex0", antTexture, 0);
-        shader.setUniform4f("tintColor", antColor);
+        shader.setUniform4f("baseTint", antColor);
+        shader.setUniform4f("normalTint", normalColor);
+        shader.setUniform4f("metallicTint", metallicColor);
+        shader.setUniform4f("roughnessTint", roughnessColor);
+        shader.setUniform1f("tintStrength", 0.8f);         
+        shader.setUniform1i("useBaseColorMap", true);
+        shader.setUniform1i("useNormalColorMap", true);
+        shader.setUniform1i("useMetallicColorMap", true);
+        shader.setUniform1i("useRoughnessColorMap", true);
+        shader.setUniformTexture("baseColorMap", baseColorTexture, 0);
+        shader.setUniformTexture("normalColorMap", normalMapTexture, 1);
+        shader.setUniformTexture("metallicColorMap",metallicTexture, 2);
+        shader.setUniformTexture("roughnessColorMap", roughnessTexture, 3);
         ant.drawFaces();
         shader.end();
     }
     else {
-        ant.enableMaterials();
+        ant.enableMaterials(); 
+        ant.enableTextures();
         ant.drawFaces();
     }
-    
-    
+    ofPushMatrix();
+    ofTranslate(light.getPosition());
+    ofDrawAxis(20);
+    ofPopMatrix();
+
     cam.end();
 
     ofDisableDepthTest(); 
@@ -173,6 +226,21 @@ void CustomSceneController::onColorChanged(ofColor& color)
 {
     colorChanged = true;
     antColor = color;
+}
+void CustomSceneController::onNormalColorChanged(ofColor& color)
+{
+    colorChanged = true;
+    normalColor = color;
+}
+void CustomSceneController::onMetallicColorChanged(ofColor& color)
+{
+    colorChanged = true;
+    metallicColor = color;
+}
+void CustomSceneController::onRoughnessColorChanged(ofColor& color)
+{
+    colorChanged = true;
+    roughnessColor = color;
 }
 void CustomSceneController::onDefaultSelect(bool& value)
 {
