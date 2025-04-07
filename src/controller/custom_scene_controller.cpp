@@ -13,6 +13,24 @@ void CustomSceneController::setup()
 
     // Load ton modèle
     ant.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
+    ofLog() << "Has texcoords: " << ant.getMesh(0).hasTexCoords();
+
+    shader.load("custom_ant_330_vs.glsl", "custom_ant_330_fs.glsl");
+    
+    antTexture = ant.getTextureForMesh(0);
+
+    antMaterial = ant.getMaterialForMesh(0);
+    ofFloatColor diffuse = antMaterial.getDiffuseColor();
+    ofFloatColor specular = antMaterial.getSpecularColor();
+    float shininess = antMaterial.getShininess();
+
+    ofLog() << "Diffuse: " << diffuse;
+    ofLog() << "Specular: " << specular;
+    ofLog() << "Shininess: " << shininess;
+    img.load("images/glitter.jpg");
+
+    imgTexture = img.getTexture();
+
     ant.setPosition(0, -50, 0); // Légèrement au-dessus du sol
 
     // Crée les plans
@@ -58,10 +76,19 @@ void CustomSceneController::setup()
     posterChoice = false;
     gui.add(posterChoice);
     gui.setPosition(10, 10);
+    defaultAnt.setName("Default ant color");
+    gui.add(defaultAnt);
+    defaultAnt.addListener(this, &CustomSceneController::onDefaultSelect);
+    antTint.set("Ant tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
+    gui.add(antTint);
+    antTint.addListener(this, &CustomSceneController::onColorChanged);
+    antColor.set(0);
+
 }
 
 void CustomSceneController::update()
 {
+    if (colorChanged) defaultAnt = false;
 	ant.setScale(0.15, 0.15, 0.15);
 	ant.setRotation(0, -90, 1, 0, 0);
 	ant.setRotation(1, 115, 0, 0, 1);
@@ -109,13 +136,38 @@ void CustomSceneController::draw()
 
     // Modèle
     ofSetColor(255); // Reset couleur
-    ant.drawFaces();
 
+    if (!defaultAnt) {
+        ant.disableMaterials();
+        shader.begin();
+        shader.setUniformTexture("tex0", antTexture, 0);
+        shader.setUniform4f("tintColor", antColor);
+        ant.drawFaces();
+        shader.end();
+    }
+    else {
+        ant.enableMaterials();
+        ant.drawFaces();
+    }
+    
+    
     cam.end();
-    ofDisableDepthTest();
+
+    ofDisableDepthTest(); 
     gui.draw();
 
 
+}
+void CustomSceneController::onColorChanged(ofColor& color)
+{
+    colorChanged = true;
+    antColor = color;
+}
+void CustomSceneController::onDefaultSelect(bool& value)
+{
+    defaultAnt = value;
+
+    if (value) colorChanged = false;
 }
 void CustomSceneController::openPosterChoicer()
 {

@@ -11,6 +11,7 @@ private:
 
 	void openPosterChoicer();
 	bool posterSet;
+	bool colorChanged;
 
 public:
 	ofxAssimpModelLoader ant;
@@ -19,8 +20,20 @@ public:
 	ofTexture posterTex;
 	ofxPanel gui;
 	ofParameter<bool> posterChoice;
+	ofParameter<bool> defaultAnt;
+	ofParameter<ofColor> antTint;
+
+	ofColor antColor;
+
+	ofShader shader;
+	ofTexture antTexture;
+	ofTexture imgTexture;
+	ofImage img;
+	ofMaterial antMaterial;
 	void setup() override ;
 	void update() override;
 	void draw() override;
+	void onColorChanged(ofColor& color);
+	void onDefaultSelect(bool& value);
 };
 
