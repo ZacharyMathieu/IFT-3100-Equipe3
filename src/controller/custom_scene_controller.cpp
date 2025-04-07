@@ -12,6 +12,9 @@ void CustomSceneController::setup()
     light.setSpecularColor(ofFloatColor(0.1, 0.1, 0.1));  // Reflet doux
     light.setAmbientColor(ofFloatColor(0.05));
 
+    cadre.load("images/cadre.png");
+    
+
     // Load ton modèle
     ant.loadModel("models/sci-fiAnt/ant-SciFi.gltf");
     ofLog() << "Has texcoords: " << ant.getMesh(0).hasTexCoords();
@@ -28,9 +31,12 @@ void CustomSceneController::setup()
     normalImg.load("models/sci-fiAnt/texture/Image_3.png");  // Remplace par le vrai chemin
     normalMapTexture = normalImg.getTexture();
 
-    ofImage metallicImg;
-    metallicImg.load("models/sci-fiAnt/texture/Image_2.png");  // Remplace par le vrai chemin
-    metallicTexture = metallicImg.getTexture();
+    blueEye.load("models/sci-fiAnt/texture/Image_2.png");  // Remplace par le vrai chemin
+    metallicTexture = blueEye.getTexture();
+
+    redEye.load("models/sci-fiAnt/texture/Image_2_red.png");
+    greenEye.load("models/sci-fiAnt/texture/Image_2_green.png");
+    doubleColorEye.load("models/sci-fiAnt/texture/Image_2_gp.png");
 
     ofImage roughnessImg;
     roughnessImg.load("models/sci-fiAnt/texture/Image_1.png");  // Remplace par le vrai chemin
@@ -64,10 +70,13 @@ void CustomSceneController::setup()
     backWall.set(boxSize, boxSize);
     backWall.setPosition(0, 0, -boxSize / 2);
 
-   
-    poster.set(50, 50);
+    cadrePlane.set(100, 70);
+    cadrePlane.setPosition(0, 0, (-boxSize / 2) + 1);
+    cadrePlane.rotateDeg(180, 0, 1, 0);
 
-    poster.setPosition(0, 0, ( - boxSize / 2) +1); 
+    poster.set(62, 47);
+
+    poster.setPosition(0, -1, ( - boxSize / 2) +2); 
     poster.rotateDeg(180, 0, 1, 0); 
 
     // Mur gauche
@@ -93,21 +102,26 @@ void CustomSceneController::setup()
     posterChoice = false;
     gui.add(posterChoice);
     gui.setPosition(10, 10);
-    defaultAnt.setName("Default ant color");
-    gui.add(defaultAnt);
-    defaultAnt.addListener(this, &CustomSceneController::onDefaultSelect);
-    baseTint.set("Base tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
-    gui.add(baseTint);
-    baseTint.addListener(this, &CustomSceneController::onColorChanged);
-    normalTint.set("Normal tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
-    gui.add(normalTint);
-    normalTint.addListener(this, &CustomSceneController::onNormalColorChanged);
-    metallicTint.set("Metallic tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
-    gui.add(metallicTint);
-    metallicTint.addListener(this, &CustomSceneController::onMetallicColorChanged);
-    roughnessTint.set("Roughness tint", ofColor(2500), ofColor(0, 0), ofColor(255, 255));
-    gui.add(roughnessTint);
-    roughnessTint.addListener(this, &CustomSceneController::onRoughnessColorChanged);
+    //defaultAnt.setName("Default ant color");
+   // gui.add(defaultAnt);
+   // defaultAnt.addListener(this, &CustomSceneController::onDefaultSelect);
+    blueTint.setName("Base tint");
+    gui.add(blueTint);
+    blueTint.addListener(this, &CustomSceneController::onBlueChanged);
+    redTint.setName("Normal tint");
+    gui.add(redTint);
+    redTint.addListener(this, &CustomSceneController::onRedChanged);
+    greenTint.setName("Metallic tint");
+    gui.add(greenTint);
+    greenTint.addListener(this, &CustomSceneController::onGreenChanged);
+    doubleTint.setName("Roughness tint");
+    gui.add(doubleTint);
+    doubleTint.addListener(this, &CustomSceneController::onDoubleChanged);
+
+    blueTint = true;
+    redTint = false;
+    greenTint = false;
+    doubleTint = false;
     
 
 }
@@ -124,7 +138,6 @@ void CustomSceneController::update()
         newAngle += turnSpeed;
     }
 
-    if (colorChanged) defaultAnt = false;
 	ant.setScale(0.15, 0.15, 0.15);
 	ant.setRotation(0, -90, 1, 0, 0);
 	ant.setRotation(1, newAngle, 0, 0, 1);
@@ -164,6 +177,10 @@ void CustomSceneController::draw()
     ofSetColor(200); // Mur arrière gris
     backWall.draw();
 
+    cadre.getTexture().bind();
+    cadrePlane.draw();
+    cadre.getTexture().unbind();
+
     if (posterSet) {
         posterImg.getTexture().bind();
         poster.draw();
@@ -182,34 +199,18 @@ void CustomSceneController::draw()
     plateform.draw();
     texPlateform.unbind();
     // Modèle
-   
-    
-    if (!defaultAnt) {
        
-        ant.disableMaterials();
-        ant.disableTextures();
-        shader.begin();
-        shader.setUniform4f("baseTint", antColor);
-        shader.setUniform4f("normalTint", normalColor);
-        shader.setUniform4f("metallicTint", metallicColor);
-        shader.setUniform4f("roughnessTint", roughnessColor);
-        shader.setUniform1f("tintStrength", 0.8f);         
-        shader.setUniform1i("useBaseColorMap", true);
-        shader.setUniform1i("useNormalColorMap", true);
-        shader.setUniform1i("useMetallicColorMap", true);
-        shader.setUniform1i("useRoughnessColorMap", true);
-        shader.setUniformTexture("baseColorMap", baseColorTexture, 0);
-        shader.setUniformTexture("normalColorMap", normalMapTexture, 1);
-        shader.setUniformTexture("metallicColorMap",metallicTexture, 2);
-        shader.setUniformTexture("roughnessColorMap", roughnessTexture, 3);
-        ant.drawFaces();
-        shader.end();
-    }
-    else {
-        ant.enableMaterials(); 
-        ant.enableTextures();
-        ant.drawFaces();
-    }
+  /* shader.begin();
+   shader.setUniformTexture("baseColorMap", baseColorTexture, 0);
+   shader.setUniformTexture("normalColorMap", normalMapTexture, 1);
+   shader.setUniformTexture("metallicColorMap",metallicTexture, 2);
+   shader.setUniformTexture("roughnessColorMap", roughnessTexture, 3);
+    
+    ant.drawFaces();
+    shader.end();*/
+
+    ant.drawFaces();
+   
     ofPushMatrix();
     ofTranslate(light.getPosition());
     ofDrawAxis(20);
@@ -222,31 +223,48 @@ void CustomSceneController::draw()
 
 
 }
-void CustomSceneController::onColorChanged(ofColor& color)
+void CustomSceneController::onBlueChanged(bool& value)
 {
-    colorChanged = true;
-    antColor = color;
+    antColor = value;
+    if (value) {
+        redTint = false;
+        greenTint = false;
+        doubleTint = false;
+    }
+    
 }
-void CustomSceneController::onNormalColorChanged(ofColor& color)
+void CustomSceneController::onRedChanged(bool& value)
 {
-    colorChanged = true;
-    normalColor = color;
+    normalColor = value;
+    if (value) {
+         
+        blueTint = false;
+        greenTint = false;
+        doubleTint = false;
+    }
+    
 }
-void CustomSceneController::onMetallicColorChanged(ofColor& color)
+void CustomSceneController::onGreenChanged(bool& value)
 {
-    colorChanged = true;
-    metallicColor = color;
+    metallicColor = value;
+    if (value) {
+        metallicTexture = greenEye.getTexture();
+        blueTint = false;
+        redTint = false;
+        doubleTint = false;
+    }
+    
 }
-void CustomSceneController::onRoughnessColorChanged(ofColor& color)
+void CustomSceneController::onDoubleChanged(bool& value)
 {
-    colorChanged = true;
-    roughnessColor = color;
-}
-void CustomSceneController::onDefaultSelect(bool& value)
-{
-    defaultAnt = value;
-
-    if (value) colorChanged = false;
+    roughnessColor = value;
+    if (value) {
+        metallicTexture = doubleColorEye.getTexture();
+        blueTint = false;
+        redTint = false;
+        greenTint = false;
+    }
+    
 }
 void CustomSceneController::openPosterChoicer()
 {

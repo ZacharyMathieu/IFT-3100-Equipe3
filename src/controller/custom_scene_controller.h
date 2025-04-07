@@ -19,22 +19,27 @@ private:
 
 public:
 	ofxAssimpModelLoader ant;
-	ofPlanePrimitive rightWall, leftWall, backWall, ceiling,floor, poster;
+	ofPlanePrimitive rightWall, leftWall, backWall, ceiling,floor, poster, cadrePlane;
 	ofImage posterImg;
 	ofTexture posterTex;
 	ofxPanel gui;
 	ofParameter<bool> posterChoice;
-	ofParameter<bool> defaultAnt;
-	ofParameter<ofColor> baseTint;
-	ofParameter<ofColor> normalTint;
-	ofParameter<ofColor> metallicTint;
-	ofParameter<ofColor> roughnessTint;
+	ofParameter<bool> blueTint;
+	ofParameter<bool> redTint;
+	ofParameter<bool> greenTint;
+	ofParameter<bool> doubleTint;
 	ofMaterial* mat;
 
 	ofColor antColor;
 	ofColor normalColor;
 	ofColor metallicColor;
 	ofColor roughnessColor;
+
+	ofImage redEye;
+	ofImage blueEye;
+	ofImage greenEye;
+	ofImage doubleColorEye;
+	ofImage cadre;
 
 	ofTexture baseColorTexture;
 	ofTexture normalMapTexture;
@@ -52,10 +57,10 @@ public:
 	void setup() ;
 	void update() ;
 	void draw();
-	void onColorChanged(ofColor& color);
-	void onNormalColorChanged(ofColor& color);
-	void onMetallicColorChanged(ofColor& color);
-	void onRoughnessColorChanged(ofColor& color);
-	void onDefaultSelect(bool& value);
+	void onBlueChanged(bool& value);
+	void onRedChanged(bool& value);
+	void onGreenChanged(bool& value);
+	void onDoubleChanged(bool& value);
+	
 };
 
