@@ -176,6 +176,7 @@ void Application::drawMenu()
 //--------------------------------------------------------------
 void Application::update()
 {
+	
 	sceneController.COLOR_AMBIENT = color_picker_ambient;
 	sceneController.COLOR_DIFFUSE = color_picker_diffuse;
 	sceneController.update();
@@ -866,12 +867,18 @@ void Application::customAnt()
 		settings.setGLVersion(3, 3);
 
 		antWindow = ofCreateWindow(settings);
-
 		antApp = make_shared<CustomSceneController>();
 
 		ofRunApp(antWindow, antApp);
+		ofAddListener(antWindow->events().exit, this, &Application::onAntWindowClosed);
 	}
 }
+void Application::onAntWindowClosed(ofEventArgs& args)
+{
+	antWindow.reset();
+	
+}
+
 
 
 //void Application::antPosition3D()

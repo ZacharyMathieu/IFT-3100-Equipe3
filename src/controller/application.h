@@ -178,6 +178,9 @@ private:
 	void onCheckPopChanged(bool& value);
 	void changeCameraSelected(int num);
 	void customAnt();
+	void onAntWindowClosed(ofEventArgs& args);
+	bool shouldResetAntApp = false;
+
 };
 
 #endif

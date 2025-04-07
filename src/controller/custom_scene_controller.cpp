@@ -1,9 +1,5 @@
 #include "custom_scene_controller.h"
 
-
-
-
-
 void CustomSceneController::setup()
 {
 
@@ -18,20 +14,16 @@ void CustomSceneController::setup()
     shader.load("custom_ant_330_vs.glsl", "custom_ant_330_fs.glsl");
     
     antTexture = ant.getTextureForMesh(0);
-
-    antMaterial = ant.getMaterialForMesh(0);
-    ofFloatColor diffuse = antMaterial.getDiffuseColor();
-    ofFloatColor specular = antMaterial.getSpecularColor();
-    float shininess = antMaterial.getShininess();
-
-    ofLog() << "Diffuse: " << diffuse;
-    ofLog() << "Specular: " << specular;
-    ofLog() << "Shininess: " << shininess;
+    
     img.load("images/glitter.jpg");
 
     imgTexture = img.getTexture();
 
-    ant.setPosition(0, -50, 0); // Légèrement au-dessus du sol
+    imgPlateform.load("images/wood.jpg");
+
+    texPlateform = imgPlateform.getTexture();
+
+    ant.setPosition(0, -45, 0); // Légèrement au-dessus du sol
 
     // Crée les plans
     float boxSize = 100;
@@ -58,14 +50,18 @@ void CustomSceneController::setup()
     poster.rotateDeg(180, 0, 1, 0); 
 
     // Mur gauche
-    leftWall.set(boxSize, boxSize);
+    leftWall.set(boxSize+20, boxSize);
     leftWall.rotateDeg(90, 0, 1, 0);
     leftWall.setPosition(-boxSize / 2, 0, 0);
 
     // Mur droit
-    rightWall.set(boxSize, boxSize);
+    rightWall.set(boxSize+20, boxSize);
     rightWall.rotateDeg(90, 0, 1, 0);
     rightWall.setPosition(boxSize / 2, 0, 0);
+
+    plateform.set(40, 5);
+    plateform.setResolution(64, 1);
+    plateform.setPosition(0, -48, 0);
 
     // Caméra
     cam.setDistance(100);
@@ -88,10 +84,20 @@ void CustomSceneController::setup()
 
 void CustomSceneController::update()
 {
+    if (ofGetKeyPressed(OF_KEY_RIGHT))
+    {
+        newAngle -= turnSpeed;
+    }
+
+    if (ofGetKeyPressed(OF_KEY_LEFT))
+    {
+        newAngle += turnSpeed;
+    }
     if (colorChanged) defaultAnt = false;
 	ant.setScale(0.15, 0.15, 0.15);
 	ant.setRotation(0, -90, 1, 0, 0);
-	ant.setRotation(1, 115, 0, 0, 1);
+	ant.setRotation(1, newAngle, 0, 0, 1);
+    plateform.setOrientation(glm::vec3(0, -newAngle, 0));
     if (posterChoice)
     {
         openPosterChoicer();
@@ -134,10 +140,15 @@ void CustomSceneController::draw()
     ofSetColor(0, 255, 0); // Mur droit vert
     rightWall.draw();
 
+    ofSetColor(100);
+    texPlateform.bind();
+    plateform.draw();
+    texPlateform.unbind();
     // Modèle
     ofSetColor(255); // Reset couleur
 
     if (!defaultAnt) {
+       
         ant.disableMaterials();
         shader.begin();
         shader.setUniformTexture("tex0", antTexture, 0);
@@ -179,4 +190,10 @@ void CustomSceneController::openPosterChoicer()
     }
     posterChoice = false;
 }
+
+
+
+
+
+
 

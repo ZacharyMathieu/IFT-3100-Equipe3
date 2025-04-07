@@ -150,6 +150,7 @@ void SceneController::update()
 
 	if (ofGetKeyPressed(OF_KEY_RIGHT) || ofGetKeyPressed(100))
 	{
+
 		if (activeCam == &POV) {
 			newPos.x -= right.x * (ANT_MOVE_SPEED * 2);
 			newPos.y -= right.z * (ANT_MOVE_SPEED * 2);
