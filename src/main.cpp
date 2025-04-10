@@ -7,8 +7,9 @@ int main( ){
 	settings.setSize(1024, 768);
 	settings.windowMode = OF_WINDOW;
 	settings.setGLVersion(3, 3);
-	auto window = ofCreateWindow(settings);
+	shared_ptr<ofAppBaseWindow> mainWindow = ofCreateWindow(settings);
+	shared_ptr<Application> mainApp = make_shared<Application>();
 
-	ofRunApp(window, std::make_shared<Application>());
+	ofRunApp(mainWindow, mainApp);
 	ofRunMainLoop();
 }

@@ -36,6 +36,9 @@ public:
 	float centreX;
 	float centreY;
 	int wallSize;
+	bool animation = false;
+	bool checkPop;
+	bool playMode;
 	std::unordered_map < glm::vec3, float> pheromoneColorCache;
 
 	GridController* gridController;
@@ -63,6 +66,10 @@ public:
 	ofTexture texture;
 	ofTexture textureAnt;
 
+	ofEasyCam* activeCam;
+	vector<ofEasyCam*> cameras;
+	int numCam;
+
 	void setup(int x, int y, int w, int h, GridController* gridController);
 	void update();
 	void draw();
@@ -72,6 +79,7 @@ public:
 	void bindAntTextures();
 	void unbindAntTextures();
 	void updateGridController(GridController*);
+	ofxAssimpModelLoader& getAntModel();
 
 private:
 	ofShader shader_ant;
@@ -86,7 +94,8 @@ private:
 	ofBoxPrimitive box;
 	ofVboMesh boxMesh;
 	ofSpherePrimitive antSphere;
-	ofVboMesh vboBoxMeshAnt;
+	ofMesh antMesh;
+	ofVboMesh vboAntMesh;
 	ofVboMesh vboAntModelLoader;
 	ofSpherePrimitive pheromoneSphere;
 	ofVboMesh vboPheromone;
@@ -94,19 +103,17 @@ private:
 	ofEasyCam mainCamera;
 	ofEasyCam topCamera;
 	ofEasyCam freeCamera;
-	ofEasyCam* activeCam;
+	
 	ofEasyCam* popUpCam;
 	ofEasyCam POV;
-	vector<ofEasyCam*> cameras;
-	int numCam;
+	
+	
 	ofCubeMap cubeMap;
 
 	ofTexture a;
 	ofTexture n;
 	ofTexture m;
 
-	ofParameter<bool> checkPop;
-	ofxPanel gui;
 	ofRectangle sceneView;
 
 	float scale_ant;

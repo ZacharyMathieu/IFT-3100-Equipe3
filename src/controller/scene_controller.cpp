@@ -2,8 +2,9 @@
 
 void SceneController::setup(int x, int y, int w, int h, GridController* gridController)
 {
-	ofEnableDepthTest();
+	
 	ofDisableArbTex();
+	checkPop = false;
 
 	SCENE_X = x;
 	SCENE_Y = y;
@@ -18,9 +19,10 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	box.set(gridController->scaleX * wallSize, wallSize * 5, gridController->scaleY * wallSize);
 	box.mapTexCoords(0,0,2,2);
 	boxMesh = box.getMesh();
+	
 
 	antSphere.set(wallSize, 120);
-	vboBoxMeshAnt = antSphere.getMesh();
+	//vboBoxMeshAnt = antSphere.getMesh();
 
 	cubeMap.load("images/sky.png",2048, false);
 	
@@ -39,7 +41,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	wood.load("images/wood.jpg");
 	rock.load("images/rock.jpg");
 	paint.load("images/paint.jpg");
-	antTexture.load("models/antTexture.jpg");
+	
 
 	
 
@@ -58,10 +60,11 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	
 
 	
-	antModelLoader.load("models/ant3.obj");
-	antModelLoader.disableMaterials();
+	//antModelLoader.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
+	antModelLoader.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
 	
-	
+	antTexture.load("models/newAnt4/tex/Ant_color.jpg");
+	antModelLoader.enableTextures();
 
 	albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
 	normalMap.load("models/newAnt3/Textures/material_normal.png");
@@ -74,13 +77,10 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	n.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
 	m.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
 
-	ants.load("models/ant3.obj");
-	
-	ants.disableMaterials();
-	ants.setRotation(0, 180, 0, 1, 0);
-	
-	
-	
+	ants.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
+	antMesh = ants.getMesh(0);
+	vboAntMesh = antMesh;
+	ofLog() << vboAntMesh.getTexCoords()[0]; 
 	boxCollider = createBoundingBox(antModelLoader);
 
 	shader_ant.load("ant_330_vs.glsl", "ant_330_fs.glsl");
@@ -114,11 +114,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	numCam = 0;
 	activeCam = cameras[numCam];
 
-	gui.setup();
-	checkPop.setName("Vue D'ensemble");
-	gui.add(checkPop);
-	checkPop = false;
-	gui.setPosition(ofGetWidth() - 200, 10);
+
 }
 
 void SceneController::updateGridController(GridController* gridController)
@@ -127,20 +123,25 @@ void SceneController::updateGridController(GridController* gridController)
 	this->ant = gridController->ants[0];
 }
 
+ofxAssimpModelLoader& SceneController::getAntModel()
+{
+	return antModelLoader;
+}
+
 void SceneController::update()
 {
-	
+	antModelLoader.enableMaterials();
 	centreX = 3 * (ofGetWidth() / 4.0f);
 	centreY = ofGetHeight() / 2.0f;
 
-	antModelLoader.setScale(scale_ant, scale_ant, scale_ant);
-	ants.setScale(scale_ant, scale_ant, scale_ant);
+	antModelLoader.setScale(scale_ant, -scale_ant, scale_ant);
 	
 
 	boxCollider.setPosition(antModelLoader.getPosition());
 	ofVec3f newPos = ant->pos;
 	float newAngle = ant->a;
 	int keysPressed = 0;
+
 	//merci ChatGPT pour quelques conseils
 	glm::vec3 lookDir = glm::normalize(POV.getLookAtDir()); 
 
@@ -149,7 +150,8 @@ void SceneController::update()
 
 	if (ofGetKeyPressed(OF_KEY_RIGHT) || ofGetKeyPressed(100))
 	{
-		if (numCam == 3) {
+
+		if (activeCam == &POV) {
 			newPos.x -= right.x * (ANT_MOVE_SPEED * 2);
 			newPos.y -= right.z * (ANT_MOVE_SPEED * 2);
 			
@@ -164,7 +166,7 @@ void SceneController::update()
 
 	if (ofGetKeyPressed(OF_KEY_LEFT) || ofGetKeyPressed(97))
 	{
-		if (numCam == 3) {
+		if (activeCam == &POV) {
 			newPos.x += right.x * (ANT_MOVE_SPEED * 2);
 			newPos.y += right.z * (ANT_MOVE_SPEED * 2);
 			
@@ -179,7 +181,7 @@ void SceneController::update()
 
 	if (ofGetKeyPressed(OF_KEY_UP) || ofGetKeyPressed(119))
 	{
-		if (numCam == 3) {
+		if (activeCam == &POV) {
 			newPos.x += forward.x * (ANT_MOVE_SPEED * 2);
 			newPos.y += forward.z * (ANT_MOVE_SPEED * 2);
 			
@@ -194,7 +196,7 @@ void SceneController::update()
 
 	if (ofGetKeyPressed(OF_KEY_DOWN) || ofGetKeyPressed(115))
 	{
-		if (numCam == 3) {
+		if (activeCam == &POV) {
 			newPos.x -= forward.x * (ANT_MOVE_SPEED * 2);
 			newPos.y -= forward.z * (ANT_MOVE_SPEED * 2);
 			
@@ -214,10 +216,13 @@ void SceneController::update()
 	}
 
 	
-	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG + 90, 0, 1, 0);
-	antModelLoader.setPosition(ant->pos.x * gridController->scaleX * wallSize, 0, ant->pos.y * gridController->scaleY * wallSize);
+	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG -90, 0, 1, 0);
+	antModelLoader.setRotation(1, -90, 1, 0, 0);
 	
-	mainCamera.setPosition(antModelLoader.getPosition().x, wallSize * 5, antModelLoader.getPosition().z - wallSize * 10);
+	
+	antModelLoader.setPosition(ant->pos.x * gridController->scaleX * wallSize, 1, ant->pos.y * gridController->scaleY * wallSize);
+	
+	mainCamera.setPosition(antModelLoader.getPosition().x, wallSize * 10, antModelLoader.getPosition().z - wallSize * 10);
 	
 	mainCamera.lookAt(antModelLoader.getPosition());
 
@@ -238,22 +243,35 @@ void SceneController::update()
 	
 	POV.lookAt(lookTarget);
 
-	light.setDirectional();
-	light.setDiffuseColor(ofColor(31, 255, 31));
+	light.setPointLight();
+	light.setDiffuseColor(ofColor(1, 1, 1));
 	light.setSpecularColor(ofColor(191, 191, 191));
-	light.setOrientation(ofVec3f(-45, 60, 0));
+	
 	
 
 	light.setGlobalPosition(centreX, centreY, 255.0f);
+	light.setOrientation(glm::vec3(antModelLoader.getPosition()));
+
 	texture.setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
 	textureAnt.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
 	textureAnt.setTextureWrap(GL_REPEAT, GL_REPEAT);
+
+	antModelLoader.update();
+	if (animation) {
+		antModelLoader.getAnimation(1).play();
+		
+	}
+	else {
+		antModelLoader.getAnimation(1).stop();
+		antModelLoader.getAnimation(0).play();
+		
+	}
+	
 }
 
 void SceneController::draw()
 {
-	gui.draw();
 
 	int halfHeight = ofGetHeight() / 2;
 	int fullWidth = ofGetWidth();
@@ -311,41 +329,74 @@ void SceneController::keyPressed(int key)
 		numCam = (numCam + 1) % cameras.size();
 
 		activeCam = cameras[numCam];
+		
 	}
 }
 
 void SceneController::drawScene()
 {
 	cubeMap.draw();
-
-	shader_ant.begin();
-	shader_ant.setUniformTexture("texture0",glitter.getTexture(), 0);
-	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
-	shader_ant.setUniform3f("color_ambient", ant->MAIN_ANT_COLOR.r/255, ant->MAIN_ANT_COLOR.g/255, ant->MAIN_ANT_COLOR.b/255);
-	shader_ant.setUniform3f("color_diffuse", light.getDiffuseColor().r/255, light.getDiffuseColor().g / 255, light.getDiffuseColor().b / 255);
-	shader_ant.setUniform3f("color_specular", light.getSpecularColor().r / 255, light.getSpecularColor().g / 255, light.getSpecularColor().b / 255);
-	shader_ant.setUniform1f("brightness",2);
-
 	antModelLoader.drawFaces();
+	
+	shader_ant.begin();
 
-	shader_ant.setUniform3f("color_ambient", ant->COLOR.r/255, ant->COLOR.g / 255, ant->COLOR.b / 255);
+	// Set uniform values
+	shader_ant.setUniformTexture("texture0", wood.getTexture(), 0);
+	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
+	shader_ant.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
+	
+	shader_ant.setUniform3f("color_diffuse", light.getDiffuseColor().r / 255.0f, light.getDiffuseColor().g / 255.0f, light.getDiffuseColor().b / 255.0f);
+	
+	shader_ant.setUniform3f("color_specular", light.getSpecularColor().r / 255.0f, light.getSpecularColor().g / 255.0f, light.getSpecularColor().b / 255.0f);
+	shader_ant.setUniform1f("brightness", 10.0f);
+	shader_ant.setUniform1f("uniform_scale", scale_ant/3);
 
-	for (size_t i = 0; i < antPositions.size(); i++)
-	{
-		if (!objectVisible(antPositions[i], RENDER_DISTANCE_ANTS))
-		{
-			ofPushMatrix();
-			ofTranslate(antPositions[i]);  
-			ants.setRotation(0, antAngles[i], 0, 1, 0);
-			
-			ants.drawFaces(); 
 
-			ofPopMatrix();
-		}
+	// Matrices d'instances
+	std::vector<glm::mat4> instanceMatrices;
+	for (size_t i = 0; i < antPositions.size(); ++i) {
+		if (!objectVisible(antPositions[i], RENDER_DISTANCE_ANTS)) continue;
+
+		glm::mat4 translation = glm::translate(glm::mat4(1.0f), antPositions[i]);
+		glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(antAngles[i]), glm::vec3(0, 1, 0));
+		glm::mat4 modelMatrix = translation * rotation;
+		instanceMatrices.push_back(modelMatrix);
 	}
 
+	if (!instanceMatrices.empty()) {
+		
+
+		// Décomposer les colonnes
+		std::vector<glm::vec4> col0, col1, col2, col3;
+		for (const auto& m : instanceMatrices) {
+			col0.push_back(m[0]);
+			col1.push_back(m[1]);
+			col2.push_back(m[2]);
+			col3.push_back(m[3]);
+		}
+
+		// Envoyer chaque colonne comme attribut
+		ofVbo& vbo = vboAntMesh.getVbo();
+		vbo.setAttributeData(4, glm::value_ptr(col0[0]), 4, instanceMatrices.size(), GL_STATIC_DRAW);
+		vbo.setAttributeData(5, glm::value_ptr(col1[0]), 4, instanceMatrices.size(), GL_STATIC_DRAW);
+		vbo.setAttributeData(6, glm::value_ptr(col2[0]), 4, instanceMatrices.size(), GL_STATIC_DRAW);
+		vbo.setAttributeData(7, glm::value_ptr(col3[0]), 4, instanceMatrices.size(), GL_STATIC_DRAW);
+
+
+		vbo.setAttributeDivisor(4, 1);
+		vbo.setAttributeDivisor(5, 1);
+		vbo.setAttributeDivisor(6, 1);
+		vbo.setAttributeDivisor(7, 1);
+
+		// View / Projection
+		shader_ant.setUniformMatrix4f("viewMatrix", activeCam->getModelViewMatrix());
+		shader_ant.setUniformMatrix4f("projectionMatrix", activeCam->getProjectionMatrix());
+
+		vboAntMesh.drawInstanced(OF_MESH_FILL, instanceMatrices.size());
+	}
 
 	shader_ant.end();
+
 	bool visible;
 	shader.begin();
 	shader.setUniform3f("color_ambient", 0, 0, 1);
@@ -364,11 +415,15 @@ void SceneController::drawScene()
 			x++;
 		visible = objectVisible(pos, RENDER_DISTANCE_PHEROMONES);
 
-		if (visible)
+		if (!visible)
 			continue;
-	
-		shader.setUniform3f("translation", pos.x + ofRandom(-1, 1), pos.y, pos.z + ofRandom(-1, 1));
-		shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(2, 5));
+
+		int posX = playMode ? pos.x + ofRandom(-1, 1) : pos.x;
+		int posZ = playMode ? pos.z + ofRandom(-1, 1) : pos.z;
+		int scalePheromone = playMode ? cell->getValueFactor() * +ofRandom(2, 5) : cell->getValueFactor() * 3;
+		
+		shader.setUniform3f("translation", posX, pos.y, posZ);
+		shader.setUniform1f("scale_factor", scalePheromone);
 		slimesMesh.draw();
 		
 		//*****Décommenter si on veut ajouter des pheromones autour.***
@@ -393,7 +448,7 @@ void SceneController::drawScene()
 	{
 		visible = objectVisible(pos, RENDER_DISTANCE_WALLS);
 
-		if (visible)
+		if (!visible)
 			continue;
 
 		shader_texture_wall.setUniform3f("translation", pos.x, pos.y, pos.z);
@@ -459,7 +514,7 @@ bool SceneController::checkCollision(glm::vec3 newPos)
 
 bool SceneController::objectVisible(glm::vec3 pos, float renderDistance)
 {
-	return (glm::dot(activeCam->getLookAtDir(), pos - activeCam->getPosition()) < 0) && (glm::distance(activeCam->getPosition(), pos) < renderDistance);
+	return (glm::dot(glm::normalize(activeCam->getLookAtDir()), glm::normalize(pos - activeCam->getPosition())) < 0) || (glm::distance(activeCam->getPosition(), pos) < renderDistance);
 }
 
 void SceneController::updateCellPositions()
@@ -516,10 +571,10 @@ void SceneController::updateAntPositions()
 		if (ant != this->ant)
 		{
 			posAnt = ant->pos;
-			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0.5f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 1.0f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
 			antPositions.push_back(position);
-			antAngles.push_back(ant->a * RAD_TO_DEG + 90);
+			antAngles.push_back(ant->a * RAD_TO_DEG +180);
 		}
 	}
 }

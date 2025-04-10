@@ -1,34 +1,33 @@
-// IFT3100H24 ~ blinn_phong_330_vs.glsl
-
 #version 330
 
-// attributs de sommet
-in vec4 position;
-in vec4 normal;
-in vec2 texcoord; 
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 texcoord;
 
-// attributs en sortie
-out vec3 surface_position;
-out vec3 surface_normal;
-out vec2 vTexCoord; 
+// colonnes de la matrice
+layout(location = 4) in vec4 instanceMatrixCol0;
+layout(location = 5) in vec4 instanceMatrixCol1;
+layout(location = 6) in vec4 instanceMatrixCol2;
+layout(location = 7) in vec4 instanceMatrixCol3;
 
-// attributs uniformes
-uniform mat4x4 modelViewMatrix;
-uniform mat4x4 projectionMatrix;
+uniform float uniform_scale;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 
-void main()
-{
-  // calculer la matrice normale
-  mat4x4 normalMatrix = transpose(inverse(modelViewMatrix));
+out vec2 v_texcoord;
+out vec3 v_normal;
 
-  // transformation de la normale du sommet dans l'espace de vue
-  surface_normal = vec3(normalMatrix * normal);
+void main() {
+    mat4 instanceMatrix = mat4(
+        instanceMatrixCol0,
+        instanceMatrixCol1,
+        instanceMatrixCol2,
+        instanceMatrixCol3
+    );
 
-  // transformation de la position du sommet dans l'espace de vue
-  surface_position = vec3(modelViewMatrix * position);
+    vec4 worldPosition = instanceMatrix * vec4(position * uniform_scale, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
 
-  vTexCoord = texcoord;
-
-  // transformation de la position du sommet par les matrices de modèle, vue et projection
-  gl_Position = projectionMatrix * modelViewMatrix * position;
+    v_texcoord = texcoord;
+    v_normal = mat3(transpose(inverse(instanceMatrix))) * normal;
 }
