@@ -48,3 +48,5 @@ Makefile
 Projet.xcconfig
 UpgradeLog.htm
 x64/*
+!/models/**
+!/images/**
