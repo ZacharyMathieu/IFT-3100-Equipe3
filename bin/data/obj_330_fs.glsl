@@ -6,10 +6,8 @@
 in vec3 surface_position;
 in vec3 surface_normal;
 
-
 // attribut en sortie
 out vec4 fragment_color;
-
 
 // couleurs de réflexion du matériau
 uniform vec3 color_ambient;
@@ -18,10 +16,8 @@ uniform vec3 color_diffuse;
 // position d'une source de lumière
 uniform vec3 light_position;
 
-
 void main()
 {
-	
   // re-normaliser la normale après interpolation (N)
   vec3 n = normalize(surface_normal);
 

@@ -2,7 +2,7 @@
 
 void SceneController::setup(int x, int y, int w, int h, GridController* gridController)
 {
-	
+
 	ofDisableArbTex();
 	checkPop = false;
 
@@ -10,40 +10,38 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	SCENE_Y = y;
 	SCENE_WIDTH = w;
 	SCENE_HEIGHT = h;
-	wallSize = 1;
+	boxSize = 1;
 
 	updateGridController(gridController);
 
-	scale_ant = 0.005f;
+	scale_ant = 0.002f * boxSize;
 
-	box.set(gridController->scaleX * wallSize, wallSize * 5, gridController->scaleY * wallSize);
-	box.mapTexCoords(0,0,2,2);
+	box.set(boxSize, boxSize * 5, boxSize);
+	box.mapTexCoords(0, 0, 2, 2);
 	boxMesh = box.getMesh();
-	
 
-	antSphere.set(wallSize, 120);
+
+	antSphere.set(boxSize, 64);
 	//vboBoxMeshAnt = antSphere.getMesh();
 
-	cubeMap.load("images/sky.png",2048, false);
-	
+	cubeMap.load("images/sky.png", 2048, false);
 
-	pheromoneSphere.set(wallSize, 12);
+	pheromoneSphere.set(boxSize, 12);
 	vboPheromone = pheromoneSphere.getMesh();
 	slimes.load("models/slimes.obj");
 	slimes.disableMaterials();
-	
+
 	slimesMesh = slimes.getMesh(0);
-	
-	
+
 	crackWall.load("images/crackWall.jpg");
 	glitter.load("images/glitter.jpg");
 	fire.load("images/fire.jpg");
 	wood.load("images/wood.jpg");
 	rock.load("images/rock.jpg");
 	paint.load("images/paint.jpg");
-	
 
-	
+
+
 
 	wallTextures.push_back(wood.getTexture());
 	wallTextures.push_back(crackWall.getTexture());
@@ -51,18 +49,13 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	wallTextures.push_back(paint.getTexture());
 	wallTextures.push_back(glitter.getTexture());
 	wallTextures.push_back(fire.getTexture());
-	
 
-	
-	
 	texture.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
 	texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
-	
 
-	
 	//antModelLoader.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
 	antModelLoader.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
-	
+
 	antTexture.load("models/newAnt4/tex/Ant_color.jpg");
 	antModelLoader.enableTextures();
 
@@ -80,23 +73,22 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	ants.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
 	antMesh = ants.getMesh(0);
 	vboAntMesh = antMesh;
-	ofLog() << vboAntMesh.getTexCoords()[0]; 
+	ofLog() << vboAntMesh.getTexCoords()[0];
 	boxCollider = createBoundingBox(antModelLoader);
 
 	shader_ant.load("ant_330_vs.glsl", "ant_330_fs.glsl");
 	shader_obj.load("obj_330_vs.glsl", "obj_330_fs.glsl");
 	shader_texture_wall.load("texture_wall_330_vs.glsl", "texture_wall_330_fs.glsl");
-	
 
 	shader = shader_obj;
 
 	mainCameraMode = true;
 	mainCamera.lookAt(ofVec3f(antModelLoader.getPosition()));
-	mainCamera.setScale(-1, 1, 1);
+	mainCamera.setScale(-boxSize, boxSize, boxSize);
 	mainCamera.disableMouseInput();
 
 	topCamera.lookAt(ofVec3f(0, -1, 0));
-	topCamera.setScale(0.25, -0.25, 0.25);
+	topCamera.setScale(0.25 * boxSize, -0.25 * boxSize, 0.25 * boxSize);
 	topCamera.enableOrtho();
 	topCamera.disableMouseInput();
 
@@ -104,7 +96,6 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	freeCamera.setPosition(SCENE_WIDTH / 2, 50, SCENE_HEIGHT / 2);
 	freeCamera.lookAt(ofVec3f(0, -1, 0));
 
-	
 	POV.setNearClip(0.1f);
 	POV.disableMouseInput();
 	cameras.push_back(&mainCamera);
@@ -128,6 +119,88 @@ ofxAssimpModelLoader& SceneController::getAntModel()
 	return antModelLoader;
 }
 
+void SceneController::moveFreeCam()
+{
+	ofPoint lookAt = freeCamera.getLookAtDir();
+	if (ofGetKeyPressed(OF_KEY_RIGHT) || ofGetKeyPressed('d')) freeCamPos -= (lookAt.getRotated(90, ofVec3f(0, 1, 0)) * ofVec3f(1, 0, 1)).getNormalized() * FREE_CAMERA_SPEED;
+	if (ofGetKeyPressed(OF_KEY_LEFT) || ofGetKeyPressed('a')) freeCamPos += (lookAt.getRotated(90, ofVec3f(0, 1, 0)) * ofVec3f(1, 0, 1)).getNormalized() * FREE_CAMERA_SPEED;
+	if (ofGetKeyPressed(OF_KEY_UP) || ofGetKeyPressed('w')) freeCamPos += (lookAt * ofVec3f(1, 0, 1)).getNormalized() * FREE_CAMERA_SPEED;
+	if (ofGetKeyPressed(OF_KEY_DOWN) || ofGetKeyPressed('s')) freeCamPos -= (lookAt * ofVec3f(1, 0, 1)).getNormalized() * FREE_CAMERA_SPEED;
+	if (ofGetKeyPressed(' ')) freeCamPos += ofVec3f(0, 1, 0) * FREE_CAMERA_SPEED;
+	if (ofGetKeyPressed(OF_KEY_SHIFT)) freeCamPos -= ofVec3f(0, 1, 0) * FREE_CAMERA_SPEED;
+}
+
+void SceneController::move()
+{
+	//merci ChatGPT pour quelques conseils
+	ofPoint lookAt = POV.getLookAtDir();
+
+	ofVec3f newPos = ant->pos;
+	float newAngle = ant->a;
+
+	if (activeCam == &freeCamera) {
+		moveFreeCam();
+	}
+	else
+	{
+		if (ofGetKeyPressed(OF_KEY_RIGHT) || ofGetKeyPressed('d'))
+		{
+			if (activeCam == &POV) {
+				newPos.x -= ANT_MOVE_SPEED;
+				newPos.y -= ANT_MOVE_SPEED;
+			}
+			else
+			{
+				newPos.x = fmod((newPos.x + (ANT_MOVE_SPEED * 2)), gridController->GRID_WIDTH);
+				newAngle = 0;
+			}
+		}
+		if (ofGetKeyPressed(OF_KEY_LEFT) || ofGetKeyPressed('a'))
+		{
+			if (activeCam == &POV) {
+				newPos.x += ANT_MOVE_SPEED;
+				newPos.y += ANT_MOVE_SPEED;
+
+			}
+			else
+			{
+				newPos.x = fmod((newPos.x - (ANT_MOVE_SPEED * 2) + (float)gridController->GRID_WIDTH), gridController->GRID_WIDTH);
+				newAngle = PI;
+			}
+		}
+		if (ofGetKeyPressed(OF_KEY_UP) || ofGetKeyPressed('w'))
+		{
+			if (activeCam == &POV) {
+				newPos.x += ANT_MOVE_SPEED;
+				newPos.y += ANT_MOVE_SPEED;
+
+			}
+			else {
+				newPos.y = fmod((newPos.y + (ANT_MOVE_SPEED * 2)), gridController->GRID_HEIGHT);
+				newAngle = HALF_PI;
+			}
+		}
+		if (ofGetKeyPressed(OF_KEY_DOWN) || ofGetKeyPressed('s'))
+		{
+			if (activeCam == &POV) {
+				newPos.x -= ANT_MOVE_SPEED;
+				newPos.y -= ANT_MOVE_SPEED;
+			}
+			else
+			{
+				newPos.y = fmod((newPos.y - (ANT_MOVE_SPEED * 2) + gridController->GRID_HEIGHT), gridController->GRID_HEIGHT);
+				newAngle = 3 * HALF_PI;
+			}
+		}
+
+		if (!checkCollision(newPos))
+		{
+			ant->a = newAngle;
+			ant->pos = newPos;
+		}
+	}
+}
+
 void SceneController::update()
 {
 	antModelLoader.enableMaterials();
@@ -135,119 +208,39 @@ void SceneController::update()
 	centreY = ofGetHeight() / 2.0f;
 
 	antModelLoader.setScale(scale_ant, -scale_ant, scale_ant);
-	
 
 	boxCollider.setPosition(antModelLoader.getPosition());
-	ofVec3f newPos = ant->pos;
-	float newAngle = ant->a;
-	int keysPressed = 0;
 
-	//merci ChatGPT pour quelques conseils
-	glm::vec3 lookDir = glm::normalize(POV.getLookAtDir()); 
+	move();
 
-	glm::vec3 forward = glm::normalize(glm::vec3(lookDir.x, 0, lookDir.z)); 
-	glm::vec3 right = glm::normalize(glm::vec3(forward.z, 0, -forward.x)); 
-
-	if (ofGetKeyPressed(OF_KEY_RIGHT) || ofGetKeyPressed(100))
-	{
-
-		if (activeCam == &POV) {
-			newPos.x -= right.x * (ANT_MOVE_SPEED * 2);
-			newPos.y -= right.z * (ANT_MOVE_SPEED * 2);
-			
-		}
-		else {
-			newPos.x = fmod((newPos.x + (ANT_MOVE_SPEED * 2)), gridController->GRID_WIDTH);
-			newAngle = 0;
-			keysPressed++;
-
-		}
-	}
-
-	if (ofGetKeyPressed(OF_KEY_LEFT) || ofGetKeyPressed(97))
-	{
-		if (activeCam == &POV) {
-			newPos.x += right.x * (ANT_MOVE_SPEED * 2);
-			newPos.y += right.z * (ANT_MOVE_SPEED * 2);
-			
-		}
-		else {
-			newPos.x = fmod((newPos.x - (ANT_MOVE_SPEED * 2) + (float)gridController->GRID_WIDTH), gridController->GRID_WIDTH);
-			newAngle = PI;
-			keysPressed++;
-		}
-	
-	}
-
-	if (ofGetKeyPressed(OF_KEY_UP) || ofGetKeyPressed(119))
-	{
-		if (activeCam == &POV) {
-			newPos.x += forward.x * (ANT_MOVE_SPEED * 2);
-			newPos.y += forward.z * (ANT_MOVE_SPEED * 2);
-			
-		}
-		else {
-			newPos.y = fmod((newPos.y + (ANT_MOVE_SPEED * 2)), gridController->GRID_HEIGHT);
-			newAngle = HALF_PI;
-			keysPressed++;
-		}
-		
-	}
-
-	if (ofGetKeyPressed(OF_KEY_DOWN) || ofGetKeyPressed(115))
-	{
-		if (activeCam == &POV) {
-			newPos.x -= forward.x * (ANT_MOVE_SPEED * 2);
-			newPos.y -= forward.z * (ANT_MOVE_SPEED * 2);
-			
-		}
-		else {
-			newPos.y = fmod((newPos.y - (ANT_MOVE_SPEED * 2) + gridController->GRID_HEIGHT), gridController->GRID_HEIGHT);
-			newAngle = 3 * HALF_PI;
-			keysPressed++;
-		}
-		}
-		
-
-	if (!checkCollision(newPos))
-	{
-		ant->a = newAngle;
-		ant->pos = newPos;
-	}
-
-	
-	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG -90, 0, 1, 0);
+	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG - 90, 0, 1, 0);
 	antModelLoader.setRotation(1, -90, 1, 0, 0);
-	
-	
-	antModelLoader.setPosition(ant->pos.x * gridController->scaleX * wallSize, 1, ant->pos.y * gridController->scaleY * wallSize);
-	
-	mainCamera.setPosition(antModelLoader.getPosition().x, wallSize * 10, antModelLoader.getPosition().z - wallSize * 10);
-	
+
+	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG + 90, 0, 1, 0);
+	antModelLoader.setPosition(ant->pos.x * boxSize, 0, ant->pos.y * boxSize);
+
+	mainCamera.setPosition(antModelLoader.getPosition().x, boxSize * 5, antModelLoader.getPosition().z - boxSize * 10);
+
 	mainCamera.lookAt(antModelLoader.getPosition());
 
-	topCamera.setPosition(antModelLoader.getPosition().x, wallSize * 10, antModelLoader.getPosition().z);
+	topCamera.setPosition(antModelLoader.getPosition().x, boxSize * 10, antModelLoader.getPosition().z);
 
-	
-	float mouseXNormalized = ((ofGetMouseX() / (float)ofGetWidth()) * TWO_PI)/0.5; 
-	float mouseYNormalized = ((ofGetMouseY() / (float)ofGetHeight()) * PI)/2;   
-
+	float mouseXNormalized = ((ofGetMouseX() / (float)ofGetWidth()) * TWO_PI) / 0.5;
+	float mouseYNormalized = ((ofGetMouseY() / (float)ofGetHeight()) * PI) / 2;
 
 	glm::vec3 antPos = antModelLoader.getPosition();
 	glm::vec3 lookTarget = antPos + glm::vec3(cos(mouseXNormalized) * 10.0f,
 		sin(mouseYNormalized) * 5.0f,
 		sin(mouseXNormalized) * 10.0f);
 
-	POV.setPosition(antPos.x, antPos.y +5, antPos.z );
+	POV.setPosition(antPos.x, antPos.y + 5, antPos.z);
 
-	
+
 	POV.lookAt(lookTarget);
 
 	light.setPointLight();
 	light.setDiffuseColor(ofColor(1, 1, 1));
 	light.setSpecularColor(ofColor(191, 191, 191));
-	
-	
 
 	light.setGlobalPosition(centreX, centreY, 255.0f);
 	light.setOrientation(glm::vec3(antModelLoader.getPosition()));
@@ -258,16 +251,13 @@ void SceneController::update()
 	textureAnt.setTextureWrap(GL_REPEAT, GL_REPEAT);
 
 	antModelLoader.update();
-	if (animation) {
-		antModelLoader.getAnimation(1).play();
-		
-	}
-	else {
-		antModelLoader.getAnimation(1).stop();
-		antModelLoader.getAnimation(0).play();
-		
-	}
-	
+	//if (animation) {
+	//	antModelLoader.getAnimation(1).play();
+	//}
+	//else {
+	//	//antModelLoader.getAnimation(1).stop();
+	//	antModelLoader.getAnimation(0).play();
+	//}
 }
 
 void SceneController::draw()
@@ -285,15 +275,16 @@ void SceneController::draw()
 	{
 		ofViewport(fullWidth / 2, 50, fullWidth / 2, ofGetHeight());
 	}
-	
+
 	ofEnableDepthTest();
 	ofEnableLighting();
 	light.enable();
 
+	freeCamera.setPosition(freeCamPos);
 	activeCam->begin();
 	drawScene();
-
 	activeCam->end();
+	freeCamera.setPosition(ofPoint());
 
 	light.disable();
 	ofDisableLighting();
@@ -329,7 +320,6 @@ void SceneController::keyPressed(int key)
 		numCam = (numCam + 1) % cameras.size();
 
 		activeCam = cameras[numCam];
-		
 	}
 }
 
@@ -337,20 +327,19 @@ void SceneController::drawScene()
 {
 	cubeMap.draw();
 	antModelLoader.drawFaces();
-	
+
 	shader_ant.begin();
 
 	// Set uniform values
 	shader_ant.setUniformTexture("texture0", wood.getTexture(), 0);
 	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
 	shader_ant.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
-	
+
 	shader_ant.setUniform3f("color_diffuse", light.getDiffuseColor().r / 255.0f, light.getDiffuseColor().g / 255.0f, light.getDiffuseColor().b / 255.0f);
-	
+
 	shader_ant.setUniform3f("color_specular", light.getSpecularColor().r / 255.0f, light.getSpecularColor().g / 255.0f, light.getSpecularColor().b / 255.0f);
 	shader_ant.setUniform1f("brightness", 10.0f);
-	shader_ant.setUniform1f("uniform_scale", scale_ant/3);
-
+	shader_ant.setUniform1f("uniform_scale", scale_ant / 3);
 
 	// Matrices d'instances
 	std::vector<glm::mat4> instanceMatrices;
@@ -364,9 +353,7 @@ void SceneController::drawScene()
 	}
 
 	if (!instanceMatrices.empty()) {
-		
-
-		// Décomposer les colonnes
+		// Dï¿½composer les colonnes
 		std::vector<glm::vec4> col0, col1, col2, col3;
 		for (const auto& m : instanceMatrices) {
 			col0.push_back(m[0]);
@@ -381,7 +368,6 @@ void SceneController::drawScene()
 		vbo.setAttributeData(5, glm::value_ptr(col1[0]), 4, instanceMatrices.size(), GL_STATIC_DRAW);
 		vbo.setAttributeData(6, glm::value_ptr(col2[0]), 4, instanceMatrices.size(), GL_STATIC_DRAW);
 		vbo.setAttributeData(7, glm::value_ptr(col3[0]), 4, instanceMatrices.size(), GL_STATIC_DRAW);
-
 
 		vbo.setAttributeDivisor(4, 1);
 		vbo.setAttributeDivisor(5, 1);
@@ -408,25 +394,23 @@ void SceneController::drawScene()
 	int x = 0;
 	for (auto& pheromone : pheromonePositions)
 	{
-		
 		pos = get<0>(pheromone);
 		cell = get<1>(pheromone);
 		float color = pheromoneColorCache[pos];
-			x++;
-		visible = objectVisible(pos, RENDER_DISTANCE_PHEROMONES);
+		x++;
 
-		if (!visible)
+		if (objectVisible(pos, RENDER_DISTANCE_PHEROMONES))
 			continue;
 
 		int posX = playMode ? pos.x + ofRandom(-1, 1) : pos.x;
 		int posZ = playMode ? pos.z + ofRandom(-1, 1) : pos.z;
 		int scalePheromone = playMode ? cell->getValueFactor() * +ofRandom(2, 5) : cell->getValueFactor() * 3;
-		
+
 		shader.setUniform3f("translation", posX, pos.y, posZ);
 		shader.setUniform1f("scale_factor", scalePheromone);
 		slimesMesh.draw();
-		
-		//*****Décommenter si on veut ajouter des pheromones autour.***
+
+		//*****Dï¿½commenter si on veut ajouter des pheromones autour.***
 
 		/*shader.setUniform3f("translation", pos.x +ofRandom(-3,3), pos.y, pos.z + ofRandom(-3, 3));
 		shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(1, 4));
@@ -435,7 +419,6 @@ void SceneController::drawScene()
 		shader.setUniform1f("scale_factor", cell->getValueFactor() * +ofRandom(1, 4));
 		slimesMesh.draw();
 		vboPheromone.draw();*/
-		
 	}
 	shader.end();
 
@@ -446,44 +429,42 @@ void SceneController::drawScene()
 	shader_texture_wall.setUniform3f("light_position", light.getGlobalPosition());
 	for (auto& pos : wallPositions)
 	{
-		visible = objectVisible(pos, RENDER_DISTANCE_WALLS);
-
-		if (!visible)
-			continue;
-
-		shader_texture_wall.setUniform3f("translation", pos.x, pos.y, pos.z);
-		shader_texture_wall.setUniform1f("scale_factor", 1);
-		float maxAniso;
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
-		texture.bind();
-		boxMesh.draw(OF_MESH_FILL);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
-		texture.unbind();
-		
+		if (objectVisible(pos, RENDER_DISTANCE_WALLS))
+		{
+			shader_texture_wall.setUniform3f("translation", pos.x, pos.y, pos.z);
+			shader_texture_wall.setUniform1f("scale_factor", 1);
+			float maxAniso;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+			texture.bind();
+			boxMesh.draw(OF_MESH_FILL);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+			texture.unbind();
+		}
 	}
-	
+
 	shader_texture_wall.end();
 
 	ofFill();
 	ofSetLineWidth(10);
 	ofSetColor(250);
-	
+
 	ofPushMatrix();
-	ofTranslate(0, 0, 0); 
-	ofRotateDeg(-90, 1, 0, 0);  
-	ofDrawRectangle(0, 0, SCENE_WIDTH * wallSize, -SCENE_HEIGHT * wallSize);
+	ofTranslate(0, 0, 0);
+	ofRotateDeg(-90, 1, 0, 0);
+	ofSetColor(255, 255, 255, 125);
+	ofDrawRectangle(0, 0, gridController->GRID_WIDTH * boxSize, -gridController->GRID_HEIGHT * boxSize);
 	ofPopMatrix();
 	for (int x = 0; x <= gridController->GRID_WIDTH; x++)
 	{
 		ofSetColor(0);
-		ofDrawLine(x * (gridController->scaleX * wallSize), 0, 0, x * (gridController->scaleX * wallSize), 0, SCENE_HEIGHT * wallSize);
+		ofDrawLine(x * (boxSize), 0, 0, x * (boxSize), 0, gridController->GRID_HEIGHT * boxSize);
 	}
 	for (int z = 0; z <= gridController->GRID_HEIGHT; z++)
 	{
 		ofSetColor(0);
-		ofDrawLine(0, 0, z * (gridController->scaleY * wallSize), SCENE_WIDTH * wallSize, 0, z * (gridController->scaleY * wallSize));
+		ofDrawLine(0, 0, z * (boxSize), gridController->GRID_WIDTH * boxSize, 0, z * (boxSize));
 	}
-	
+
 }
 
 ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
@@ -496,14 +477,14 @@ ofBoxPrimitive SceneController::createBoundingBox(ofxAssimpModelLoader& model)
 
 bool SceneController::checkCollision(glm::vec3 newPos)
 {
-	float halfSize = (wallSize) / 2;
-	if (newPos.x < 0 || newPos.x > SCENE_HEIGHT * wallSize || newPos.z < 0 || newPos.z > SCENE_WIDTH * wallSize)
+	float halfSize = (boxSize) / 2;
+	if (newPos.x < 0 || newPos.x > SCENE_HEIGHT * boxSize || newPos.z < 0 || newPos.z > SCENE_WIDTH * boxSize)
 		return true;
 
 	for (auto& pos : wallPositions)
 	{
-		if (abs(newPos.x - pos.x) < halfSize * gridController->scaleX &&
-			abs(newPos.z - pos.z) < halfSize * gridController->scaleY)
+		if (abs(newPos.x - pos.x) < halfSize &&
+			abs(newPos.z - pos.z) < halfSize)
 		{
 			return true;
 		}
@@ -519,8 +500,8 @@ bool SceneController::objectVisible(glm::vec3 pos, float renderDistance)
 
 void SceneController::updateCellPositions()
 {
-	float sizeBoxX = gridController->scaleX * wallSize;
-	float sizeBoxY = gridController->scaleY * wallSize;
+	float sizeBoxX = boxSize;
+	float sizeBoxY = boxSize;
 	Cell* cell;
 	glm::vec3 position;
 	ofPoint p;
@@ -528,7 +509,6 @@ void SceneController::updateCellPositions()
 
 	wallPositions.clear();
 	pheromonePositions.clear();
-	
 
 	for (y = 0; y < gridController->grid.grid.size(); y++)
 	{
@@ -540,7 +520,7 @@ void SceneController::updateCellPositions()
 				if (abs(boxCollider.getPosition().x - ((x * sizeBoxX) + (sizeBoxX / 2))) < (sizeBoxX * 1.5f) / 2 && abs(boxCollider.getPosition().z - ((y * sizeBoxY) + (sizeBoxY / 2))) < (sizeBoxY * 1.5) / 2)
 					continue;
 
-				position = glm::vec3((x * sizeBoxX) + (sizeBoxX / 2), box.getHeight()/2, (y * sizeBoxY) + (sizeBoxY / 2));
+				position = glm::vec3((x * sizeBoxX) + (sizeBoxX / 2), box.getHeight() / 2, (y * sizeBoxY) + (sizeBoxY / 2));
 
 				wallPositions.push_back(position);
 			}
@@ -558,8 +538,8 @@ void SceneController::updateCellPositions()
 
 void SceneController::updateAntPositions()
 {
-	float sizeBoxX = gridController->scaleX * wallSize;
-	float sizeBoxY = gridController->scaleY * wallSize;
+	float sizeBoxX = boxSize;
+	float sizeBoxY = boxSize;
 	glm::vec3 position;
 	ofPoint posAnt;
 
@@ -574,10 +554,11 @@ void SceneController::updateAntPositions()
 			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 1.0f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
 			antPositions.push_back(position);
-			antAngles.push_back(ant->a * RAD_TO_DEG +180);
+			antAngles.push_back(ant->a * RAD_TO_DEG + 180);
 		}
 	}
 }
+
 void SceneController::bindAntTextures()
 {
 	glActiveTexture(GL_TEXTURE0);

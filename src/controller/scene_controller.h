@@ -19,7 +19,7 @@ namespace std {
 	};
 }
 
-
+constexpr float FREE_CAMERA_SPEED = 0.75;
 
 class SceneController
 {
@@ -35,7 +35,7 @@ public:
 	float RENDER_DISTANCE_ANTS = 300;
 	float centreX;
 	float centreY;
-	int wallSize;
+	float boxSize;
 	bool animation = false;
 	bool checkPop;
 	bool playMode;
@@ -61,7 +61,6 @@ public:
 	ofImage normalMap;
 	ofImage metallicRoughnessMap;
 	
-
 	vector<ofTexture> wallTextures;
 	ofTexture texture;
 	ofTexture textureAnt;
@@ -69,6 +68,7 @@ public:
 	ofEasyCam* activeCam;
 	vector<ofEasyCam*> cameras;
 	int numCam;
+	ofPoint freeCamPos = ofPoint();
 
 	void setup(int x, int y, int w, int h, GridController* gridController);
 	void update();
@@ -107,7 +107,6 @@ private:
 	ofEasyCam* popUpCam;
 	ofEasyCam POV;
 	
-	
 	ofCubeMap cubeMap;
 
 	ofTexture a;
@@ -127,4 +126,6 @@ private:
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
 	bool objectVisible(glm::vec3 pos, float);
+	void move();
+	void moveFreeCam();
 };
