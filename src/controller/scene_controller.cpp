@@ -137,6 +137,9 @@ void SceneController::move()
 
 	ofVec3f newPos = ant->pos;
 	float newAngle = ant->a;
+	glm::vec3 lookDir = glm::normalize(POV.getLookAtDir());
+	glm::vec3 forward = glm::normalize(glm::vec3(lookDir.x, 0, lookDir.z));
+	glm::vec3 right = glm::normalize(glm::vec3(forward.z, 0, -forward.x));
 
 	if (activeCam == &freeCamera) {
 		moveFreeCam();
@@ -146,8 +149,8 @@ void SceneController::move()
 		if (ofGetKeyPressed(OF_KEY_RIGHT) || ofGetKeyPressed('d'))
 		{
 			if (activeCam == &POV) {
-				newPos.x -= ANT_MOVE_SPEED;
-				newPos.y -= ANT_MOVE_SPEED;
+				newPos.x -= right.x * (ANT_MOVE_SPEED * 2);
+				newPos.y -= right.z * (ANT_MOVE_SPEED * 2);
 			}
 			else
 			{
@@ -158,8 +161,8 @@ void SceneController::move()
 		if (ofGetKeyPressed(OF_KEY_LEFT) || ofGetKeyPressed('a'))
 		{
 			if (activeCam == &POV) {
-				newPos.x += ANT_MOVE_SPEED;
-				newPos.y += ANT_MOVE_SPEED;
+				newPos.x += right.x * (ANT_MOVE_SPEED * 2);
+				newPos.y += right.z * (ANT_MOVE_SPEED * 2);
 
 			}
 			else
@@ -171,8 +174,8 @@ void SceneController::move()
 		if (ofGetKeyPressed(OF_KEY_UP) || ofGetKeyPressed('w'))
 		{
 			if (activeCam == &POV) {
-				newPos.x += ANT_MOVE_SPEED;
-				newPos.y += ANT_MOVE_SPEED;
+				newPos.x += forward.x * (ANT_MOVE_SPEED * 2);
+				newPos.y += forward.z * (ANT_MOVE_SPEED * 2);
 
 			}
 			else {
@@ -183,8 +186,8 @@ void SceneController::move()
 		if (ofGetKeyPressed(OF_KEY_DOWN) || ofGetKeyPressed('s'))
 		{
 			if (activeCam == &POV) {
-				newPos.x -= ANT_MOVE_SPEED;
-				newPos.y -= ANT_MOVE_SPEED;
+				newPos.x -= forward.x * (ANT_MOVE_SPEED * 2);
+				newPos.y -= forward.z * (ANT_MOVE_SPEED * 2);
 			}
 			else
 			{
