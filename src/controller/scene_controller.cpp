@@ -16,7 +16,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	scale_ant = 0.002f * boxSize;
 
-	box.set(boxSize, boxSize * 5, boxSize);
+	box.set(gridController->scaleX *boxSize, boxSize * 5, gridController->scaleY * boxSize);
 	box.mapTexCoords(0, 0, 2, 2);
 	boxMesh = box.getMesh();
 
@@ -94,7 +94,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	popUpCam = &topCamera;
 	freeCamera.setPosition(SCENE_WIDTH / 2, 50, SCENE_HEIGHT / 2);
-	freeCamera.lookAt(ofVec3f(0, -1, 0));
+	freeCamera.lookAt(ofVec3f(0, 0, 0));
 
 	POV.setNearClip(0.1f);
 	POV.disableMouseInput();
@@ -219,7 +219,6 @@ void SceneController::update()
 	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG - 90, 0, 1, 0);
 	antModelLoader.setRotation(1, -90, 1, 0, 0);
 
-	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG + 90, 0, 1, 0);
 	antModelLoader.setPosition(ant->pos.x * boxSize, 0, ant->pos.y * boxSize);
 
 	mainCamera.setPosition(antModelLoader.getPosition().x, boxSize * 5, antModelLoader.getPosition().z - boxSize * 10);
@@ -236,7 +235,7 @@ void SceneController::update()
 		sin(mouseYNormalized) * 5.0f,
 		sin(mouseXNormalized) * 10.0f);
 
-	POV.setPosition(antPos.x, antPos.y + 5, antPos.z);
+	POV.setPosition(antPos.x, antPos.y + 2, antPos.z);
 
 
 	POV.lookAt(lookTarget);
@@ -402,12 +401,12 @@ void SceneController::drawScene()
 		float color = pheromoneColorCache[pos];
 		x++;
 
-		if (objectVisible(pos, RENDER_DISTANCE_PHEROMONES))
+		if (!objectVisible(pos, RENDER_DISTANCE_PHEROMONES))
 			continue;
 
 		int posX = playMode ? pos.x + ofRandom(-1, 1) : pos.x;
 		int posZ = playMode ? pos.z + ofRandom(-1, 1) : pos.z;
-		int scalePheromone = playMode ? cell->getValueFactor() * +ofRandom(2, 5) : cell->getValueFactor() * 3;
+		int scalePheromone = playMode ? cell->getValueFactor() * ofRandom(2, 5) : cell->getValueFactor() * 2;
 
 		shader.setUniform3f("translation", posX, pos.y, posZ);
 		shader.setUniform1f("scale_factor", scalePheromone);
