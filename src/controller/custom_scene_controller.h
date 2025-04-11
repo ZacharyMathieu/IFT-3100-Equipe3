@@ -2,10 +2,60 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 #include <ofxAssimpModelLoader.h>
+//pour le filtre d'image
+enum class ConvolutionKernel
+{
+	identity,
+	emboss,
+	sharpen,
+	edge_detect,
+	blur
+};
+
+// kernel de convolution (3x3) : identité
+const std::array<float, 9> convolution_kernel_identity
+{
+  0.0f,  0.0f,  0.0f,
+  0.0f,  1.0f,  0.0f,
+  0.0f,  0.0f,  0.0f
+};
+
+// kernel de convolution (3x3) : aiguiser
+const std::array<float, 9> convolution_kernel_sharpen
+{
+  0.0f, -1.0f,  0.0f,
+ -1.0f,  5.0f, -1.0f,
+  0.0f, -1.0f,  0.0f
+};
+
+// kernel de convolution (3x3) : détection de bordure
+const std::array<float, 9> convolution_kernel_edge_detect
+{
+  0.0f,  1.0f,  0.0f,
+  1.0f, -4.0f,  1.0f,
+  0.0f,  1.0f,  0.0f
+};
+
+// kernel de convolution (3x3) : bosseler
+const std::array<float, 9> convolution_kernel_emboss
+{
+ -2.0f, -1.0f,  0.0f,
+ -1.0f,  1.0f,  1.0f,
+  0.0f,  1.0f,  2.0f
+};
+
+// kernel de convolution (3x3) : flou
+const std::array<float, 9> convolution_kernel_blur
+{
+  1.0f / 9.0f,  1.0f / 9.0f,  1.0f / 9.0f,
+  1.0f / 9.0f,  1.0f / 9.0f,  1.0f / 9.0f,
+  1.0f / 9.0f,  1.0f / 9.0f,  1.0f / 9.0f
+};
 
 class CustomSceneController : public ofBaseApp
 {
 private:
+	ConvolutionKernel ck;
 	ofEasyCam cam;
 	ofLight light;
 	ofCylinderPrimitive plateform;
@@ -15,12 +65,20 @@ private:
 	bool colorChanged;
 	float newAngle = 115.0f;
 	int turnSpeed = 3;
+	bool filterActivated;
 
 
 public:
+	int image_height, image_width;
 	ofxAssimpModelLoader ant;
+	ofxAssimpModelLoader redAnt;
+	ofxAssimpModelLoader greenAnt;
+	vector<ofxAssimpModelLoader*> ants;
+	ofxAssimpModelLoader* activeAnt;
+
 	ofPlanePrimitive rightWall, leftWall, backWall, ceiling,floor, poster, cadrePlane;
 	ofImage posterImg;
+	ofImage posterFilter;
 	ofTexture posterTex;
 	ofxPanel gui;
 	ofParameter<bool> posterChoice;
@@ -28,6 +86,12 @@ public:
 	ofParameter<bool> redTint;
 	ofParameter<bool> greenTint;
 	ofParameter<bool> doubleTint;
+	ofParameter<bool> identite;
+	ofParameter<bool> aiguiser;
+	ofParameter<bool> border;
+	ofParameter<bool> bosseler;
+	ofParameter<bool> flou;
+	
 	ofMaterial* mat;
 
 	ofColor antColor;
@@ -61,6 +125,15 @@ public:
 	void onRedChanged(bool& value);
 	void onGreenChanged(bool& value);
 	void onDoubleChanged(bool& value);
+	void onIdentityChanged(bool& value);
+	void onSharpChanged(bool& value);
+	void onBorderChanged(bool& value);
+	void onEmbossChanged(bool& value);
+	void onBlurChanged(bool& value);
+
+	void filter(ofImage& imgSrc);
 	
 };
+
+
 
