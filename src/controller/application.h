@@ -65,6 +65,7 @@ public:
 	void windowResized(int w, int h) override;
 	void dragEvent(ofDragInfo dragInfo) override;
 	void gotMessage(ofMessage msg) override;
+	
 
 private:
 	CursorMode cursorMode = DEFAULT;
@@ -83,6 +84,7 @@ private:
 	bool isTextureMenuCollapsed = false;
 	bool isCameraMenuCollapsed = false;
 	bool menuHidden = false;
+	
 
 	// Taille du crayon et de la gomme
 	ofParameter<int> eraserSize;

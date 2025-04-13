@@ -9,7 +9,6 @@ void Application::setup()
 	ofSetLogLevel(OF_LOG_VERBOSE);
 
 	gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT);
-
 	sceneController.setup(0 + WINDOW_WIDTH / 2, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT, &gridController);
 
 	setupButtons();
@@ -200,6 +199,7 @@ void Application::draw()
 	drawMenu();
 
 	gridController.draw(sceneController.ant);
+	
 
 	if (showDrawMenu)
 		penGui.draw();
@@ -885,6 +885,7 @@ void Application::changeCameraSelected(int num)
 
 void Application::customAnt()
 {
+
 	if (!antWindow) {
 		ofGLFWWindowSettings settings;
 		settings.setSize(1024, 612);

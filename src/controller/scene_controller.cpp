@@ -261,6 +261,13 @@ void SceneController::update()
 	textureAnt.setTextureWrap(GL_REPEAT, GL_REPEAT);
 
 	antModelLoader.update();
+	if (animation) {
+		antModelLoader.getAnimation(1).play();
+	}
+	else {
+		antModelLoader.getAnimation(1).stop();
+		antModelLoader.getAnimation(0).play();
+	}
 }
 
 void SceneController::draw()
