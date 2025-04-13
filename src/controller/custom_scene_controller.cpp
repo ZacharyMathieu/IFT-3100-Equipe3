@@ -2,8 +2,15 @@
 
 void CustomSceneController::setup()
 {
-    ofEnableLighting();
+    //ofEnableLighting();
     ofSetFrameRate(60);
+
+    leftPos = rightTarget = glm::vec3(49, 0, 0);
+    rightPos = leftTarget = glm::vec3(-49, 0, 0);
+    posterPos = glm::vec3(0, -10, 25);
+    posterTarget = glm::vec3(0, 0, -25);
+    
+
     light.setup();
     light.setSpotlight();
     light.setSpotlightCutOff(25);
@@ -107,8 +114,12 @@ void CustomSceneController::setup()
     plateform.setPosition(0, -48, 0);
 
     // Caméra
-    cam.setDistance(100);
-    cam.lookAt(glm::vec3(0, -10, 0));
+    //cam.setDistance(100);
+
+    firstPos = glm::vec3(0, -10, 100);
+    firstTarget = glm::vec3(0, -10, 0);
+    cam.setPosition(firstPos);
+    cam.lookAt(firstTarget);
 
     gui.setup("Poster");
     posterChoice.setName("Back poster");
@@ -118,16 +129,16 @@ void CustomSceneController::setup()
     //defaultAnt.setName("Default ant color");
    // gui.add(defaultAnt);
    // defaultAnt.addListener(this, &CustomSceneController::onDefaultSelect);
-    blueTint.setName("Base tint");
+    blueTint.setName("Blue eyes");
     gui.add(blueTint);
     blueTint.addListener(this, &CustomSceneController::onBlueChanged);
-    redTint.setName("Normal tint");
+    redTint.setName("Red eyes");
     gui.add(redTint);
     redTint.addListener(this, &CustomSceneController::onRedChanged);
-    greenTint.setName("Metallic tint");
+    greenTint.setName("Green eyes");
     gui.add(greenTint);
     greenTint.addListener(this, &CustomSceneController::onGreenChanged);
-    doubleTint.setName("Roughness tint");
+   /* doubleTint.setName("Roughness tint");
     gui.add(doubleTint);
     doubleTint.addListener(this, &CustomSceneController::onDoubleChanged);
     identite.setName("Identity filter");
@@ -144,7 +155,7 @@ void CustomSceneController::setup()
     gui.add(bosseler);
     flou.setName("blur filter");
     flou.addListener(this, &CustomSceneController::onBlurChanged);
-    gui.add(flou);
+    gui.add(flou);*/
 
     identite = aiguiser = border = bosseler = flou = false;
 
@@ -154,6 +165,9 @@ void CustomSceneController::setup()
     doubleTint = false;
     
     filterActivated = false;
+
+    resetButton.set(ofGetWidth() / 2 - 50, 5,75, 40);
+    cam.disableMouseInput();
 
 }
 
@@ -196,17 +210,32 @@ void CustomSceneController::update()
     else {
         filterActivated = false;
     }
+
+    if (isTransitioning) {
+        float elapsed = ofGetElapsedTimef() - transitionStartTime;
+        float t = ofClamp(elapsed / transitionDuration, 0.0f, 1.0f);
+
+        glm::vec3 currentPos = glm::mix(startPos, endPos, t);
+        glm::vec3 currentTarget = glm::mix(startTarget, endTarget, t);
+
+        cam.setPosition(currentPos);
+        cam.lookAt(currentTarget);
+
+        if (t >= 1.0f) {
+            isTransitioning = false;
+        }
+    }
         
 }
 
 void CustomSceneController::draw()
 {
-    gui.draw();
+    //gui.draw();
     ofEnableDepthTest();
     ofBackground(0);
     cam.begin();
     // Lumière
-    light.enable();
+    //light.enable();
 
     // Dessine les murs (avec couleurs distinctes)
     ofSetColor(180); // Sol gris clair
@@ -254,9 +283,62 @@ void CustomSceneController::draw()
     cam.end();
 
     ofDisableDepthTest(); 
+    if (cam.getPosition() == leftPos || cam.getPosition() == rightPos) {
+        ofFill();
+        ofSetColor(0); // gris clair
+        ofDrawRectangle(resetButton);
+        ofNoFill();
+        ofSetColor(100);
+        ofDrawRectangle(resetButton);
+        ofSetColor(255); // texte noir
+        ofDrawBitmapString("Reset", resetButton.x + 10, resetButton.y + 25);
+    }
     gui.draw();
 
 
+
+}
+void CustomSceneController::mousePressed(int x, int y, int button)
+{
+    uint64_t now = ofGetElapsedTimeMillis();
+    if (button == OF_MOUSE_BUTTON_LEFT) {
+        if (x < ofGetWidth() / 3 && x > 0 && (now - lastClickTime) < doubleClickDelay && cam.getPosition() == firstPos) {
+            
+            startCameraTransition(leftPos, leftTarget);
+
+        }
+        else if (x > 2*(ofGetWidth() / 3) && x < ofGetWidth() && (now - lastClickTime) < doubleClickDelay && cam.getPosition() == firstPos)
+        {
+            startCameraTransition(rightPos, rightTarget);
+        }
+        else if (x > ofGetWidth() / 2 - 100 && x < ofGetWidth() / 2 + 100 && y > ofGetHeight() / 2 - 100 && y < ofGetHeight() / 2 + 100 && cam.getPosition() == firstPos) {
+            
+            startCameraTransition(posterPos, posterTarget);
+        }
+        if (resetButton.inside(x, y)) {
+            if (now - lastClickTime < doubleClickDelay) {
+                // Action de reset
+                ofLogNotice() << "Reset triggered!";
+                resetCamera();
+            }
+        }
+    }
+   
+    lastClickTime = now;
+}
+
+void CustomSceneController::startCameraTransition(glm::vec3 newPos, glm::vec3 newTarget) {
+    startPos = cam.getPosition();
+    startTarget = cam.getTarget().getPosition();
+    endPos = newPos;
+    endTarget = newTarget;
+
+    transitionStartTime = ofGetElapsedTimef();
+    isTransitioning = true;
+}
+void CustomSceneController::resetCamera()
+{
+    startCameraTransition(firstPos, firstTarget);
 }
 void CustomSceneController::onBlueChanged(bool& value)
 {
