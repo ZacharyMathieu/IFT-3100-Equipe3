@@ -8,7 +8,7 @@ void GridController::setup(int x, int y, int w, int h)
 	displayWidth = w;
 	displayHeight = h;
 	drawZonePressed = false;
-	isSelected = false;;
+	isSelected = false;
 	scaleX = ((float)displayWidth) / grid.w;
 	scaleY = ((float)displayHeight) / grid.h;
 	for (int i = 0; i < ANT_COUNT; i++)
@@ -102,8 +102,6 @@ void GridController::drawZone(float x1, float y1, float x2, float y2)
 	ofSetColor(255, 0, 0, 50);
 	ofFill();
 	ofDrawRectangle(x1, y1, x2_clamp - x1, y2_clamp - y1);
-
-
 }
 
 //--------------------------------------------------------------

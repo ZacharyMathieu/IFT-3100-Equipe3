@@ -2,7 +2,6 @@
 
 void SceneController::setup(int x, int y, int w, int h, GridController* gridController)
 {
-
 	ofDisableArbTex();
 	checkPop = false;
 
@@ -16,10 +15,9 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	scale_ant = 0.002f * boxSize;
 
-	box.set(gridController->scaleX *boxSize, boxSize * 5, gridController->scaleY * boxSize);
+	box.set(gridController->scaleX * boxSize, boxSize * 5, gridController->scaleY * boxSize);
 	box.mapTexCoords(0, 0, 2, 2);
 	boxMesh = box.getMesh();
-
 
 	antSphere.set(boxSize, 64);
 	//vboBoxMeshAnt = antSphere.getMesh();
@@ -39,9 +37,6 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	wood.load("images/wood.jpg");
 	rock.load("images/rock.jpg");
 	paint.load("images/paint.jpg");
-
-
-
 
 	wallTextures.push_back(wood.getTexture());
 	wallTextures.push_back(crackWall.getTexture());
@@ -104,8 +99,6 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	cameras.push_back(&POV);
 	numCam = 0;
 	activeCam = cameras[numCam];
-
-
 }
 
 void SceneController::updateGridController(GridController* gridController)
@@ -146,6 +139,7 @@ void SceneController::move()
 	}
 	else
 	{
+		bool moved = false;
 		if (ofGetKeyPressed(OF_KEY_RIGHT) || ofGetKeyPressed('d'))
 		{
 			if (activeCam == &POV) {
@@ -157,6 +151,7 @@ void SceneController::move()
 				newPos.x = fmod((newPos.x + (ANT_MOVE_SPEED * 2)), gridController->GRID_WIDTH);
 				newAngle = 0;
 			}
+			moved = true;
 		}
 		if (ofGetKeyPressed(OF_KEY_LEFT) || ofGetKeyPressed('a'))
 		{
@@ -170,6 +165,7 @@ void SceneController::move()
 				newPos.x = fmod((newPos.x - (ANT_MOVE_SPEED * 2) + (float)gridController->GRID_WIDTH), gridController->GRID_WIDTH);
 				newAngle = PI;
 			}
+			moved = true;
 		}
 		if (ofGetKeyPressed(OF_KEY_UP) || ofGetKeyPressed('w'))
 		{
@@ -182,6 +178,7 @@ void SceneController::move()
 				newPos.y = fmod((newPos.y + (ANT_MOVE_SPEED * 2)), gridController->GRID_HEIGHT);
 				newAngle = HALF_PI;
 			}
+			moved = true;
 		}
 		if (ofGetKeyPressed(OF_KEY_DOWN) || ofGetKeyPressed('s'))
 		{
@@ -194,12 +191,27 @@ void SceneController::move()
 				newPos.y = fmod((newPos.y - (ANT_MOVE_SPEED * 2) + gridController->GRID_HEIGHT), gridController->GRID_HEIGHT);
 				newAngle = 3 * HALF_PI;
 			}
+			moved = true;
 		}
 
 		if (!checkCollision(newPos))
 		{
 			ant->a = newAngle;
 			ant->pos = newPos;
+		}
+		else 
+		{
+			moved = false;
+		}
+
+		if (animation || moved) {
+			antModelLoader.getAnimation(0).stop();
+			antModelLoader.getAnimation(1).play();
+		}
+		else
+		{
+			antModelLoader.getAnimation(1).stop();
+			antModelLoader.getAnimation(0).play();
 		}
 	}
 }
@@ -236,8 +248,6 @@ void SceneController::update()
 		sin(mouseXNormalized) * 10.0f);
 
 	POV.setPosition(antPos.x, antPos.y + 2, antPos.z);
-
-
 	POV.lookAt(lookTarget);
 
 	light.setPointLight();
@@ -253,13 +263,6 @@ void SceneController::update()
 	textureAnt.setTextureWrap(GL_REPEAT, GL_REPEAT);
 
 	antModelLoader.update();
-	//if (animation) {
-	//	antModelLoader.getAnimation(1).play();
-	//}
-	//else {
-	//	//antModelLoader.getAnimation(1).stop();
-	//	antModelLoader.getAnimation(0).play();
-	//}
 }
 
 void SceneController::draw()
