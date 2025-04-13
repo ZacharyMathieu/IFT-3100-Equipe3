@@ -60,12 +60,27 @@ private:
 	ofLight light;
 	ofCylinderPrimitive plateform;
 
+	
 	void openPosterChoicer();
 	bool posterSet;
 	bool colorChanged;
 	float newAngle = 115.0f;
 	int turnSpeed = 3;
 	bool filterActivated;
+
+	uint64_t lastClickTime = 0;
+	const int doubleClickDelay = 200;
+
+	glm::vec3 startPos, endPos;
+	glm::vec3 leftPos, rightPos, firstPos, posterPos;
+	glm::vec3 startTarget, endTarget;
+	glm::vec3 leftTarget, rightTarget, firstTarget, posterTarget;
+
+	float transitionStartTime;
+	float transitionDuration = 2.0f; // secondes
+	bool isTransitioning = false;
+
+	ofRectangle resetButton, rightButton, leftButton;
 
 
 public:
@@ -121,6 +136,9 @@ public:
 	void setup() ;
 	void update() ;
 	void draw();
+	void mousePressed(int x, int y, int button) override;
+	void startCameraTransition(glm::vec3 newPos, glm::vec3 newTarget);
+	void resetCamera();
 	void onBlueChanged(bool& value);
 	void onRedChanged(bool& value);
 	void onGreenChanged(bool& value);
