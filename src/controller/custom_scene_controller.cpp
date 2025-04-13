@@ -17,7 +17,14 @@ void CustomSceneController::setup()
 
     // Load ton modèle
     ant.loadModel("models/sci-fiAnt/ant-SciFi.gltf");
-    ofLog() << "Has texcoords: " << ant.getMesh(0).hasTexCoords();
+    redAnt.loadModel("models/sci-fiAnt2/ant-SciFi.gltf");
+    greenAnt.loadModel("models/sci-fiAnt3/ant-SciFi.gltf");
+
+    ants.push_back(&ant);
+    ants.push_back(&redAnt);
+    ants.push_back(&greenAnt);
+
+    activeAnt = ants[0];
     
 
     shader.load("custom_ant_330_vs.glsl", "custom_ant_330_fs.glsl");
@@ -50,7 +57,7 @@ void CustomSceneController::setup()
 
     texPlateform = imgPlateform.getTexture();
 
-    ant.setPosition(0, -45, 0); // Légèrement au-dessus du sol
+    activeAnt->setPosition(0, -45, 0); // Légèrement au-dessus du sol
 
     // Crée les plans
     float boxSize = 100;
@@ -78,6 +85,12 @@ void CustomSceneController::setup()
 
     poster.setPosition(0, -1, ( - boxSize / 2) +2); 
     poster.rotateDeg(180, 0, 1, 0); 
+
+    image_height = posterImg.getHeight();
+    image_width = posterImg.getWidth();
+
+    
+    posterFilter.allocate(image_width, image_height, OF_IMAGE_COLOR);
 
     // Mur gauche
     leftWall.set(boxSize+20, boxSize);
@@ -117,12 +130,30 @@ void CustomSceneController::setup()
     doubleTint.setName("Roughness tint");
     gui.add(doubleTint);
     doubleTint.addListener(this, &CustomSceneController::onDoubleChanged);
+    identite.setName("Identity filter");
+    identite.addListener(this, &CustomSceneController::onIdentityChanged);
+    gui.add(identite);
+    aiguiser.setName("Sharpen filter");
+    aiguiser.addListener(this, &CustomSceneController::onSharpChanged);
+    gui.add(aiguiser);
+    border.setName("Edge detect filter");
+    border.addListener(this, &CustomSceneController::onBorderChanged);
+    gui.add(border);
+    bosseler.setName("Emboss filter");
+    bosseler.addListener(this, &CustomSceneController::onEmbossChanged);
+    gui.add(bosseler);
+    flou.setName("blur filter");
+    flou.addListener(this, &CustomSceneController::onBlurChanged);
+    gui.add(flou);
+
+    identite = aiguiser = border = bosseler = flou = false;
 
     blueTint = true;
     redTint = false;
     greenTint = false;
     doubleTint = false;
     
+    filterActivated = false;
 
 }
 
@@ -137,10 +168,10 @@ void CustomSceneController::update()
     {
         newAngle += turnSpeed;
     }
-
-	ant.setScale(0.15, 0.15, 0.15);
-	ant.setRotation(0, -90, 1, 0, 0);
-	ant.setRotation(1, newAngle, 0, 0, 1);
+    activeAnt->setPosition(0, -45, 0);
+	activeAnt->setScale(0.15, 0.15, 0.15);
+	activeAnt->setRotation(0, -90, 1, 0, 0);
+	activeAnt->setRotation(1, newAngle, 0, 0, 1);
     plateform.setOrientation(glm::vec3(0, -newAngle, 0));
 
     if (posterChoice)
@@ -148,14 +179,24 @@ void CustomSceneController::update()
         openPosterChoicer();
     }
 
-    ant.update();
-    ant.getAnimation(0).play();
+    activeAnt->update();
+    activeAnt->getAnimation(0).play();
 
     
     light.lookAt(ant.getPosition());
 
     light.setGlobalPosition(glm::vec3(0,40, 0));
 
+    if (identite || aiguiser || bosseler || border || flou) {
+        filter(posterImg);
+        filterActivated = true;
+
+        posterFilter.resize(poster.getWidth(), poster.getHeight());
+    }
+    else {
+        filterActivated = false;
+    }
+        
 }
 
 void CustomSceneController::draw()
@@ -182,9 +223,18 @@ void CustomSceneController::draw()
     cadre.getTexture().unbind();
 
     if (posterSet) {
-        posterImg.getTexture().bind();
-        poster.draw();
-        posterImg.getTexture().unbind();
+        if (filterActivated) {
+            posterFilter.draw(poster.getPosition());
+           /* posterFilter.getTexture().bind();
+            poster.draw();
+            posterFilter.getTexture().unbind();*/
+        }
+        else {
+            posterImg.getTexture().bind();
+            poster.draw();
+            posterImg.getTexture().unbind();
+        }
+        
     }
     
 
@@ -198,23 +248,8 @@ void CustomSceneController::draw()
     texPlateform.bind();
     plateform.draw();
     texPlateform.unbind();
-    // Modèle
-       
-  /* shader.begin();
-   shader.setUniformTexture("baseColorMap", baseColorTexture, 0);
-   shader.setUniformTexture("normalColorMap", normalMapTexture, 1);
-   shader.setUniformTexture("metallicColorMap",metallicTexture, 2);
-   shader.setUniformTexture("roughnessColorMap", roughnessTexture, 3);
-    
-    ant.drawFaces();
-    shader.end();*/
 
-    ant.drawFaces();
-   
-    ofPushMatrix();
-    ofTranslate(light.getPosition());
-    ofDrawAxis(20);
-    ofPopMatrix();
+    activeAnt->drawFaces();
 
     cam.end();
 
@@ -227,6 +262,7 @@ void CustomSceneController::onBlueChanged(bool& value)
 {
     antColor = value;
     if (value) {
+        activeAnt = ants[0];
         redTint = false;
         greenTint = false;
         doubleTint = false;
@@ -237,7 +273,7 @@ void CustomSceneController::onRedChanged(bool& value)
 {
     normalColor = value;
     if (value) {
-         
+        activeAnt = ants[1];
         blueTint = false;
         greenTint = false;
         doubleTint = false;
@@ -248,7 +284,7 @@ void CustomSceneController::onGreenChanged(bool& value)
 {
     metallicColor = value;
     if (value) {
-        metallicTexture = greenEye.getTexture();
+        activeAnt = ants[2];
         blueTint = false;
         redTint = false;
         doubleTint = false;
@@ -259,13 +295,119 @@ void CustomSceneController::onDoubleChanged(bool& value)
 {
     roughnessColor = value;
     if (value) {
-        metallicTexture = doubleColorEye.getTexture();
         blueTint = false;
         redTint = false;
         greenTint = false;
     }
     
 }
+void CustomSceneController::onIdentityChanged(bool& value)
+{
+    identite = value;
+    if (value) {
+        aiguiser = border = bosseler = flou = false;
+        ck = ConvolutionKernel::identity;
+    }
+        
+}
+void CustomSceneController::onSharpChanged(bool& value)
+{
+    aiguiser = value;
+    if (value) {
+        identite = border = bosseler = flou = false;
+        ck = ConvolutionKernel::sharpen;
+    }
+        
+}
+void CustomSceneController::onBorderChanged(bool& value)
+{
+    border = value;
+    if (value) {
+        aiguiser = identite = bosseler = flou = false;
+        ck = ConvolutionKernel::edge_detect;
+    }
+        
+}
+void CustomSceneController::onEmbossChanged(bool& value)
+{
+    bosseler = value;
+    if (value) {
+        aiguiser = border = identite = flou = false;
+        ck = ConvolutionKernel::emboss;
+    }
+       
+}
+void CustomSceneController::onBlurChanged(bool& value)
+{
+    flou = value;
+    if (value) {
+        aiguiser = border = bosseler = identite = false;
+        ck = ConvolutionKernel::blur;
+    }
+        
+}
+void CustomSceneController::filter(ofImage& imgSrc)
+{
+    if (!imgSrc.isAllocated()) return;
+
+    const int kernel_size = 3;
+    const int kernel_offset = kernel_size / 2;
+    const int color_component_count = 3;
+
+    ofPixels& pixel_array_src = imgSrc.getPixels();
+    ofPixels pixel_array_dst = pixel_array_src;  // base copy
+
+    ofColor pixel_color_src;
+    ofColor pixel_color_dst;
+    float sum[color_component_count];
+
+    for (int y = 0; y < image_height; ++y)
+    {
+        for (int x = 0; x < image_width; ++x)
+        {
+            for (int c = 0; c < color_component_count; ++c)
+                sum[c] = 0;
+
+            for (int j = -kernel_offset; j <= kernel_offset; ++j)
+            {
+                for (int i = -kernel_offset; i <= kernel_offset; ++i)
+                {
+                    int xi = x - i;
+                    int yj = y - j;
+
+                    if (xi < 0 || xi >= image_width || yj < 0 || yj >= image_height)
+                        continue;
+
+                    int kernel_index = kernel_size * (j + kernel_offset) + (i + kernel_offset);
+
+                    float kernel_value;
+                    switch (ck)
+                    {
+                    case ConvolutionKernel::identity:    kernel_value = convolution_kernel_identity.at(kernel_index); break;
+                    case ConvolutionKernel::sharpen:     kernel_value = convolution_kernel_sharpen.at(kernel_index); break;
+                    case ConvolutionKernel::edge_detect: kernel_value = convolution_kernel_edge_detect.at(kernel_index); break;
+                    case ConvolutionKernel::emboss:      kernel_value = convolution_kernel_emboss.at(kernel_index); break;
+                    case ConvolutionKernel::blur:        kernel_value = convolution_kernel_blur.at(kernel_index); break;
+                    default: kernel_value = 0.0f; break;
+                    }
+
+                    pixel_color_src = pixel_array_src.getColor(xi, yj);
+
+                    for (int c = 0; c < color_component_count; ++c)
+                        sum[c] += kernel_value * pixel_color_src[c];
+                }
+            }
+
+            for (int c = 0; c < color_component_count; ++c)
+                pixel_color_dst[c] = (int)ofClamp(sum[c], 0, 255);
+
+            pixel_array_dst.setColor(x, y, pixel_color_dst);
+        }
+    }
+
+    posterFilter.setFromPixels(pixel_array_dst);
+}
+
 void CustomSceneController::openPosterChoicer()
 {
     ofFileDialogResult result = ofSystemLoadDialog("Choisir une image");
