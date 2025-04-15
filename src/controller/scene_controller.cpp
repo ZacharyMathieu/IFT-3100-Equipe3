@@ -28,8 +28,36 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	vboPheromone = pheromoneSphere.getMesh();
 	slimes.load("models/slimes.obj");
 	slimes.disableMaterials();
+	for (int i = 0; i < slimes.getNumMeshes(); ++i) {
+		ofMesh mesh = slimes.getMesh(i);
+		ofMatrix4x4 mat = slimes.getMeshHelper(i).matrix;
 
-	slimesMesh = slimes.getMesh(0);
+		// Convertir ofMatrix4x4 en glm::mat4
+		glm::mat4 glmMatrix = glm::make_mat4(mat.getPtr());
+
+		// Extraire la rotation seulement pour les normales (mat3)
+		glm::mat3 glmRot = glm::mat3(glmMatrix);  // coupe les colonnes de translation
+
+		// Appliquer transformation aux vertices
+		vector<glm::vec3> vertices = mesh.getVertices();
+		for (auto& v : vertices) {
+			glm::vec4 transformed = glmMatrix * glm::vec4(v, 1.0f);
+			v = glm::vec3(transformed);
+		}
+		mesh.clearVertices();
+		mesh.addVertices(vertices);
+
+		// Appliquer rotation aux normales
+		vector<glm::vec3> normals = mesh.getNormals();
+		for (auto& n : normals) {
+			n = glm::normalize(glmRot * n);
+		}
+		mesh.clearNormals();
+		mesh.addNormals(normals);
+
+		// Ajouter au mesh final
+		slimesMesh.append(mesh);
+	}
 
 	crackWall.load("images/crackWall.jpg");
 	glitter.load("images/glitter.jpg");
@@ -49,24 +77,51 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
 
 	//antModelLoader.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
-	antModelLoader.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
+	antModelLoader.loadModel("models/sci-fiAnt/ant-SciFi.gltf");
 
 	antTexture.load("models/newAnt4/tex/Ant_color.jpg");
 	antModelLoader.enableTextures();
 
-	albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
-	normalMap.load("models/newAnt3/Textures/material_normal.png");
-	metallicRoughnessMap.load("models/newAnt3/Textures/material_metallicRoughness.png");
+	albedo.load("models/sci-fiAnt/texture/Image_0.png");
+	normalMap.load("models/sci-fiAnt/texture/Image_3.png");
+	metallic.load("models/sci-fiAnt/texture/Image_2.png");
+	roughness.load("models/sci-fiAnt/texture/Image_1.png");
 
-	a = albedo.getTexture();
-	n = normalMap.getTexture();
-	m = metallicRoughnessMap.getTexture();
-	a.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
-	n.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
-	m.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
 
-	ants.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
-	antMesh = ants.getMesh(0);
+	ants.loadModel("models/sci-fiAnt/ant-SciFi.gltf", true);
+	ofMesh antMesh;
+
+	for (int i = 0; i < ants.getNumMeshes(); ++i) {
+		ofMesh mesh = ants.getMesh(i);
+		ofMatrix4x4 mat = ants.getMeshHelper(i).matrix;
+
+		// Convertir ofMatrix4x4 en glm::mat4
+		glm::mat4 glmMatrix = glm::make_mat4(mat.getPtr());
+
+		// Extraire la rotation seulement pour les normales (mat3)
+		glm::mat3 glmRot = glm::mat3(glmMatrix);  // coupe les colonnes de translation
+
+		// Appliquer transformation aux vertices
+		vector<glm::vec3> vertices = mesh.getVertices();
+		for (auto& v : vertices) {
+			glm::vec4 transformed = glmMatrix * glm::vec4(v, 1.0f);
+			v = glm::vec3(transformed);
+		}
+		mesh.clearVertices();
+		mesh.addVertices(vertices);
+
+		// Appliquer rotation aux normales
+		vector<glm::vec3> normals = mesh.getNormals();
+		for (auto& n : normals) {
+			n = glm::normalize(glmRot * n);
+		}
+		mesh.clearNormals();
+		mesh.addNormals(normals);
+
+		// Ajouter au mesh final
+		antMesh.append(mesh);
+	}
+
 	vboAntMesh = antMesh;
 	ofLog() << vboAntMesh.getTexCoords()[0];
 	boxCollider = createBoundingBox(antModelLoader);
@@ -100,7 +155,6 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	numCam = 0;
 	activeCam = cameras[numCam];
 }
-
 void SceneController::updateGridController(GridController* gridController)
 {
 	this->gridController = gridController;
@@ -336,15 +390,14 @@ void SceneController::drawScene()
 	shader_ant.begin();
 
 	// Set uniform values
-	shader_ant.setUniformTexture("texture0", wood.getTexture(), 0);
+	shader_ant.setUniformTexture("albedoMap", albedo.getTexture(), 0);
+	shader_ant.setUniformTexture("normalMap", normalMap.getTexture(), 1);
+	shader_ant.setUniformTexture("metallicMap", metallic.getTexture(), 2);
+	shader_ant.setUniformTexture("roughnessMap", roughness.getTexture(), 3);
 	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
-	shader_ant.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
 
-	shader_ant.setUniform3f("color_diffuse", light.getDiffuseColor().r / 255.0f, light.getDiffuseColor().g / 255.0f, light.getDiffuseColor().b / 255.0f);
-
-	shader_ant.setUniform3f("color_specular", light.getSpecularColor().r / 255.0f, light.getSpecularColor().g / 255.0f, light.getSpecularColor().b / 255.0f);
-	shader_ant.setUniform1f("brightness", 10.0f);
-	shader_ant.setUniform1f("uniform_scale", scale_ant / 3);
+	shader_ant.setUniform3f("view_position", activeCam->getGlobalPosition());
+	shader_ant.setUniform1f("uniform_scale", scale_ant/8);
 
 	// Matrices d'instances
 	std::vector<glm::mat4> instanceMatrices;
@@ -380,8 +433,6 @@ void SceneController::drawScene()
 		vbo.setAttributeDivisor(7, 1);
 
 		// View / Projection
-		shader_ant.setUniformMatrix4f("viewMatrix", activeCam->getModelViewMatrix());
-		shader_ant.setUniformMatrix4f("projectionMatrix", activeCam->getProjectionMatrix());
 
 		vboAntMesh.drawInstanced(OF_MESH_FILL, instanceMatrices.size());
 	}
@@ -556,7 +607,7 @@ void SceneController::updateAntPositions()
 		if (ant != this->ant)
 		{
 			posAnt = ant->pos;
-			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 1.0f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
 			antPositions.push_back(position);
 			antAngles.push_back(ant->a * RAD_TO_DEG + 180);
@@ -564,25 +615,5 @@ void SceneController::updateAntPositions()
 	}
 }
 
-void SceneController::bindAntTextures()
-{
-	glActiveTexture(GL_TEXTURE0);
-	albedo.getTexture().bind(0);
 
-	glActiveTexture(GL_TEXTURE1);
-	normalMap.getTexture().bind(1);
-
-	glActiveTexture(GL_TEXTURE2);
-	metallicRoughnessMap.getTexture().bind(2);
-}
-
-void SceneController::unbindAntTextures()
-{
-	glActiveTexture(GL_TEXTURE0);
-	albedo.getTexture().unbind(0);
-	glActiveTexture(GL_TEXTURE1);
-	normalMap.getTexture().unbind(1);
-	glActiveTexture(GL_TEXTURE2);
-	metallicRoughnessMap.getTexture().unbind(2);
-}
 

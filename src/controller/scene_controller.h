@@ -10,6 +10,8 @@
 #include <grid_controller.h>
 #include <unordered_map>
 #include <glm/gtx/hash.hpp> 
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/transform.hpp"
 namespace std {
 	template <>
 	struct hash<glm::vec3> {
@@ -59,7 +61,8 @@ public:
 	//texture image
 	ofImage albedo;
 	ofImage normalMap;
-	ofImage metallicRoughnessMap;
+	ofImage metallic;
+	ofImage roughness;
 	
 	vector<ofTexture> wallTextures;
 	ofTexture texture;

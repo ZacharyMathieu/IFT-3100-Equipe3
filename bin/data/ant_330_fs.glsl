@@ -1,33 +1,50 @@
-#version 330
+#version 330 core
 
-in vec2 v_texcoord;
-in vec3 v_normal;
+in vec3 vWorldPos;
+in vec3 vNormal;
+in vec2 vTexCoord;
 
-uniform sampler2D texture0;
+out vec4 fragColor;
 
-uniform vec3 color_ambient;
-uniform vec3 color_diffuse;
-uniform vec3 color_specular;
+uniform sampler2D albedoMap;
+uniform sampler2D normalMap;
+uniform sampler2D metallicMap;
+uniform sampler2D roughnessMap;
+
 uniform vec3 light_position;
+uniform vec3 view_position;
 
-uniform float brightness;
-
-out vec4 fragment_color;
+const float PI = 3.14159265359;
 
 void main() {
-    // Normale et direction de la lumière
-    vec3 normal = normalize(v_normal);
-    vec3 lightDir = normalize(light_position); // suppose lumière directionnelle
+    // Simple fetch
+    vec3 albedo = texture(albedoMap, vTexCoord).rgb;
+    float metallic = texture(metallicMap, vTexCoord).r;
+    float roughness = texture(roughnessMap, vTexCoord).r;
+    vec3 normal = texture(normalMap, vTexCoord).rgb * 2.0 - 1.0;
 
-    // Calcul de l'intensité diffuse
-    float diff = max(dot(normal, lightDir), 0.0);
+    // World vectors
+    vec3 N = normalize(normal);
+    vec3 V = normalize(view_position - vWorldPos);
+    vec3 L = normalize(light_position - vWorldPos);
+    vec3 H = normalize(V + L);
 
-    // Couleur de texture
-    vec3 texColor = texture(texture0, v_texcoord).rgb;
+    // Simple fresnel
+    vec3 F0 = mix(vec3(0.04), albedo, metallic);
+    vec3 F = F0 + (1.0 - F0) * pow(1.0 - dot(H, V), 5.0);
 
-    // Résultat final (pas de spéculaire ici, mais tu peux l'ajouter)
-    vec3 finalColor = (color_ambient  +
-                      color_diffuse * diff * brightness) * texColor ;
+    float NdotL = max(dot(N, L), 0.0);
+    vec3 kS = F;
+    vec3 kD = (1.0 - kS) * (1.0 - metallic);
+    vec3 diffuse = kD * albedo / PI;
 
-    fragment_color = vec4(finalColor, 1.0);
+    // Very simple specular approx
+    vec3 specular = kS;
+
+    vec3 radiance = vec3(1.0);
+    vec3 color = (diffuse + specular) * radiance * NdotL;
+
+    color = pow(color, vec3(1.0 / 2.2)); // gamma correct
+
+    fragColor = vec4(color, 1.0);
 }
