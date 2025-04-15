@@ -131,6 +131,7 @@ void CustomSceneController::setup()
     useMaterial.setName("Use material");
     gui.add(useMaterial);
     useMaterial.addListener(this, &CustomSceneController::onUseMaterial);
+    useMaterial = true;
     blueTint.setName("Blue eyes");
     gui.add(blueTint);
     blueTint.addListener(this, &CustomSceneController::onBlueChanged);
@@ -147,6 +148,7 @@ void CustomSceneController::setup()
     noMaterial.setName("No material");
     tintGui.add(noMaterial);
     noMaterial.addListener(this, &CustomSceneController::onNoMaterial);
+    noMaterial = false;
     tintGui.add(upperColor.set("Upper part", ofColor(100, 100, 100), ofColor(0, 0, 0), ofColor(255, 255, 255)));
     tintGui.add(bottomColor.set("Bottom part", ofColor(0, 140, 155), ofColor(0, 0, 0), ofColor(255, 255, 255)));
 
@@ -384,32 +386,11 @@ void CustomSceneController::draw()
 
     }
 
-        /*shader.begin();
-
-        shader.setUniformTexture("baseColorMap", baseColorTexture, 0);
-        shader.setUniformTexture("normalMap", normalMapTexture, 1);
-        shader.setUniformTexture("metallicMap", metallicTexture, 2);
-        shader.setUniformTexture("roughnessMap", roughnessTexture, 3);
-
-        shader.setUniform3f("lightPos", light.getGlobalPosition());
-        shader.setUniform3f("viewPos", cam.getGlobalPosition());
-
-        shader.setUniform3f("tintUpper", upperColorChoice.r/255.0f, upperColorChoice.g / 255.0f, upperColorChoice.b / 255.0f);
-        shader.setUniform3f("tintLower", bottomColorChoice.r / 255.0f, bottomColorChoice.g / 255.0f, bottomColorChoice.b / 255.0f) ;
-
-        activeAnt->drawFaces();
-
-        shader.end();*/
-    
-
     else {
         activeAnt->enableMaterials();
         activeAnt->enableTextures();
         activeAnt->drawFaces();
     }
-
-
-
     cam.end();
 
     light.disable();
@@ -423,7 +404,7 @@ void CustomSceneController::draw()
         ofSetColor(100);
         ofDrawRectangle(resetButton);
         ofSetColor(255); // texte noir
-        ofDrawBitmapString("Reset", resetButton.x + 10, resetButton.y + 25);
+        ofDrawBitmapString("Go Back", resetButton.x + 10, resetButton.y + 25);
     }
 
     drawGUI();
@@ -473,13 +454,8 @@ void CustomSceneController::resetCamera()
 }
 void CustomSceneController::onUseMaterial(bool& value)
 {
-    isMaterial = value;
+    useMaterial = isMaterial = value;
     if (value) {
-        activeAnt = ants[0];
-        blueTint = false;
-        redTint = false;
-        greenTint = false;
-        doubleTint = false;
         noMaterial = false;
     }
 
@@ -489,7 +465,7 @@ void CustomSceneController::onNoMaterial(bool& value)
     noMaterial = value;
     if (value) {
         activeAnt = ants[0];
-        isMaterial = false;
+        isMaterial = useMaterial = false;
     }
 }
 void CustomSceneController::onBlueChanged(bool& value)
@@ -500,7 +476,6 @@ void CustomSceneController::onBlueChanged(bool& value)
         redTint = false;
         greenTint = false;
         doubleTint = false;
-        useMaterial = false;
     }
     
 }
@@ -512,7 +487,6 @@ void CustomSceneController::onRedChanged(bool& value)
         blueTint = false;
         greenTint = false;
         doubleTint = false;
-        useMaterial = false;
     }
     
 }
@@ -524,7 +498,6 @@ void CustomSceneController::onGreenChanged(bool& value)
         blueTint = false;
         redTint = false;
         doubleTint = false;
-        useMaterial = false;
     }
     
 }
@@ -534,7 +507,6 @@ void CustomSceneController::onDoubleChanged(bool& value)
     if (value) {
         blueTint = false;
         redTint = false;
-        useMaterial = false;
         greenTint = false;
     }
     
