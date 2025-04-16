@@ -32,6 +32,7 @@ public:
 	int SCENE_Y;
 	float RENDER_DISTANCE_WALLS = 300;
 	float RENDER_DISTANCE_PHEROMONES = 300;
+	float RENDER_DISTANCE_FOOD = 300;
 	float RENDER_DISTANCE_ANTS = 300;
 	float centreX;
 	float centreY;
@@ -43,7 +44,7 @@ public:
 
 	GridController* gridController;
 	Ant* ant;
-	
+
 	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
 	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
 	ofBoxPrimitive boxCollider;
@@ -60,7 +61,7 @@ public:
 	ofImage albedo;
 	ofImage normalMap;
 	ofImage metallicRoughnessMap;
-	
+
 	vector<ofTexture> wallTextures;
 	ofTexture texture;
 	ofTexture textureAnt;
@@ -98,15 +99,16 @@ private:
 	ofVboMesh vboAntMesh;
 	ofVboMesh vboAntModelLoader;
 	ofSpherePrimitive pheromoneSphere;
-	ofVboMesh vboPheromone;
+	ofSpherePrimitive foodSphere;
+	//ofVboMesh vboPheromone;
 	glm::vec3 boundingSize;
 	ofEasyCam mainCamera;
 	ofEasyCam topCamera;
 	ofEasyCam freeCamera;
-	
+
 	ofEasyCam* popUpCam;
 	ofEasyCam POV;
-	
+
 	ofCubeMap cubeMap;
 
 	ofTexture a;
@@ -120,12 +122,14 @@ private:
 	vector<glm::vec3> wallPositions;
 	vector<glm::vec3> antPositions;
 	vector<tuple<glm::vec3, Cell*>> pheromonePositions;
+	vector<glm::vec3> foodPositions;
 	vector<float> antAngles;
-	
+
 	void drawScene();
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
 	bool objectVisible(glm::vec3 pos, float);
 	void move();
 	void moveFreeCam();
+	ofPoint& movePOV();
 };

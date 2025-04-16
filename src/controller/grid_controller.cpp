@@ -129,8 +129,41 @@ void GridController::mouseMoved(int x, int y)
 {
 }
 
+void GridController::drawOnGrid(int x, int y, CellType material, int drawSize)
+{
+	if ((x - drawSize) >= displayPosX &&
+		(y - drawSize) >= displayPosY &&
+		(x + drawSize) < displayWidth + displayPosX &&
+		(y + drawSize) < displayHeight + displayPosY)
+	{
+		int xOrigine = ((x - drawSize) / scaleX) * scaleX;
+		int yOrigine = ((y - drawSize) / scaleY) * scaleY;
+
+		for (int i = xOrigine; i < xOrigine + (drawSize * 2); i += scaleX)
+		{
+			for (int j = yOrigine; j < yOrigine + (drawSize * 2); j += scaleY)
+			{
+				int gridX = (i - displayPosX) / scaleX;
+				int gridY = (j - displayPosY) / scaleY;
+				if (grid.at(gridX, gridY))
+				{
+					if (grid.at(gridX, gridY)->type != material)
+					{
+						grid.at(gridX, gridY)->type = material;
+						tasCell.push_back(grid.at(gridX, gridY));
+						while (!Redo.empty())
+						{
+							Redo.pop();
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 //--------------------------------------------------------------
-void GridController::mouseDragged(int x, int y, int button, string cursor, int drawSize, int eraserSize)
+void GridController::mouseDragged(int x, int y, int button, string cursor, CellType material, int drawSize, int eraserSize)
 {
 	mouse_current_x = x;
 	mouse_current_y = y;
@@ -139,40 +172,10 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
 		float scaleX = ((float)displayWidth) / grid.w;
 		float scaleY = ((float)displayHeight) / grid.h;
 		
-
 		// changer pheromone en mur
 		if (cursor == "DRAW")
 		{
-			if ((x - drawSize) >= displayPosX &&
-				(y - drawSize) >= displayPosY &&
-				(x + drawSize) < displayWidth + displayPosX &&
-				(y + drawSize) < displayHeight + displayPosY)
-			{
-				int xOrigine = ((x - drawSize) / scaleX) * scaleX;
-				int yOrigine = ((y - drawSize) / scaleY) * scaleY;
-
-				for (int i = xOrigine; i < xOrigine + (drawSize * 2); i += scaleX)
-				{
-					for (int j = yOrigine; j < yOrigine + (drawSize * 2); j += scaleY)
-					{
-						int gridX = (i - displayPosX) / scaleX;
-						int gridY = (j - displayPosY) / scaleY;
-						if (grid.at(gridX, gridY))
-						{
-							if (grid.at(gridX, gridY)->type != WALL)
-							{
-								grid.at(gridX, gridY)->type = WALL;
-								tasCell.push_back(grid.at(gridX, gridY));
-								while (!Redo.empty())
-								{
-									Redo.pop();
-								}
-							}
-						}
-					}
-				}
-				
-			}
+			drawOnGrid(x, y, material, drawSize);
 		}
 		else if (cursor == "ERASE" ) // changer mur en pheromone
 		{
@@ -304,7 +307,6 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, int d
 //--------------------------------------------------------------
 void GridController::mousePressed(int x, int y, int button, string cursor)
 {
-
 	if (cursor == "SELECT" && y > 50) {
 		isSelected = insideZoneSelected(x, y);
 		drawZonePressed = true;
@@ -339,6 +341,7 @@ void GridController::mouseReleased(int x, int y, int button)
 
 		processSelectionZone();
 	}
+
 	if (isSelected) {
 		for (auto& pos : CSposition) {
 			grid.at(pos.first, pos.second)->isSelected = false;
@@ -352,11 +355,9 @@ void GridController::mouseReleased(int x, int y, int button)
 		cells = tasCell;
 		if (cells[0]->type == WALL) {
 			Undo.push({ "DRAW", cells });
-			
 		}
 		else {
 			Undo.push({ "ERASE", cells });
-			
 		}
 	}
 	tasCell.clear();

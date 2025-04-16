@@ -89,7 +89,9 @@ private:
 	ofParameter<int> drawCursorSize;
 
 	// Couleur du crayon
-	ofParameter<ofColor> colorPicker;
+	ofParameterGroup penChoice;
+	ofParameter<bool> wallPenChoice;
+	ofParameter<bool> foodPenChoice;
 
 	//Choix de texture
 	ofParameter<bool> woodPick;
@@ -171,6 +173,8 @@ private:
 	void camerasToFalse();
 	void onTextureSelected(bool &value);
 	void onCameraSelected(bool& value);
+	void onWallSelected(bool& value);
+	void onFoodSelected(bool& value);
 	void undo();
 	void redo();
 	void cameraMode();
