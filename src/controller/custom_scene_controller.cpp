@@ -439,32 +439,39 @@ void CustomSceneController::drawScene()
 }
 void CustomSceneController::mousePressed(int x, int y, int button)
 {
-    uint64_t now = ofGetElapsedTimeMillis();
-    if (button == OF_MOUSE_BUTTON_LEFT) {
-        if (x < ofGetWidth() / 3 && x > 0 && (now - lastClickTime) < doubleClickDelay && cam.getPosition() == firstPos) {
-            
-            startCameraTransition(leftPos, leftTarget);
+    if (button != OF_MOUSE_BUTTON_LEFT) return;
 
-        }
-        else if (x > 2*(ofGetWidth() / 3) && x < ofGetWidth() && (now - lastClickTime) < doubleClickDelay && cam.getPosition() == firstPos)
-        {
+    Ray ray = createRayFromMouse(cam, x, y);
+    glm::vec3 hit;
+    uint64_t now = ofGetElapsedTimeMillis();
+
+    bool isDoubleClick = (now - lastClickTime) < doubleClickDelay;
+    bool isAtStart = cam.getPosition() == firstPos;
+
+    if (isDoubleClick && isAtStart) {
+        ofPlanePrimitive rightWallPlane;
+        rightWallPlane.set(rightWall.getWidth(), rightWall.getHeight());
+        rightWallPlane.setPosition(rightWall.getPosition());
+        rightWallPlane.setOrientation(rightWall.getOrientationEuler());
+
+        if (intersectRay(ray, rightWallPlane, hit)) {
             startCameraTransition(rightPos, rightTarget);
         }
-        else if (x > ofGetWidth() / 2 - 100 && x < ofGetWidth() / 2 + 100 && y > ofGetHeight() / 2 - 100 && y < ofGetHeight() / 2 + 100 && cam.getPosition() == firstPos) {
-            
+        else if (intersectRay(ray, leftWall, hit)) {
+            startCameraTransition(leftPos, leftTarget);
+        }
+        else if (intersectRay(ray, poster, hit)) {
             startCameraTransition(posterPos, posterTarget);
         }
-        if (resetButton.inside(x, y)) {
-            if (now - lastClickTime < doubleClickDelay) {
-                // Action de reset
-                ofLogNotice() << "Reset triggered!";
-                resetCamera();
-            }
-        }
     }
-   
+
+    if (resetButton.inside(x, y) && isDoubleClick) {
+        resetCamera();
+    }
+
     lastClickTime = now;
 }
+
 
 void CustomSceneController::startCameraTransition(glm::vec3 newPos, glm::vec3 newTarget) {
     startPos = cam.getPosition();
@@ -784,3 +791,35 @@ const std::vector<float>& CustomSceneController::getKernelFromEnum(ConvolutionKe
         return identity;
     }
 }
+
+Ray CustomSceneController::createRayFromMouse(ofEasyCam& cam, int mouseX, int mouseY)
+{
+    glm::vec3 nearPoint = cam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
+    glm::vec3 farPoint = cam.screenToWorld(glm::vec3(mouseX, mouseY, 1));
+    glm::vec3 dir = glm::normalize(farPoint - nearPoint);
+
+    return { nearPoint, dir };
+}
+
+bool CustomSceneController::intersectRay(const Ray& ray, ofPlanePrimitive& plane, glm::vec3& hitPoint) {
+    glm::vec3 planeNormal = glm::normalize(glm::vec3(plane.getGlobalTransformMatrix() * glm::vec4(0, 0, 1, 0)));
+    glm::vec3 planePos = plane.getPosition();
+
+    float denom = glm::dot(planeNormal, ray.direction);
+    if (abs(denom) > 1e-6f) {
+        float t = glm::dot(planePos - ray.origin, planeNormal) / denom;
+        if (t >= 0) {
+            hitPoint = ray.origin + t * ray.direction;
+
+            // Transforme en espace local du plan pour test de collision
+            glm::vec3 local = glm::inverse(plane.getGlobalTransformMatrix()) * glm::vec4(hitPoint, 1.0f);
+            float halfW = plane.getWidth() * 0.5f;
+            float halfH = plane.getHeight() * 0.5f;
+
+            return abs(local.x) <= halfW && abs(local.y) <= halfH;
+        }
+    }
+    return false;
+}
+
+

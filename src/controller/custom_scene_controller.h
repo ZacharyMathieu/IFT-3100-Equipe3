@@ -51,6 +51,10 @@ const std::array<float, 9> convolution_kernel_blur
   1.0f / 9.0f,  1.0f / 9.0f,  1.0f / 9.0f,
   1.0f / 9.0f,  1.0f / 9.0f,  1.0f / 9.0f
 };
+struct Ray {
+	glm::vec3 origin;
+	glm::vec3 direction;
+};
 
 class CustomSceneController : public ofBaseApp
 {
@@ -215,6 +219,10 @@ public:
 	void activatedRelief(ofTexture& imgTexture, ofBoxPrimitive& box, ofMesh& boxMesh, ofImage grayscaleImg);
 
 	const std::vector<float>& getKernelFromEnum(ConvolutionKernel kernelType);
+
+	Ray createRayFromMouse(ofEasyCam& cam, int mouseX, int mouseY);
+	bool intersectRayWithBox(const Ray& ray, ofBoxPrimitive& box);
+	bool intersectRayWithPlane(const Ray& ray, ofPlanePrimitive& plane, glm::vec3& hitPoint);
 };
 
 
