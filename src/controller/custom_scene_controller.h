@@ -86,6 +86,11 @@ private:
 
 
 public:
+
+	//miroir
+	ofFbo mirrorFbo;
+	ofCamera mirrorCam;
+
 	int image_height, image_width;
 	ofxAssimpModelLoader ant;
 	ofxAssimpModelLoader redAnt;
@@ -177,6 +182,7 @@ public:
 	void setup() ;
 	void update() ;
 	void draw();
+	void drawScene();
 	void mousePressed(int x, int y, int button) override;
 	void startCameraTransition(glm::vec3 newPos, glm::vec3 newTarget);
 	void resetCamera();

@@ -8,6 +8,9 @@ void CustomSceneController::setup()
 
     ofEnableLighting();
     ofSetFrameRate(60);
+    ofSetVerticalSync(true);
+
+    mirrorFbo.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
 
     leftPos = rightTarget = glm::vec3(49, 0, 0);
     rightPos = leftTarget = glm::vec3(-49, 0, 0);
@@ -89,9 +92,9 @@ void CustomSceneController::setup()
     cadrePlane.setPosition(0, 0, (-boxSize / 2) + 1);
     cadrePlane.rotateDeg(180, 0, 1, 0);
 
-    poster.set(62, 47);
+    poster.set(58, 47);
 
-    poster.setPosition(0, -1, ( - boxSize / 2) +2); 
+    poster.setPosition(1, -1, ( - boxSize / 2)+2 ); 
     poster.rotateDeg(180, 0, 1, 0); 
 
     image_height = posterImg.getHeight();
@@ -229,6 +232,10 @@ void CustomSceneController::setup()
 
 void CustomSceneController::update()
 {
+
+    mirrorCam.setPosition(0, -1, -50 + 2);
+    mirrorCam.lookAt(glm::vec3(0,0,0));
+
     if (ofGetKeyPressed(OF_KEY_RIGHT))
     {
         newAngle -= turnSpeed;
@@ -282,13 +289,41 @@ void CustomSceneController::update()
 
 void CustomSceneController::draw()
 {
-    //gui.draw();
+    mirrorFbo.begin();
     ofEnableDepthTest();
+    ofClear(0);
     ofBackground(0);
-    cam.begin();
-    // Lumière
     light.enable();
+    mirrorCam.begin();
 
+    drawScene();
+
+    mirrorCam.end();
+    light.disable();
+    
+    mirrorFbo.end();
+
+    cam.begin();
+    drawScene();
+    cam.end();
+
+    ofDisableDepthTest();
+    if (cam.getPosition() == leftPos || cam.getPosition() == rightPos || cam.getPosition() == posterPos) {
+        ofFill();
+        ofSetColor(0); // gris clair
+        ofDrawRectangle(resetButton);
+        ofNoFill();
+        ofSetColor(100);
+        ofDrawRectangle(resetButton);
+        ofSetColor(255); // texte noir
+        ofDrawBitmapString("Go Back", resetButton.x + 10, resetButton.y + 25);
+    }
+
+    drawGUI();
+
+}
+void CustomSceneController::drawScene()
+{
     // Dessine les murs (avec couleurs distinctes)
     ofSetColor(180); // Sol gris clair
     floor.draw();
@@ -299,10 +334,14 @@ void CustomSceneController::draw()
     ofSetColor(200); // Mur arrière gris
     backWall.draw();
 
+    mirrorFbo.getTexture().bind();
+    poster.draw();
+    mirrorFbo.getTexture().unbind();
+
     cadre.getTexture().bind();
     cadrePlane.draw();
     cadre.getTexture().unbind();
-    
+
     ofPushMatrix();
     ofTranslate(leftWall.getPosition());
     ofRotateDeg(90, 0, 1, 0);
@@ -319,7 +358,7 @@ void CustomSceneController::draw()
             planeMeshLeft.draw();
             posterImg.getTexture().unbind();
         }
-        
+
     }
     else {
         ofSetColor(leftWallColor);
@@ -340,7 +379,7 @@ void CustomSceneController::draw()
         ofSetColor(rightWallColor);
         planeMeshRight.draw();
     }
-    
+
     ofPopMatrix();
 
     ofSetColor(100);
@@ -391,24 +430,6 @@ void CustomSceneController::draw()
         activeAnt->enableTextures();
         activeAnt->drawFaces();
     }
-    cam.end();
-
-    light.disable();
-
-    ofDisableDepthTest(); 
-    if (cam.getPosition() == leftPos || cam.getPosition() == rightPos || cam.getPosition() == posterPos) {
-        ofFill();
-        ofSetColor(0); // gris clair
-        ofDrawRectangle(resetButton);
-        ofNoFill();
-        ofSetColor(100);
-        ofDrawRectangle(resetButton);
-        ofSetColor(255); // texte noir
-        ofDrawBitmapString("Go Back", resetButton.x + 10, resetButton.y + 25);
-    }
-
-    drawGUI();
-
 }
 void CustomSceneController::mousePressed(int x, int y, int button)
 {
@@ -584,6 +605,10 @@ void CustomSceneController::onColorLeftPick(bool& value)
 }
 void CustomSceneController::onPosterSet(bool& value)
 {
+    if (!posterImg.isAllocated()) {
+        posterSet = posterPick = false;
+        return;
+    }
     posterSet = posterPick = value;
     if (value) {
         colorChoiceLeft = false;
