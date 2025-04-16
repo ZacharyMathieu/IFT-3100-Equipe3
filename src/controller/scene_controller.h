@@ -79,8 +79,6 @@ public:
 	void keyPressed(int key);
 	void updateCellPositions();
 	void updateAntPositions();
-	void bindAntTextures();
-	void unbindAntTextures();
 	void updateGridController(GridController*);
 	ofxAssimpModelLoader& getAntModel();
 

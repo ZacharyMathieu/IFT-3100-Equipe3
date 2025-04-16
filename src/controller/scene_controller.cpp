@@ -77,7 +77,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
 
 	//antModelLoader.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
-	antModelLoader.loadModel("models/sci-fiAnt/ant-SciFi.gltf");
+	antModelLoader.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
 
 	antTexture.load("models/newAnt4/tex/Ant_color.jpg");
 	antModelLoader.enableTextures();
@@ -88,7 +88,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	roughness.load("models/sci-fiAnt/texture/Image_1.png");
 
 
-	ants.loadModel("models/sci-fiAnt/ant-SciFi.gltf", true);
+	ants.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
 	ofMesh antMesh;
 
 	for (int i = 0; i < ants.getNumMeshes(); ++i) {
@@ -282,8 +282,8 @@ void SceneController::update()
 
 	move();
 
-	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG - 90, 0, 1, 0);
 	antModelLoader.setRotation(1, -90, 1, 0, 0);
+	antModelLoader.setRotation(0, ant->a * RAD_TO_DEG - 90, 0, 1, 0);
 
 	antModelLoader.setPosition(ant->pos.x * boxSize, 0, ant->pos.y * boxSize);
 
@@ -397,7 +397,7 @@ void SceneController::drawScene()
 	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
 
 	shader_ant.setUniform3f("view_position", activeCam->getGlobalPosition());
-	shader_ant.setUniform1f("uniform_scale", scale_ant/8);
+	shader_ant.setUniform1f("uniform_scale", scale_ant/2);
 
 	// Matrices d'instances
 	std::vector<glm::mat4> instanceMatrices;
@@ -406,7 +406,8 @@ void SceneController::drawScene()
 
 		glm::mat4 translation = glm::translate(glm::mat4(1.0f), antPositions[i]);
 		glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(antAngles[i]), glm::vec3(0, 1, 0));
-		glm::mat4 modelMatrix = translation * rotation;
+		glm::mat4 rotation2 = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1, 0, 0));
+		glm::mat4 modelMatrix = translation * rotation * rotation2;
 		instanceMatrices.push_back(modelMatrix);
 	}
 
