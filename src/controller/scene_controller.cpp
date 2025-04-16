@@ -558,7 +558,7 @@ void SceneController::updateAntPositions()
 		if (ant != this->ant)
 		{
 			posAnt = ant->pos;
-			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 1.0f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0.5, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
 			antPositions.push_back(position);
 			antAngles.push_back(ant->a * RAD_TO_DEG + 180);
