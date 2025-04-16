@@ -221,8 +221,7 @@ public:
 	const std::vector<float>& getKernelFromEnum(ConvolutionKernel kernelType);
 
 	Ray createRayFromMouse(ofEasyCam& cam, int mouseX, int mouseY);
-	bool intersectRayWithBox(const Ray& ray, ofBoxPrimitive& box);
-	bool intersectRayWithPlane(const Ray& ray, ofPlanePrimitive& plane, glm::vec3& hitPoint);
+	bool intersectRay(const Ray& ray, ofPlanePrimitive& plane, glm::vec3& hitPoint);
 };
 
 
