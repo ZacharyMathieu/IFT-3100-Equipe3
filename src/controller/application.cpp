@@ -1,4 +1,5 @@
 #include "application.h"
+#include <GLFW/glfw3.h>
 
 
 //--------------------------------------------------------------
@@ -10,6 +11,13 @@ void Application::setup()
 
 	gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT);
 	sceneController.setup(0 + WINDOW_WIDTH / 2, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT, &gridController);
+
+	sablierimg.load("images/time-left.png");
+	sablier.pixels = sablierimg.getPixels().getData();
+	sablier.width = sablierimg.getWidth();
+	sablier.height = sablierimg.getHeight();
+
+	sablierCursor = glfwCreateCursor(&sablier, sablier.width, sablier.height);
 
 	setupButtons();
 
@@ -885,8 +893,11 @@ void Application::changeCameraSelected(int num)
 
 void Application::customAnt()
 {
+	auto glfwWindow = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetMainLoop()->getCurrentWindow());
 
 	if (!antWindow) {
+		GLFWwindow* native = glfwWindow->getGLFWWindow(); 
+		glfwSetCursor(native, sablierCursor);
 		ofGLFWWindowSettings settings;
 		settings.setSize(1024, 612);
 		settings.setPosition(ofVec2f(300, 300));
@@ -895,9 +906,12 @@ void Application::customAnt()
 
 		antWindow = ofCreateWindow(settings);
 		antApp = make_shared<CustomSceneController>();
-
 		ofRunApp(antWindow, antApp);
 		ofAddListener(antWindow->events().exit, this, &Application::onAntWindowClosed);
+
+		ofSleepMillis(3000);
+		glfwSetCursor(native, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
+
 	}
 }
 void Application::onAntWindowClosed(ofEventArgs& args)

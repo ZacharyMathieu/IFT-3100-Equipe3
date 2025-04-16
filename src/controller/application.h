@@ -6,6 +6,8 @@
 #include "ofxGui.h"
 #include "scene_controller.h"
 #include "custom_scene_controller.h"
+#include <GLFW/glfw3.h>
+#include "ofAppGLFWWindow.h"
 
 
 #ifndef APPLICATION
@@ -65,7 +67,10 @@ public:
 	void windowResized(int w, int h) override;
 	void dragEvent(ofDragInfo dragInfo) override;
 	void gotMessage(ofMessage msg) override;
-	
+
+	GLFWimage sablier;
+	ofImage sablierimg;
+	GLFWcursor* sablierCursor;
 
 private:
 	CursorMode cursorMode = DEFAULT;

@@ -1,9 +1,15 @@
 #include "custom_scene_controller.h"
+#include <GLFW/glfw3.h>
 
 
 
 void CustomSceneController::setup()
 {
+    auto glfwWindow = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetMainLoop()->getCurrentWindow());
+    GLFWwindow* mainWindow = glfwWindow->getGLFWWindow();
+
+    glfwSetCursor(mainWindow, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
+
     ofDisableArbTex(); // dans setup() AVANT le chargement des images
 
     ofEnableLighting();
