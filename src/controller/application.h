@@ -6,6 +6,8 @@
 #include "ofxGui.h"
 #include "scene_controller.h"
 #include "custom_scene_controller.h"
+#include <GLFW/glfw3.h>
+#include "ofAppGLFWWindow.h"
 
 
 #ifndef APPLICATION
@@ -67,6 +69,10 @@ public:
 	void gotMessage(ofMessage msg) override;
 	
 
+	GLFWimage sablier;
+	ofImage sablierimg;
+	GLFWcursor* sablierCursor;
+
 private:
 	CursorMode cursorMode = DEFAULT;
 	GridController gridController;
@@ -91,7 +97,9 @@ private:
 	ofParameter<int> drawCursorSize;
 
 	// Couleur du crayon
-	ofParameter<ofColor> colorPicker;
+	ofParameterGroup penChoice;
+	ofParameter<bool> wallPenChoice;
+	ofParameter<bool> foodPenChoice;
 
 	//Choix de texture
 	ofParameter<bool> woodPick;
@@ -173,6 +181,8 @@ private:
 	void camerasToFalse();
 	void onTextureSelected(bool &value);
 	void onCameraSelected(bool& value);
+	void onWallSelected(bool& value);
+	void onFoodSelected(bool& value);
 	void undo();
 	void redo();
 	void cameraMode();
