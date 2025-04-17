@@ -1,5 +1,4 @@
 #include "application.h"
-#include <GLFW/glfw3.h>
 
 
 //--------------------------------------------------------------
@@ -12,12 +11,7 @@ void Application::setup()
 	gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT);
 	sceneController.setup(0 + WINDOW_WIDTH / 2, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT, &gridController);
 
-	sablierimg.load("images/time-left.png");
-	sablier.pixels = sablierimg.getPixels().getData();
-	sablier.width = sablierimg.getWidth();
-	sablier.height = sablierimg.getHeight();
 
-	sablierCursor = glfwCreateCursor(&sablier, sablier.width, sablier.height);
 
 	setupButtons();
 
@@ -31,19 +25,11 @@ void Application::setup()
 	// GUI du crayon
 	penGui.setup("Crayon");
 	drawCursorSize.set("Taille du crayon", 5, 1, 50);
+	colorPicker.set("Couleur", ofColor(255, 0, 0), ofColor(0, 0), ofColor(255, 255));
+	//penGui.add(colorPicker);
 	penGui.add(drawCursorSize);
+	//colorPicker.addListener(this, &Application::onColorChanged);
 	drawCursorSize.addListener(this, &Application::onDrawCursorSizeChanged);
-
-	wallPenChoice.set("Wall", true);
-	wallPenChoice.addListener(this, &Application::onWallSelected);
-	penChoice.add(wallPenChoice);
-
-	foodPenChoice.set("Food", false);
-	foodPenChoice.addListener(this, &Application::onFoodSelected);
-	penChoice.add(foodPenChoice);
-
-	penChoice.setName("Pen Choice");
-	penGui.add(penChoice);
 	penGui.setPosition(10, MENU_HEIGHT + 10);
 
 	// GUI de la roue de couleur (seule)
@@ -69,7 +55,7 @@ void Application::setup()
 	textureGui.add(glitterPick);
 	textureGui.add(firePick);
 	textureGui.setPosition(10, MENU_HEIGHT + 10);
-
+	
 	sceneController.texture = sceneController.wallTextures[0];
 	textureSelection.push_back(&woodPick);
 	textureSelection.push_back(&crackWallPick);
@@ -83,6 +69,7 @@ void Application::setup()
 	}
 	texturesToFalse();
 	textureSelection[0]->set(true);
+	
 
 	gui.setup();
 
@@ -108,12 +95,12 @@ void Application::setup()
 	cameraSelection.push_back(&POVCamera);
 
 	cameraGui.add(cameraChoice);
-
+	
 	checkPop = false;
 	checkPop.addListener(this, &Application::onCheckPopChanged);
 
-	cameraGui.setPosition(WINDOW_WIDTH / 2 - cameraGui.getWidth() - 10, MENU_HEIGHT + 10);
-
+	cameraGui.setPosition(WINDOW_WIDTH/2-cameraGui.getWidth()-10, MENU_HEIGHT + 10);
+	
 	for (auto* param : cameraSelection) {
 		param->addListener(this, &Application::onCameraSelected);
 	}
@@ -161,12 +148,12 @@ void Application::setupButtons()
 	{
 		int xPos = i * (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
 		if (std::get<0>(bTuple) == &cameraButton) {
-			std::get<0>(bTuple)->setup(WINDOW_WIDTH / 2, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, std::get<1>(bTuple), std::get<2>(bTuple));
+			std::get<0>(bTuple)->setup(WINDOW_WIDTH/2, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, std::get<1>(bTuple), std::get<2>(bTuple));
 		}
 		else {
 			std::get<0>(bTuple)->setup(xPos, 0, MENU_BUTTON_WIDTH, MENU_HEIGHT, this, std::get<1>(bTuple), std::get<2>(bTuple));
 		}
-
+		
 		buttons.push_back(std::get<0>(bTuple));
 		i++;
 	}
@@ -188,7 +175,7 @@ void Application::drawMenu()
 //--------------------------------------------------------------
 void Application::update()
 {
-
+	
 	sceneController.COLOR_AMBIENT = color_picker_ambient;
 	sceneController.COLOR_DIFFUSE = color_picker_diffuse;
 	sceneController.update();
@@ -205,7 +192,7 @@ void Application::update()
 void Application::draw()
 {
 	drawMenu();
-
+	
 	gridController.draw(sceneController.ant);
 	
 
@@ -280,7 +267,7 @@ void Application::drawCustomCursors()
 			ofShowCursor();
 			SetCursor(LoadCursor(NULL, IDC_CROSS));
 		}
-		else if (cursorMode == DEFAULT) {
+		else if(cursorMode == DEFAULT){
 			ofShowCursor();
 			SetCursor(LoadCursor(NULL, IDC_ARROW));
 		}
@@ -314,8 +301,6 @@ void Application::exit()
 //--------------------------------------------------------------
 void Application::keyPressed(int key)
 {
-	sceneController.keyPressed(key);
-
 	if (key == 'z') {
 		gridController.keyPressed(key);
 	}
@@ -324,8 +309,11 @@ void Application::keyPressed(int key)
 	}
 	if (key == 'c')
 	{
+		sceneController.keyPressed(key);
 		changeCameraSelected(sceneController.numCam);
 	}
+
+	//sceneController.keyPressed(key);
 }
 
 //--------------------------------------------------------------
@@ -344,16 +332,11 @@ void Application::mouseDragged(int x, int y, int button)
 	gridController.mouse_current_x = x;
 	gridController.mouse_current_y = y;
 	string cursor;
-	CellType material = WALL;
 
 	switch (cursorMode)
 	{
 	case DRAW:
 		cursor = "DRAW";
-		if (wallPenChoice)
-			material = WALL;
-		else if (foodPenChoice)
-			material = FOOD;
 		break;
 	case ERASE:
 		cursor = "ERASE";
@@ -366,7 +349,7 @@ void Application::mouseDragged(int x, int y, int button)
 		break;
 	}
 
-	gridController.mouseDragged(x, y, button, cursor, material, drawCursorSize, eraserSize);
+	gridController.mouseDragged(x, y, button, cursor, drawCursorSize, eraserSize);
 }
 
 //--------------------------------------------------------------
@@ -377,10 +360,10 @@ void Application::mousePressed(int x, int y, int button)
 	gridController.mouse_current_x = x;
 	gridController.mouse_current_y = y;
 
-	if (y < MENU_HEIGHT && x < (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN) * (buttons.size() - 1) || y < MENU_HEIGHT && x < MENU_BUTTON_WIDTH + (WINDOW_WIDTH / 2) && x > WINDOW_WIDTH / 2)
+	if (y < MENU_HEIGHT && x < (MENU_BUTTON_WIDTH+ MENU_BUTTON_MARGIN)*(buttons.size()-1) || y < MENU_HEIGHT && x < MENU_BUTTON_WIDTH + (WINDOW_WIDTH/2) && x > WINDOW_WIDTH/2)
 	{
 		int buttonNumber = x / (MENU_BUTTON_WIDTH + MENU_BUTTON_MARGIN);
-		if (buttonNumber > buttons.size() - 1) buttonNumber = buttons.size() - 1;
+		if (buttonNumber > buttons.size()-1) buttonNumber = buttons.size() -1 ;
 		Button* pressedButton = buttons[buttonNumber];
 
 		// Toggle (ouverture/fermeture) pour chaque menu
@@ -402,7 +385,7 @@ void Application::mousePressed(int x, int y, int button)
 			showColorMenu = false;
 			showCameraMenu = false;
 			cursorMode = showDrawMenu ? DRAW : DEFAULT;
-
+			
 			return;
 		}
 		if (pressedButton == &penTypeChoiceButton)
@@ -434,7 +417,7 @@ void Application::mousePressed(int x, int y, int button)
 			showColorMenu = false;
 			showTextureMenu = false;
 			cursorMode = DEFAULT;
-
+			
 			return;
 
 		}
@@ -448,7 +431,7 @@ void Application::mousePressed(int x, int y, int button)
 			customAnt();
 			return;
 		}
-
+		 
 
 
 		// Si on clique ailleurs, tout fermer
@@ -514,7 +497,7 @@ void Application::mousePressed(int x, int y, int button)
 
 	if (showTextureMenu)
 	{
-
+		
 	}
 
 	// Vérifier si on clique sur la flêche du menu du crayon
@@ -752,7 +735,7 @@ void Application::camerasToFalse()
 	}
 }
 
-void Application::onTextureSelected(bool& value)
+void Application::onTextureSelected(bool &value)
 {
 	if (value) {
 		int x = 0;
@@ -767,7 +750,6 @@ void Application::onTextureSelected(bool& value)
 		}
 	}
 }
-
 void Application::onCameraSelected(bool& value)
 {
 	if (value) {
@@ -777,8 +759,7 @@ void Application::onCameraSelected(bool& value)
 				param->set(false);
 				x++;
 			}
-			else
-			{
+			else {
 				sceneController.activeCam = sceneController.cameras[x];
 				sceneController.numCam = x;
 			}
@@ -786,34 +767,16 @@ void Application::onCameraSelected(bool& value)
 	}
 }
 
-void Application::onWallSelected(bool& value)
-{
-	if (value || !foodPenChoice)
-	{
-		wallPenChoice.set(true);
-		foodPenChoice.set(false);
-	}
-}
-
-void Application::onFoodSelected(bool& value)
-{
-	if (value || !wallPenChoice)
-	{
-		foodPenChoice.set(true);
-		wallPenChoice.set(false);
-	}
-}
-
 void Application::undo()
 {
-	if (!gridController.Undo.empty())
-		gridController.undo();
+	if(!gridController.Undo.empty())
+	gridController.undo();
 }
 
 void Application::redo()
 {
 	if (!gridController.Redo.empty())
-		gridController.redo();
+	gridController.redo();
 }
 
 void Application::cameraMode()
@@ -825,7 +788,7 @@ void Application::cameraMode()
 	showDrawMenu = false;
 	showTextureMenu = false;
 	ofShowCursor();
-
+	
 }
 
 //void Application::wallPosition3D()
@@ -884,7 +847,7 @@ void Application::onCheckPopChanged(bool& value) {
 
 void Application::changeCameraSelected(int num)
 {
-	for (int i = 0; i < cameraSelection.size(); i++)
+	for (int i = 0; i < cameraSelection.size(); i ++)
 	{
 		if (i == num) cameraSelection[i]->set(true);
 		else cameraSelection[i]->set(false);
@@ -893,11 +856,8 @@ void Application::changeCameraSelected(int num)
 
 void Application::customAnt()
 {
-	auto glfwWindow = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetMainLoop()->getCurrentWindow());
 
 	if (!antWindow) {
-		GLFWwindow* native = glfwWindow->getGLFWWindow(); 
-		glfwSetCursor(native, sablierCursor);
 		ofGLFWWindowSettings settings;
 		settings.setSize(1024, 612);
 		settings.setPosition(ofVec2f(300, 300));
@@ -906,18 +866,15 @@ void Application::customAnt()
 
 		antWindow = ofCreateWindow(settings);
 		antApp = make_shared<CustomSceneController>();
+
 		ofRunApp(antWindow, antApp);
 		ofAddListener(antWindow->events().exit, this, &Application::onAntWindowClosed);
-
-		ofSleepMillis(3000);
-		glfwSetCursor(native, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
-
 	}
 }
 void Application::onAntWindowClosed(ofEventArgs& args)
 {
 	antWindow.reset();
-
+	
 }
 
 
