@@ -19,9 +19,6 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	box.mapTexCoords(0, 0, 2, 2);
 	boxMesh = box.getMesh();
 
-	pheromoneSquare.set(0, 0, gridController->GRID_WIDTH * boxSize, -gridController->GRID_HEIGHT * boxSize);
-	pheromoneMesh = pheromoneSquare.getMesh();
-
 	antSphere.set(boxSize, 64);
 	//vboBoxMeshAnt = antSphere.getMesh();
 
@@ -29,7 +26,6 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	pheromoneSphere.set(boxSize, 12);
 	foodSphere.set(boxSize, 12);
-	foodSphereMesh = foodSphere.getMesh();
 	//vboPheromone = pheromoneSphere.getMesh();
 	slimes.load("models/slimes.obj");
 	slimes.disableMaterials();
@@ -409,7 +405,7 @@ void SceneController::drawScene()
 
 		shader.setUniform3f("translation", foodPos.x, foodPos.y, foodPos.z);
 		shader.setUniform1f("scale_factor", 1);
-		foodSphereMesh.draw();
+		foodSphere.draw();
 	}
 	shader.end();
 
@@ -455,18 +451,16 @@ void SceneController::drawScene()
 
 	glm::vec3 pos;
 	Cell* cell;
-	ofPushMatrix();
 	ofFill();
 	ofRotateDeg(-90, 1, 0, 0);
+	ofPushMatrix();
 	for (auto& pheromone : pheromonePositions)
 	{
 		pos = get<0>(pheromone);
 		cell = get<1>(pheromone);
-		if (!objectVisible(pos, RENDER_DISTANCE_PHEROMONES)) continue;
 
 		ofSetColor(cell->getCellColor(125));
-		ofTranslate(pos.x, 0, -pos.z - 1);
-		pheromoneMesh.draw();
+		ofDrawRectangle(pos.x, -pos.z - 1, boxSize, boxSize);
 	}
 
 	ofTranslate(0, 0, -1e-3 * boxSize);
