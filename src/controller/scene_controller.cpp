@@ -419,11 +419,7 @@ void SceneController::drawScene()
 
 		shader.setUniform3f("translation", foodPos.x, foodPos.y, foodPos.z);
 		shader.setUniform1f("scale_factor", 1);
-<<<<<<< Updated upstream
-		foodSphereMesh.draw();
-=======
 		slimesMesh.drawFaces();
->>>>>>> Stashed changes
 	}
 	shader.end();
 
@@ -469,13 +465,8 @@ void SceneController::drawScene()
 
 	glm::vec3 pos;
 	Cell* cell;
-<<<<<<< Updated upstream
-	ofPushMatrix();
-	ofFill();
-=======
 
 	ofPushMatrix();
->>>>>>> Stashed changes
 	ofRotateDeg(-90, 1, 0, 0);
 	for (auto& pheromone : pheromonePositions)
 	{
@@ -490,13 +481,8 @@ void SceneController::drawScene()
 		ofPushMatrix();
 		ofTranslate(pos.x + (boxSize/2), -pos.z- (boxSize/2), 1e-3 * boxSize);
 		ofSetColor(cell->getCellColor(125));
-<<<<<<< Updated upstream
-		ofTranslate(pos.x, 0, -pos.z - 1);
-		pheromoneMesh.draw();
-=======
 		tilePheromoneMesh.draw();
 		ofPopMatrix();
->>>>>>> Stashed changes
 	}
 
 	ofTranslate(0, 0, -1e-3 * boxSize);
