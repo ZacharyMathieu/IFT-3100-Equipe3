@@ -25,9 +25,6 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	antSphere.set(boxSize, 64);
 	//vboBoxMeshAnt = antSphere.getMesh();
 
-	float width = gridController->GRID_WIDTH * boxSize;
-	float height = gridController->GRID_HEIGHT * boxSize;
-
 	tilePheromone.set(boxSize, boxSize);
 	tilePheromone.setResolution(2, 2); 
 
@@ -474,8 +471,6 @@ void SceneController::drawScene()
 		ofFill();
 		pos = get<0>(pheromone);
 		cell = get<1>(pheromone);
-		if (!objectVisible(pos, RENDER_DISTANCE_PHEROMONES)) continue;
-
 		if (!objectVisible(pos, RENDER_DISTANCE_PHEROMONES)) continue;
 
 		ofPushMatrix();
