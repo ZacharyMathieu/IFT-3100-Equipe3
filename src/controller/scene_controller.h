@@ -85,6 +85,12 @@ public:
 	ofxAssimpModelLoader& getAntModel();
 
 private:
+
+	ofPlanePrimitive tilePheromone;
+	ofVboMesh tilePheromoneMesh;
+	vector<glm::mat4> pheromoneMatrix;
+
+
 	ofShader shader_ant;
 	ofShader shader_obj;
 	ofShader shader_texture_wall;

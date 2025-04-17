@@ -25,6 +25,14 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	antSphere.set(boxSize, 64);
 	//vboBoxMeshAnt = antSphere.getMesh();
 
+	float width = gridController->GRID_WIDTH * boxSize;
+	float height = gridController->GRID_HEIGHT * boxSize;
+
+	tilePheromone.set(boxSize, boxSize);
+	tilePheromone.setResolution(2, 2); 
+
+	tilePheromoneMesh = tilePheromone.getMesh();
+
 	cubeMap.load("images/sky.png", 2048, false);
 
 	pheromoneSphere.set(boxSize, 12);
@@ -34,7 +42,9 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	slimes.load("models/slimes.obj");
 	slimes.disableMaterials();
 
-	slimesMesh = slimes.getMesh(0);
+	for (int i = 0; i < slimes.getMeshCount(); i++) {
+		slimesMesh.append(slimes.getMesh(i));
+	}
 
 	crackWall.load("images/crackWall.jpg");
 	glitter.load("images/glitter.jpg");
@@ -409,7 +419,11 @@ void SceneController::drawScene()
 
 		shader.setUniform3f("translation", foodPos.x, foodPos.y, foodPos.z);
 		shader.setUniform1f("scale_factor", 1);
+<<<<<<< Updated upstream
 		foodSphereMesh.draw();
+=======
+		slimesMesh.drawFaces();
+>>>>>>> Stashed changes
 	}
 	shader.end();
 
@@ -455,18 +469,34 @@ void SceneController::drawScene()
 
 	glm::vec3 pos;
 	Cell* cell;
+<<<<<<< Updated upstream
 	ofPushMatrix();
 	ofFill();
+=======
+
+	ofPushMatrix();
+>>>>>>> Stashed changes
 	ofRotateDeg(-90, 1, 0, 0);
 	for (auto& pheromone : pheromonePositions)
 	{
+		
+		ofFill();
 		pos = get<0>(pheromone);
 		cell = get<1>(pheromone);
 		if (!objectVisible(pos, RENDER_DISTANCE_PHEROMONES)) continue;
 
+		if (!objectVisible(pos, RENDER_DISTANCE_PHEROMONES)) continue;
+
+		ofPushMatrix();
+		ofTranslate(pos.x + (boxSize/2), -pos.z- (boxSize/2), 1e-3 * boxSize);
 		ofSetColor(cell->getCellColor(125));
+<<<<<<< Updated upstream
 		ofTranslate(pos.x, 0, -pos.z - 1);
 		pheromoneMesh.draw();
+=======
+		tilePheromoneMesh.draw();
+		ofPopMatrix();
+>>>>>>> Stashed changes
 	}
 
 	ofTranslate(0, 0, -1e-3 * boxSize);
@@ -517,6 +547,7 @@ void SceneController::updateCellPositions()
 
 	wallPositions.clear();
 	pheromonePositions.clear();
+	foodPositions.clear();
 
 	for (y = 0; y < gridController->grid.grid.size(); y++)
 	{
@@ -540,6 +571,7 @@ void SceneController::updateCellPositions()
 			}
 			else if (cell->type == PHEROMONE && cell->value > 0)
 			{
+
 				position = glm::vec3(x * sizeBoxX, 0, y * sizeBoxY);
 
 				//pheromoneColorCache[position] = ofRandom(0, cell->getValueFactor());
