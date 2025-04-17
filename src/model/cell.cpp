@@ -7,28 +7,17 @@ Cell::Cell(CellType type, float value)
 	isSelected = false;
 }
 
-ofColor& Cell::getCellColor(int alpha)
+ofColor Cell::getCellColor()
 {
-	ofColor c;
 	switch (type)
 	{
 	case WALL:
-		c = *WALL_COLOR;
-		break;
+		return *WALL_COLOR;
 	case PHEROMONE:
-		c = adjustColor(PHEROMONE_COLOR, EMPTY_COLOR);
-		break;
-	case FOOD:
-		c = *FOOD_COLOR;
-		break;
+		return adjustColor(PHEROMONE_COLOR, EMPTY_COLOR);
 	default:
-		c = ofColor(255, 0, 0);
-		break;
+		return ofColor(255, 0, 0);
 	}
-
-	c.a = alpha;
-
-	return c;
 }
 
 float Cell::getValueFactor() {
@@ -38,7 +27,7 @@ float Cell::getValueFactor() {
 ofColor Cell::adjustColor(ofColor* fullColor, ofColor* emptyColor)
 {
 	float r = value / CELL_MAX_VALUE;
-	float rInverse = 1 - r;
+	float rInverse = 1 - value / CELL_MAX_VALUE;
 	return (fullColor->operator*(r)) + (emptyColor->operator*(rInverse));
 }
 
