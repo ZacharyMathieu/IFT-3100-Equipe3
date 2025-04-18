@@ -1,7 +1,4 @@
 #include "custom_scene_controller.h"
-#include <GLFW/glfw3.h>
-
-
 
 void CustomSceneController::setup()
 {
@@ -227,6 +224,11 @@ void CustomSceneController::setup()
     doubleTint = false;
     
     filterActivated = false;
+
+    gui.loadFont("verdana.ttf",12);
+    guiLeft.loadFont("verdana.ttf", 12);
+    guiRight.loadFont("verdana.ttf", 12);
+    tintGui.loadFont("verdana.ttf", 12);
 
     resetButton.set(ofGetWidth() / 2 - 50, 5,75, 40);
     cam.disableMouseInput();
@@ -717,7 +719,7 @@ void CustomSceneController::openPosterChoicer()
 
 void CustomSceneController::drawGUI()
 {
-    //cam.getPosition() == leftPos || cam.getPosition() == rightPos || cam.getPosition() == posterPos;
+    
     if (cam.getPosition() == leftPos)
     {
         guiLeft.draw();

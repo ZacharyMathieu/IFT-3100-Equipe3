@@ -2,6 +2,8 @@
 
 void SceneController::setup(int x, int y, int w, int h, GridController* gridController)
 {
+
+	std::cout << "SETUP STARTED" << std::endl;
 	ofDisableArbTex();
 	checkPop = false;
 
@@ -18,10 +20,10 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	box.set(gridController->scaleX * boxSize, boxSize * 5, gridController->scaleY * boxSize);
 	box.mapTexCoords(0, 0, 2, 2);
 	boxMesh = box.getMesh();
-
-	pheromoneSquare.set(0, 0, gridController->GRID_WIDTH * boxSize, -gridController->GRID_HEIGHT * boxSize);
+	std::cout << "ICI" << std::endl;
+	pheromoneSquare.set(0, 0, gridController->GRID_WIDTH * boxSize, gridController->GRID_HEIGHT * boxSize);
 	pheromoneMesh = pheromoneSquare.getMesh();
-
+	
 	antSphere.set(boxSize, 64);
 	//vboBoxMeshAnt = antSphere.getMesh();
 
@@ -69,7 +71,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
 	normalMap.load("models/newAnt3/Textures/material_normal.png");
 	metallicRoughnessMap.load("models/newAnt3/Textures/material_metallicRoughness.png");
-
+	
 	a = albedo.getTexture();
 	n = normalMap.getTexture();
 	m = metallicRoughnessMap.getTexture();
@@ -86,6 +88,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	shader_obj.load("obj_330_vs.glsl", "obj_330_fs.glsl");
 	shader_texture_wall.load("texture_wall_330_vs.glsl", "texture_wall_330_fs.glsl");
 
+	
 	shader = shader_obj;
 
 	mainCameraMode = true;
@@ -283,6 +286,7 @@ void SceneController::update()
 
 void SceneController::draw()
 {
+
 	int halfHeight = ofGetHeight() / 2;
 	int fullWidth = ofGetWidth();
 

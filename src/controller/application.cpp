@@ -5,6 +5,7 @@
 //--------------------------------------------------------------
 void Application::setup()
 {
+	std::cout << "SETUP STARTED" << std::endl;
 	ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
 	ofSetFrameRate(60);
 	ofSetLogLevel(OF_LOG_VERBOSE);
@@ -12,12 +13,15 @@ void Application::setup()
 	gridController.setup(0, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT);
 	sceneController.setup(0 + WINDOW_WIDTH / 2, MENU_HEIGHT, WINDOW_WIDTH / 2, WINDOW_HEIGHT - MENU_HEIGHT, &gridController);
 
-	sablierimg.load("images/time-left.png");
-	sablier.pixels = sablierimg.getPixels().getData();
-	sablier.width = sablierimg.getWidth();
-	sablier.height = sablierimg.getHeight();
-
-	sablierCursor = glfwCreateCursor(&sablier, sablier.width, sablier.height);
+	if (sablierimg.load("images/time-left.png")) {
+		sablier.pixels = sablierimg.getPixels().getData();
+		sablier.width = sablierimg.getWidth();
+		sablier.height = sablierimg.getHeight();
+		sablierCursor = glfwCreateCursor(&sablier, sablier.width, sablier.height);
+	}
+	else {
+		ofLogError() << "Impossible de charger le curseur sablier !";
+	}
 
 	setupButtons();
 
@@ -119,7 +123,6 @@ void Application::setup()
 	}
 	camerasToFalse();
 	cameraSelection[0]->set(true);
-
 }
 
 //--------------------------------------------------------------

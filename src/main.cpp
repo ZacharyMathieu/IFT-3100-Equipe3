@@ -3,6 +3,7 @@
 
 //========================================================================
 int main( ){
+	std::cout << "MAIN STARTED" << std::endl;
 	ofGLFWWindowSettings settings;
 	settings.setSize(1024, 768);
 	settings.windowMode = OF_WINDOW;

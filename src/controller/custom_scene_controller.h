@@ -1,7 +1,8 @@
 #pragma once
 #include "ofMain.h"
 #include "ofxGui.h"
-#include <ofxAssimpModelLoader.h>
+#include <GLFW/glfw3.h>
+#include "ofxAssimpModelLoader.h"
 //pour le filtre d'image
 enum class ConvolutionKernel
 {
@@ -64,7 +65,7 @@ private:
 	ofLight light;
 	ofCylinderPrimitive plateform;
 
-	
+	ofTrueTypeFont guiFont;
 	
 	
 	bool colorChanged;
