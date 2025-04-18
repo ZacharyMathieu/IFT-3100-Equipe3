@@ -3,6 +3,7 @@
 #include "ofxGui.h"
 #include <GLFW/glfw3.h>
 #include "ofxAssimpModelLoader.h"
+#include <cmath>
 //pour le filtre d'image
 enum class ConvolutionKernel
 {
@@ -64,10 +65,15 @@ private:
 	ofEasyCam cam;
 	ofLight light;
 	ofCylinderPrimitive plateform;
+	
+	//tablette
+	ofBoxPrimitive tablette;
+	ofMesh tabletteMesh;
+	ofMesh tabletteMeshOriginal;
 
-	ofTrueTypeFont guiFont;
-	
-	
+	//courbe
+	vector<glm::vec3> controlPoints;
+
 	bool colorChanged;
 	float newAngle = 115.0f;
 	int turnSpeed = 3;
@@ -88,7 +94,9 @@ private:
 	bool isTransitioning = false;
 
 	ofRectangle resetButton, rightButton, leftButton;
-
+	glm::vec3 catmullRom(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, float t);
+	glm::vec3 bezier(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, float t);
+	void deformTablette();
 
 public:
 
@@ -102,6 +110,7 @@ public:
 	ofxAssimpModelLoader greenAnt;
 	vector<ofxAssimpModelLoader*> ants;
 	ofxAssimpModelLoader* activeAnt;
+	ofxAssimpModelLoader vase;
 
 	float reliefStrength = 5.0f;
 	ofMesh planeMeshRight;
@@ -157,6 +166,10 @@ public:
 	ofParameter<bool> border;
 	ofParameter<bool> bosseler;
 	ofParameter<bool> flou;
+
+	//Gui Catmull
+	ofxPanel controlPointsGui;
+	std::vector<ofParameter<float>> controlPointYSliders;
 
 	ofMaterial* mat;
 
@@ -218,6 +231,7 @@ public:
 	void openPosterChoicer();
 	void drawGUI();
 	void activatedRelief(ofTexture& imgTexture, ofBoxPrimitive& box, ofMesh& boxMesh, ofImage grayscaleImg);
+	void onControlPointYChanged(float& value);
 
 	const std::vector<float>& getKernelFromEnum(ConvolutionKernel kernelType);
 

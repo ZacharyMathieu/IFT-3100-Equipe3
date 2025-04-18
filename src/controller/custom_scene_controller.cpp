@@ -1,5 +1,50 @@
 #include "custom_scene_controller.h"
 
+glm::vec3 CustomSceneController::catmullRom(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, float t)
+{
+    return 0.5f * (
+        2.0f * p1 +
+        (-p0 + p2) * t +
+        (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t * t +
+        (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t * t * t
+        );
+}
+glm::vec3 CustomSceneController::bezier(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, float t)
+{
+    float u = 1.0f - t;
+    float tt = t * t;
+    float uu = u * u;
+    float uuu = uu * u;
+    float ttt = tt * t;
+
+    glm::vec3 point = uuu * p0; // (1 - t)^3 * p0
+    point += 3 * uu * t * p1;   // 3 * (1 - t)^2 * t * p1
+    point += 3 * u * tt * p2;   // 3 * (1 - t) * t^2 * p2
+    point += ttt * p3;          // t^3 * p3
+    return point;
+}
+
+
+void CustomSceneController::deformTablette()
+{
+    if (controlPoints.size() != 4) return;
+
+    tabletteMesh = tabletteMeshOriginal;  // Reset le mesh
+
+    for (int i = 0; i < tabletteMesh.getNumVertices(); ++i) {
+        glm::vec3 v = tabletteMeshOriginal.getVertex(i);
+
+        // Mapping X de -25 à +25 (comme largeur tablette)
+        float tNorm = ofMap(v.x, -25, 25, 0.0f, 1.0f, true);
+        glm::vec3 curved = bezier(controlPoints[0], controlPoints[1], controlPoints[2], controlPoints[3], tNorm);
+
+        // Affecte la courbure à l'axe Y
+        v.y += curved.y;
+        tabletteMesh.setVertex(i, v);
+    }  
+    
+}
+
 void CustomSceneController::setup()
 {
     auto glfwWindow = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetMainLoop()->getCurrentWindow());
@@ -123,6 +168,22 @@ void CustomSceneController::setup()
     plateform.setResolution(64, 1);
     plateform.setPosition(0, -48, 0);
 
+    //tablette
+    tablette.set(50, 2, 10, 50, 10, 1); // (width, height, depth, resX, resY, resZ)
+    
+    tablette.setPosition((boxSize / 2)-5, -20, 0);
+    tabletteMeshOriginal = tablette.getMesh();
+
+    vase.load("models/vase.glb");
+    vase.setPosition(tablette.getPosition().x, tablette.getPosition().y + 5, tablette.getPosition().z);
+    vase.setScale(0.02, -0.02, 0.02);
+
+    controlPoints = {
+    glm::vec3(-25, 0, 0),
+    glm::vec3(-10, 20, 0),
+    glm::vec3(10, -10, 0),
+    glm::vec3(25, 0, 0)
+};
     // Caméra
 
     firstPos = glm::vec3(0, -10, 100);
@@ -225,6 +286,21 @@ void CustomSceneController::setup()
     
     filterActivated = false;
 
+
+    //Gui catmull
+    controlPointsGui.setup("Déformation Tablette");
+    controlPointsGui.setPosition(10, 400); 
+
+    for (int i = 0; i < controlPoints.size(); ++i) {
+        ofParameter<float> slider;
+        slider.set("Pt " + ofToString(i + 1), controlPoints[i].y, -50, 50);
+
+        controlPointYSliders.push_back(slider);
+        controlPointsGui.add(controlPointYSliders.back());
+
+        controlPointYSliders.back().addListener(this, &CustomSceneController::onControlPointYChanged);
+    }
+
     gui.loadFont("verdana.ttf",12);
     guiLeft.loadFont("verdana.ttf", 12);
     guiRight.loadFont("verdana.ttf", 12);
@@ -293,6 +369,13 @@ void CustomSceneController::update()
     leftWallColor = colorPickerLeft;
     
     if (posterChoiceLeft) openPosterChoicer();
+    deformTablette();
+    
+    int index = tabletteMesh.getNumVertices() / 2; // Par exemple, milieu du mesh
+    glm::vec3 vertex = tabletteMesh.getVertex(index);
+
+    glm::vec3 posFinal = vertex + tablette.getPosition() + glm::vec3(0, 5, 0);
+    vase.setPosition(posFinal.x, posFinal.y, posFinal.z);
 }
 
 void CustomSceneController::draw()
@@ -438,6 +521,18 @@ void CustomSceneController::drawScene()
         activeAnt->enableTextures();
         activeAnt->drawFaces();
     }
+    ofPushMatrix();
+    ofTranslate(tablette.getPosition());
+    ofRotateDeg(90, 0, 1, 0);  // Orienter comme le mur droit
+
+    ofSetColor(50);
+    texPlateform.bind();
+    tabletteMesh.draw();
+    texPlateform.unbind();
+    ofPopMatrix();
+
+    vase.drawFaces();
+     
 }
 void CustomSceneController::mousePressed(int x, int y, int button)
 {
@@ -726,6 +821,7 @@ void CustomSceneController::drawGUI()
     }
     else if (cam.getPosition() == rightPos) {
         guiRight.draw();
+        controlPointsGui.draw();
     }
     else if (cam.getPosition() == firstPos) {
         gui.draw();
@@ -768,6 +864,12 @@ void CustomSceneController::activatedRelief(ofTexture& imgTexture, ofBoxPrimitiv
     // Recalcule les UV
     boxMesh.clearTexCoords();
     boxMesh.addTexCoords(box.getMesh().getTexCoords());
+}
+void CustomSceneController::onControlPointYChanged(float& value)
+{
+    for (int i = 0; i < controlPointYSliders.size(); ++i) {
+        controlPoints[i].y = controlPointYSliders[i];
+    }
 }
 const std::vector<float>& CustomSceneController::getKernelFromEnum(ConvolutionKernel kernelType)
 {
