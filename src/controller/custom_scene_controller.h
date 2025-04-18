@@ -67,8 +67,8 @@ private:
 	ofCylinderPrimitive plateform;
 	
 	//tablette
-	ofBoxPrimitive tablette;
-	ofMesh tabletteMesh;
+	ofBoxPrimitive tablette, tablette2;
+	ofMesh tabletteMesh, tablette2Mesh;
 	ofMesh tabletteMeshOriginal;
 
 	//courbe

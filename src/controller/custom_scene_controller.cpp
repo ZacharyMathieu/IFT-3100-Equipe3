@@ -170,12 +170,15 @@ void CustomSceneController::setup()
 
     //tablette
     tablette.set(50, 2, 10, 50, 10, 1); // (width, height, depth, resX, resY, resZ)
-    
+    tablette2.set(50, 2, 10, 50, 10, 1);
     tablette.setPosition((boxSize / 2)-5, -20, 0);
+    tablette2.setPosition(-(boxSize / 2) +5,-20, 0);
+    tablette2Mesh = tablette2.getMesh();
     tabletteMeshOriginal = tablette.getMesh();
+    
 
     vase.load("models/vase.glb");
-    vase.setPosition(tablette.getPosition().x, tablette.getPosition().y + 5, tablette.getPosition().z);
+    vase.setPosition(tablette2.getPosition().x, tablette2.getPosition().y, tablette2.getPosition().z);
     vase.setScale(0.02, -0.02, 0.02);
 
     controlPoints = {
@@ -371,11 +374,6 @@ void CustomSceneController::update()
     if (posterChoiceLeft) openPosterChoicer();
     deformTablette();
     
-    int index = tabletteMesh.getNumVertices() / 2; // Par exemple, milieu du mesh
-    glm::vec3 vertex = tabletteMesh.getVertex(index);
-
-    glm::vec3 posFinal = vertex + tablette.getPosition() + glm::vec3(0, 5, 0);
-    vase.setPosition(posFinal.x, posFinal.y, posFinal.z);
 }
 
 void CustomSceneController::draw()
@@ -531,8 +529,17 @@ void CustomSceneController::drawScene()
     texPlateform.unbind();
     ofPopMatrix();
 
+    ofPushMatrix();
+    ofTranslate(tablette2.getPosition());
+    ofRotateDeg(90, 0, 1, 0);  // Orienter comme le mur droit
+
+    ofSetColor(200);
+    texPlateform.bind();
+    tablette2Mesh.draw();
+    texPlateform.unbind();
+    ofPopMatrix();
+
     vase.drawFaces();
-     
 }
 void CustomSceneController::mousePressed(int x, int y, int button)
 {
