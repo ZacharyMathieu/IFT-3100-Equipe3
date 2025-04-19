@@ -23,11 +23,40 @@ glm::vec3 CustomSceneController::bezier(const glm::vec3& p0, const glm::vec3& p1
     point += ttt * p3;          // t^3 * p3
     return point;
 }
+glm::vec3 CustomSceneController::bezier6(const glm::vec3& p0,
+    const glm::vec3& p1,
+    const glm::vec3& p2,
+    const glm::vec3& p3,
+    const glm::vec3& p4,
+    const glm::vec3& p5,
+    float t)
+{
+    float u = 1.0f - t;
+    float tt = t * t;
+    float ttt = tt * t;
+    float tttt = ttt * t;
+    float ttttt = tttt * t;
+
+    float uu = u * u;
+    float uuu = uu * u;
+    float uuuu = uuu * u;
+    float uuuuu = uuuu * u;
+
+    glm::vec3 point = uuuuu * p0;
+    point += 5 * uuuu * t * p1;
+    point += 10 * uuu * tt * p2;
+    point += 10 * uu * ttt * p3;
+    point += 5 * u * tttt * p4;
+    point += ttttt * p5;
+
+    return point;
+}
+
 
 
 void CustomSceneController::deformTablette()
 {
-    if (controlPoints.size() != 4) return;
+    if (controlPoints.size() != 6) return;
 
     tabletteMesh = tabletteMeshOriginal;  // Reset le mesh
 
@@ -36,7 +65,8 @@ void CustomSceneController::deformTablette()
 
         // Mapping X de -25 à +25 (comme largeur tablette)
         float tNorm = ofMap(v.x, -25, 25, 0.0f, 1.0f, true);
-        glm::vec3 curved = bezier(controlPoints[0], controlPoints[1], controlPoints[2], controlPoints[3], tNorm);
+        glm::vec3 curved = bezier6(controlPoints[0], controlPoints[1], controlPoints[2],
+            controlPoints[3], controlPoints[4], controlPoints[5], tNorm);
 
         // Affecte la courbure à l'axe Y
         v.y += curved.y;
@@ -182,11 +212,14 @@ void CustomSceneController::setup()
     vase.setScale(0.02, -0.02, 0.02);
 
     controlPoints = {
-    glm::vec3(-25, 0, 0),
-    glm::vec3(-10, 20, 0),
-    glm::vec3(10, -10, 0),
-    glm::vec3(25, 0, 0)
-};
+    glm::vec3(-25, 0, 0),    // départ
+    glm::vec3(-15, 20, 0),   // vers le haut
+    glm::vec3(-5, -10, 0),   // vers le bas
+    glm::vec3(5, 10, 0),     // vers le haut
+    glm::vec3(15, -10, 0),   // vers le bas
+    glm::vec3(25, 0, 0)      // fin
+    };
+
     // Caméra
 
     firstPos = glm::vec3(0, -10, 100);
@@ -219,8 +252,8 @@ void CustomSceneController::setup()
     tintGui.add(noMaterial);
     noMaterial.addListener(this, &CustomSceneController::onNoMaterial);
     noMaterial = false;
-    tintGui.add(upperColor.set("Upper part", ofColor(100, 100, 100), ofColor(0, 0, 0), ofColor(255, 255, 255)));
-    tintGui.add(bottomColor.set("Bottom part", ofColor(0, 140, 155), ofColor(0, 0, 0), ofColor(255, 255, 255)));
+    tintGui.add(upperColor.set("Upper part", ofColor(255, 255, 255), ofColor(0, 0, 0), ofColor(255, 255, 255)));
+    tintGui.add(bottomColor.set("Bottom part", ofColor(0, 140, 255), ofColor(0, 0, 0), ofColor(255, 255, 255)));
 
 
     //GUI mur droit
@@ -290,7 +323,7 @@ void CustomSceneController::setup()
     filterActivated = false;
 
 
-    //Gui catmull
+    //Gui Bézier
     controlPointsGui.setup("Déformation Tablette");
     controlPointsGui.setPosition(10, 400); 
 
@@ -302,12 +335,8 @@ void CustomSceneController::setup()
         controlPointsGui.add(controlPointYSliders.back());
 
         controlPointYSliders.back().addListener(this, &CustomSceneController::onControlPointYChanged);
+        controlPointYSliders[i] = 0.0f;
     }
-
-    gui.loadFont("verdana.ttf",12);
-    guiLeft.loadFont("verdana.ttf", 12);
-    guiRight.loadFont("verdana.ttf", 12);
-    tintGui.loadFont("verdana.ttf", 12);
 
     resetButton.set(ofGetWidth() / 2 - 50, 5,75, 40);
     cam.disableMouseInput();
@@ -319,6 +348,10 @@ void CustomSceneController::setup()
 
 void CustomSceneController::update()
 {
+    gui.loadFont("verdana.ttf", 12);
+    guiLeft.loadFont("verdana.ttf", 12);
+    guiRight.loadFont("verdana.ttf", 12);
+    tintGui.loadFont("verdana.ttf", 12);
 
     mirrorCam.setPosition(0, -1, -50 + 2);
     mirrorCam.lookAt(glm::vec3(0,0,0));
@@ -523,7 +556,7 @@ void CustomSceneController::drawScene()
     ofTranslate(tablette.getPosition());
     ofRotateDeg(90, 0, 1, 0);  // Orienter comme le mur droit
 
-    ofSetColor(50);
+    ofSetColor(255);
     texPlateform.bind();
     tabletteMesh.draw();
     texPlateform.unbind();

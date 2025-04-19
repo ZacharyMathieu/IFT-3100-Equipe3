@@ -5,7 +5,6 @@
 //--------------------------------------------------------------
 void Application::setup()
 {
-	std::cout << "SETUP STARTED" << std::endl;
 	ofSetWindowShape(WINDOW_WIDTH, WINDOW_HEIGHT);
 	ofSetFrameRate(60);
 	ofSetLogLevel(OF_LOG_VERBOSE);
@@ -123,6 +122,7 @@ void Application::setup()
 	}
 	camerasToFalse();
 	cameraSelection[0]->set(true);
+	
 }
 
 //--------------------------------------------------------------
@@ -191,6 +191,12 @@ void Application::drawMenu()
 //--------------------------------------------------------------
 void Application::update()
 {
+	gui.loadFont("verdana.ttf", 12);
+	cameraGui.loadFont("verdana.ttf", 12);
+	textureGui.loadFont("verdana.ttf", 12);
+	penGui.loadFont("verdana.ttf", 12);
+	eraserGui.loadFont("verdana.ttf", 12);
+	colorGui.loadFont("verdana.ttf", 12);
 
 	sceneController.COLOR_AMBIENT = color_picker_ambient;
 	sceneController.COLOR_DIFFUSE = color_picker_diffuse;

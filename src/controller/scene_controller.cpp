@@ -2,8 +2,6 @@
 
 void SceneController::setup(int x, int y, int w, int h, GridController* gridController)
 {
-
-	std::cout << "SETUP STARTED" << std::endl;
 	ofDisableArbTex();
 	checkPop = false;
 
@@ -20,7 +18,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	box.set(gridController->scaleX * boxSize, boxSize * 5, gridController->scaleY * boxSize);
 	box.mapTexCoords(0, 0, 2, 2);
 	boxMesh = box.getMesh();
-	std::cout << "ICI" << std::endl;
+
 	pheromoneSquare.set(0, 0, gridController->GRID_WIDTH * boxSize, gridController->GRID_HEIGHT * boxSize);
 	pheromoneMesh = pheromoneSquare.getMesh();
 	

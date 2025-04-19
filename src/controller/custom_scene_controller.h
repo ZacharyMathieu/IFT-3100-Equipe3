@@ -96,6 +96,7 @@ private:
 	ofRectangle resetButton, rightButton, leftButton;
 	glm::vec3 catmullRom(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, float t);
 	glm::vec3 bezier(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, float t);
+	glm::vec3 bezier6(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& p4, const glm::vec3& p5, float t);
 	void deformTablette();
 
 public:
