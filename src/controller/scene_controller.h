@@ -31,7 +31,7 @@ public:
 	int SCENE_X;
 	int SCENE_Y;
 	float RENDER_DISTANCE_WALLS = 300;
-	float RENDER_DISTANCE_PHEROMONES = 300;
+	float RENDER_DISTANCE_PHEROMONES = 50;
 	float RENDER_DISTANCE_FOOD = 300;
 	float RENDER_DISTANCE_ANTS = 300;
 	float centreX;
@@ -48,6 +48,8 @@ public:
 	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
 	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
 	ofBoxPrimitive boxCollider;
+	ofPlanePrimitive pheromoneSquare;
+	ofVboMesh pheromoneMesh;
 
 	ofImage wood;
 	ofImage crackWall;
@@ -83,6 +85,12 @@ public:
 	ofxAssimpModelLoader& getAntModel();
 
 private:
+
+	ofPlanePrimitive tilePheromone;
+	ofVboMesh tilePheromoneMesh;
+	vector<glm::mat4> pheromoneMatrix;
+
+
 	ofShader shader_ant;
 	ofShader shader_obj;
 	ofShader shader_texture_wall;
@@ -100,6 +108,7 @@ private:
 	ofVboMesh vboAntModelLoader;
 	ofSpherePrimitive pheromoneSphere;
 	ofSpherePrimitive foodSphere;
+	ofVboMesh foodSphereMesh;
 	//ofVboMesh vboPheromone;
 	glm::vec3 boundingSize;
 	ofEasyCam mainCamera;

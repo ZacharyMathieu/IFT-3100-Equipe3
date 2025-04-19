@@ -6,6 +6,8 @@
 #include "ofxGui.h"
 #include "scene_controller.h"
 #include "custom_scene_controller.h"
+#include <GLFW/glfw3.h>
+#include "ofAppGLFWWindow.h"
 
 
 #ifndef APPLICATION
@@ -66,6 +68,10 @@ public:
 	void dragEvent(ofDragInfo dragInfo) override;
 	void gotMessage(ofMessage msg) override;
 
+	GLFWimage sablier;
+	ofImage sablierimg;
+	GLFWcursor* sablierCursor;
+
 private:
 	CursorMode cursorMode = DEFAULT;
 	GridController gridController;
@@ -83,6 +89,7 @@ private:
 	bool isTextureMenuCollapsed = false;
 	bool isCameraMenuCollapsed = false;
 	bool menuHidden = false;
+	
 
 	// Taille du crayon et de la gomme
 	ofParameter<int> eraserSize;

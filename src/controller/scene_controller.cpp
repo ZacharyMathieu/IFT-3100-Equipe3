@@ -19,18 +19,29 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	box.mapTexCoords(0, 0, 2, 2);
 	boxMesh = box.getMesh();
 
+	pheromoneSquare.set(0, 0, gridController->GRID_WIDTH * boxSize, gridController->GRID_HEIGHT * boxSize);
+	pheromoneMesh = pheromoneSquare.getMesh();
+	
 	antSphere.set(boxSize, 64);
 	//vboBoxMeshAnt = antSphere.getMesh();
+
+	tilePheromone.set(boxSize, boxSize);
+	tilePheromone.setResolution(2, 2); 
+
+	tilePheromoneMesh = tilePheromone.getMesh();
 
 	cubeMap.load("images/sky.png", 2048, false);
 
 	pheromoneSphere.set(boxSize, 12);
 	foodSphere.set(boxSize, 12);
+	foodSphereMesh = foodSphere.getMesh();
 	//vboPheromone = pheromoneSphere.getMesh();
 	slimes.load("models/slimes.obj");
 	slimes.disableMaterials();
 
-	slimesMesh = slimes.getMesh(0);
+	for (int i = 0; i < slimes.getMeshCount(); i++) {
+		slimesMesh.append(slimes.getMesh(i));
+	}
 
 	crackWall.load("images/crackWall.jpg");
 	glitter.load("images/glitter.jpg");
@@ -58,7 +69,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
 	normalMap.load("models/newAnt3/Textures/material_normal.png");
 	metallicRoughnessMap.load("models/newAnt3/Textures/material_metallicRoughness.png");
-
+	
 	a = albedo.getTexture();
 	n = normalMap.getTexture();
 	m = metallicRoughnessMap.getTexture();
@@ -75,6 +86,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	shader_obj.load("obj_330_vs.glsl", "obj_330_fs.glsl");
 	shader_texture_wall.load("texture_wall_330_vs.glsl", "texture_wall_330_fs.glsl");
 
+	
 	shader = shader_obj;
 
 	mainCameraMode = true;
@@ -261,10 +273,18 @@ void SceneController::update()
 	textureAnt.setTextureWrap(GL_REPEAT, GL_REPEAT);
 
 	antModelLoader.update();
+	if (animation) {
+		antModelLoader.getAnimation(1).play();
+	}
+	else {
+		antModelLoader.getAnimation(1).stop();
+		antModelLoader.getAnimation(0).play();
+	}
 }
 
 void SceneController::draw()
 {
+
 	int halfHeight = ofGetHeight() / 2;
 	int fullWidth = ofGetWidth();
 
@@ -398,7 +418,7 @@ void SceneController::drawScene()
 
 		shader.setUniform3f("translation", foodPos.x, foodPos.y, foodPos.z);
 		shader.setUniform1f("scale_factor", 1);
-		foodSphere.draw();
+		slimesMesh.drawFaces();
 	}
 	shader.end();
 
@@ -444,16 +464,22 @@ void SceneController::drawScene()
 
 	glm::vec3 pos;
 	Cell* cell;
-	ofFill();
-	ofRotateDeg(-90, 1, 0, 0);
+
 	ofPushMatrix();
+	ofRotateDeg(-90, 1, 0, 0);
 	for (auto& pheromone : pheromonePositions)
 	{
+		
+		ofFill();
 		pos = get<0>(pheromone);
 		cell = get<1>(pheromone);
+		if (!objectVisible(pos, RENDER_DISTANCE_PHEROMONES)) continue;
 
+		ofPushMatrix();
+		ofTranslate(pos.x + (boxSize/2), -pos.z- (boxSize/2), 1e-3 * boxSize);
 		ofSetColor(cell->getCellColor(125));
-		ofDrawRectangle(pos.x, -pos.z - 1, boxSize, boxSize);
+		tilePheromoneMesh.draw();
+		ofPopMatrix();
 	}
 
 	ofTranslate(0, 0, -1e-3 * boxSize);
@@ -504,6 +530,7 @@ void SceneController::updateCellPositions()
 
 	wallPositions.clear();
 	pheromonePositions.clear();
+	foodPositions.clear();
 
 	for (y = 0; y < gridController->grid.grid.size(); y++)
 	{
@@ -527,6 +554,7 @@ void SceneController::updateCellPositions()
 			}
 			else if (cell->type == PHEROMONE && cell->value > 0)
 			{
+
 				position = glm::vec3(x * sizeBoxX, 0, y * sizeBoxY);
 
 				//pheromoneColorCache[position] = ofRandom(0, cell->getValueFactor());
@@ -551,7 +579,7 @@ void SceneController::updateAntPositions()
 		if (ant != this->ant)
 		{
 			posAnt = ant->pos;
-			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 1.0f, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
+			position = glm::vec3((posAnt.x * sizeBoxX) + (sizeBoxX / 2), 0.5, (posAnt.y * sizeBoxY) + (sizeBoxY / 2));
 
 			antPositions.push_back(position);
 			antAngles.push_back(ant->a * RAD_TO_DEG + 180);
