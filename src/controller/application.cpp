@@ -584,8 +584,17 @@ void Application::mousePressed(int x, int y, int button)
 //--------------------------------------------------------------
 void Application::mouseReleased(int x, int y, int button)
 {
-
-	gridController.mouseReleased(x, y, button);
+	string action;
+	if (isDrawMenuCollapsed) {
+		
+		if (foodPenChoice) action = "FOOD";
+		else action = "DRAW";
+	}
+	else if(isEraserMenuCollapsed)
+	{
+		action = "ERASE";
+	}
+	gridController.mouseReleased(x, y, button, action);
 }
 
 //--------------------------------------------------------------

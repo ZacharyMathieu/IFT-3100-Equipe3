@@ -148,9 +148,13 @@ void GridController::drawOnGrid(int x, int y, CellType material, int drawSize)
 				if (grid.at(gridX, gridY))
 				{
 					if (grid.at(gridX, gridY)->type != material)
-					{
+					{ 
+						std::pair<CellType, CellType> newType;
+
+						newType.first = grid.at(gridX, gridY)->type;
+						newType.second = material;
 						grid.at(gridX, gridY)->type = material;
-						tasCell.push_back(grid.at(gridX, gridY));
+						tasCell.push_back({ grid.at(gridX, gridY), newType });
 						while (!Redo.empty())
 						{
 							Redo.pop();
@@ -197,8 +201,12 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, CellT
 						{
 							if (grid.at(gridX, gridY)->type != PHEROMONE)
 							{
-								grid.at(gridX, gridY)->type = PHEROMONE;
-								tasCell.push_back(grid.at(gridX, gridY));
+								std::pair<CellType, CellType> newType;
+
+								newType.first = grid.at(gridX, gridY)->type;
+								newType.second = PHEROMONE;
+								//grid.at(gridX, gridY)->type = PHEROMONE;
+								tasCell.push_back({ grid.at(gridX, gridY), newType });
 								while (!Redo.empty())
 								{
 									Redo.pop();
@@ -331,7 +339,7 @@ void GridController::mousePressed(int x, int y, int button, string cursor)
 }
 
 //--------------------------------------------------------------
-void GridController::mouseReleased(int x, int y, int button)
+void GridController::mouseReleased(int x, int y, int button, string action)
 {
 	mouse_current_x = x;
 	mouse_current_y = y;
@@ -350,15 +358,8 @@ void GridController::mouseReleased(int x, int y, int button)
 	}
 	isSelected = false;
 
-	vector<Cell*> cells;
 	if (!tasCell.empty()) {
-		cells = tasCell;
-		if (cells[0]->type == WALL) {
-			Undo.push({ "DRAW", cells });
-		}
-		else {
-			Undo.push({ "ERASE", cells });
-		}
+		Undo.push(tasCell);
 	}
 	tasCell.clear();
 }
@@ -389,52 +390,28 @@ void GridController::multipleSelection()
 
 void GridController::undo()
 {
+	if (Undo.empty()) return;
+
 	auto action = Undo.top();
 	Undo.pop();
 	Redo.push(action);
-	ofLog() << "undo action : " << Redo.top().first;
-	if (action.first == "DRAW")
-	{
-		for (auto c : action.second)
-		{
-			c->type = PHEROMONE;
-		}
-		
-	}
-	else
-	{
 
-		for (auto c : action.second)
-		{
-			c->type = WALL;
-		}
+	for (auto element : action) {
+		element.first->type = element.second.first;
 	}
 		
 }
 
 void GridController::redo()
 {
+	if (Redo.empty()) return;
+
 	auto action = Redo.top();
 	Redo.pop();
 	Undo.push(action);
-	
-	if (action.first == "DRAW")
-	{
-		
-		for (auto c : action.second)
-		{
-			c->type = WALL;
-			
-		}
-		
-	}
-	else
-	{
-		for (auto c : action.second)
-		{
-			c->type = PHEROMONE;
-		}
-		
+
+	for (auto element : action) {
+		element.first->type = element.second.second;
 	}
 }
 

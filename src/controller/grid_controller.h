@@ -21,8 +21,12 @@ public:
 	int displayHeight;
 	Grid grid = Grid(GRID_WIDTH, GRID_HEIGHT);
 	vector<Ant*> ants;
-	std::stack<std::pair<std::string, vector<Cell*>>> Undo;
-	std::stack<std::pair<std::string, vector<Cell*>>> Redo;
+
+	//variable util au Undo/Redo
+	std::stack<std::vector<std::pair<Cell*, std::pair<CellType, CellType>>>> Undo;
+	std::stack<std::vector<std::pair<Cell*, std::pair<CellType, CellType>>>> Redo;
+	vector<std::pair<Cell*, std::pair<CellType, CellType>>> tasCell;
+
 	std::vector<Cell*> cSelected;
 	std::vector<std::pair<int, int>> CSposition;
 	glm::vec2 posStart;
@@ -35,7 +39,7 @@ public:
 	bool isSelected;
 	ofRectangle zoneSelected;
 
-	vector<Cell*> tasCell;
+	
 	void setup(int x, int y, int w, int h);
 	void draw(Ant*);
 	void exit();
@@ -46,7 +50,7 @@ public:
 	void mouseMoved(int x, int y);
 	void mouseDragged(int x, int y, int button, string cursor, CellType material, int drawSize, int eraserSize);
 	void mousePressed(int x, int y, int button, string cursor);
-	void mouseReleased(int x, int y, int button);
+	void mouseReleased(int x, int y, int button,string action);
 	void mouseScrolled(int x, int y, float scrollX, float scrollY);
 	void mouseEntered(int x, int y);
 	void mouseExited(int x, int y);
