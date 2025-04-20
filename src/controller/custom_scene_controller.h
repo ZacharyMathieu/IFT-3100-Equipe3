@@ -14,7 +14,7 @@ enum class ConvolutionKernel
 	blur
 };
 
-// kernel de convolution (3x3) : identité
+// kernel de convolution (3x3) : identitï¿½
 const std::array<float, 9> convolution_kernel_identity
 {
   0.0f,  0.0f,  0.0f,
@@ -30,7 +30,7 @@ const std::array<float, 9> convolution_kernel_sharpen
   0.0f, -1.0f,  0.0f
 };
 
-// kernel de convolution (3x3) : détection de bordure
+// kernel de convolution (3x3) : dï¿½tection de bordure
 const std::array<float, 9> convolution_kernel_edge_detect
 {
   0.0f,  1.0f,  0.0f,
@@ -191,6 +191,7 @@ public:
 	ofTexture roughnessTexture;
 	ofTexture aoTexture;
 
+	ofShader lightShader;
 	ofShader shader;
 	ofTexture antTexture;
 	ofTexture wallTexture;
@@ -198,8 +199,9 @@ public:
 
 	ofImage imgPlateform;
 	ofTexture texPlateform;
-	void setup() ;
-	void update() ;
+	void setup();
+	void reloadShaders();
+	void update();
 	void draw();
 	void drawScene();
 	void mousePressed(int x, int y, int button) override;
