@@ -47,6 +47,7 @@ public:
 
 	ofColor COLOR_AMBIENT = ofColor(255, 0, 0);
 	ofColor COLOR_DIFFUSE = ofColor(0, 0, 255);
+
 	ofBoxPrimitive boxCollider;
 	ofPlanePrimitive pheromoneSquare;
 	ofVboMesh pheromoneMesh;

@@ -19,7 +19,7 @@ ofColor& Cell::getCellColor(int alpha)
 		c = adjustColor(PHEROMONE_COLOR, EMPTY_COLOR);
 		break;
 	case FOOD:
-		c = *FOOD_COLOR;
+		c = FOOD_COLOR;
 		break;
 	default:
 		c = ofColor(255, 0, 0);
@@ -33,6 +33,11 @@ ofColor& Cell::getCellColor(int alpha)
 
 float Cell::getValueFactor() {
 	return value / CELL_MAX_VALUE;
+}
+
+void Cell::setFoodColor(ofColor newColor)
+{
+	FOOD_COLOR = newColor;
 }
 
 ofColor Cell::adjustColor(ofColor* fullColor, ofColor* emptyColor)
@@ -55,4 +60,8 @@ void Cell::addAntValue(float antValue)
 {
 	value += antValue;
 	value = max(min(value, CELL_MAX_VALUE), 0.0f);
+}
+ofColor Cell::getFoodColor()
+{
+	return Cell::FOOD_COLOR;
 }

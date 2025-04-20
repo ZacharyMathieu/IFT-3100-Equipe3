@@ -26,6 +26,9 @@ public:
 	std::stack<std::vector<std::pair<Cell*, std::pair<CellType, CellType>>>> Undo;
 	std::stack<std::vector<std::pair<Cell*, std::pair<CellType, CellType>>>> Redo;
 	vector<std::pair<Cell*, std::pair<CellType, CellType>>> tasCell;
+	std::pair<CellType, CellType> newType;
+
+	ofColor foodColor;
 
 	std::vector<Cell*> cSelected;
 	std::vector<std::pair<int, int>> CSposition;

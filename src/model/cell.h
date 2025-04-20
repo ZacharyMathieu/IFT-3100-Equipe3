@@ -41,7 +41,7 @@ class Cell
 public:
 	ofColor* WALL_COLOR = getWallColor();
 	ofColor* PHEROMONE_COLOR = getPheromoneColor();
-	ofColor* FOOD_COLOR = getFoodColor();
+	ofColor FOOD_COLOR = ofColor(117, 255, 107);
 	ofColor* EMPTY_COLOR = getEmptyColor();
 	float value;
 	CellType type;
@@ -50,7 +50,9 @@ public:
 	void update();
 	ofColor& getCellColor(int alpha = 255);
 	float getValueFactor();
+	void setFoodColor(ofColor newColor);
 	void addAntValue(float);
+	ofColor getFoodColor();
 	bool isSelected;
 private:
 	ofColor adjustColor(ofColor* fullColor, ofColor* emptyColor);

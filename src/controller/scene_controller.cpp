@@ -406,8 +406,8 @@ void SceneController::drawScene()
 	shader_ant.end();
 
 	shader.begin();
-	ofColor* color = getFoodColor();
-	shader.setUniform3f("color_ambient", color->r / 255.0, color->g / 255.0, color->b / 255.0);
+	ofColor color = gridController->foodColor;
+	shader.setUniform3f("color_ambient", color.r / 255.0, color.g / 255.0, color.b / 255.0);
 	shader.setUniform3f("color_diffuse", 0, 1, 0);
 	shader.setUniform3f("light_position", light.getGlobalPosition());
 
