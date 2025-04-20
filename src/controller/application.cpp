@@ -51,8 +51,7 @@ void Application::setup()
 
 	// GUI de la roue de couleur (seule)
 	colorGui.setup("Couleur");
-	ofParameter<ofColor> tempColor;
-	tempColor.set("Couleur", ofColor(255, 0, 0), ofColor(0, 0), ofColor(255, 255));
+	tempColor.set("Couleur", ofColor(117, 255, 107), ofColor(0, 0), ofColor(255, 255));
 	colorGui.add(tempColor);
 	tempColor.addListener(this, &Application::onColorChanged);
 	colorGui.setPosition(10, MENU_HEIGHT + 10);
@@ -200,6 +199,8 @@ void Application::update()
 
 	sceneController.COLOR_AMBIENT = color_picker_ambient;
 	sceneController.COLOR_DIFFUSE = color_picker_diffuse;
+	gridController.foodColor = tempColor;
+
 	sceneController.update();
 
 	if (isRunning) {
@@ -301,6 +302,8 @@ void Application::onColorChanged(ofColor& color)
 {
 	currentDrawColor = color;
 	gridController.ants[0]->MAIN_ANT_COLOR = color;
+	gridController.foodColor = color;
+	
 }
 
 //--------------------------------------------------------------

@@ -160,6 +160,7 @@ private:
 
 	ofParameter<ofColor> color_picker_ambient;
 	ofParameter<ofColor> color_picker_diffuse;
+	ofParameter<ofColor> tempColor;
 
 	void setupButtons();
 	void drawMenu();

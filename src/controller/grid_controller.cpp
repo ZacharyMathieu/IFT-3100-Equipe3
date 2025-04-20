@@ -29,6 +29,8 @@ void GridController::draw(Ant* mainAnt)
 		int x = 0;
 		for (Cell* cell : line)
 		{
+			if (cell->type == FOOD)
+				cell->setFoodColor(foodColor);
 			auto color = cell->getCellColor();
 			ofSetColor(color);
 			ofDrawRectangle(
@@ -149,8 +151,6 @@ void GridController::drawOnGrid(int x, int y, CellType material, int drawSize)
 				{
 					if (grid.at(gridX, gridY)->type != material)
 					{ 
-						std::pair<CellType, CellType> newType;
-
 						newType.first = grid.at(gridX, gridY)->type;
 						newType.second = material;
 						grid.at(gridX, gridY)->type = material;
@@ -201,8 +201,6 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, CellT
 						{
 							if (grid.at(gridX, gridY)->type != PHEROMONE)
 							{
-								std::pair<CellType, CellType> newType;
-
 								newType.first = grid.at(gridX, gridY)->type;
 								newType.second = PHEROMONE;
 								//grid.at(gridX, gridY)->type = PHEROMONE;
