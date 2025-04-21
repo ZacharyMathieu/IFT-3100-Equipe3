@@ -24,8 +24,6 @@ constexpr float FREE_CAMERA_SPEED = 0.75;
 class SceneController
 {
 public:
-	static const int GRID_WIDTH = 100;
-	static const int GRID_HEIGHT = 100;
 	int SCENE_WIDTH;
 	int SCENE_HEIGHT;
 	int SCENE_X;
@@ -75,6 +73,7 @@ public:
 	ofPoint freeCamPos = ofPoint();
 
 	void setup(int x, int y, int w, int h, GridController* gridController);
+	void reloadShaders();
 	void update();
 	void draw();
 	void keyPressed(int key);
@@ -91,11 +90,10 @@ private:
 	ofVboMesh tilePheromoneMesh;
 	vector<glm::mat4> pheromoneMatrix;
 
-
 	ofShader shader_ant;
 	ofShader shader_obj;
 	ofShader shader_texture_wall;
-	ofShader shader;
+	ofShader* shader;
 	ofLight light;
 	ofxAssimpModelLoader antModelLoader;
 	ofxAssimpModelLoader ants;

@@ -15,18 +15,18 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	scale_ant = 0.002f * boxSize;
 
-	box.set(gridController->scaleX * boxSize, boxSize * 5, gridController->scaleY * boxSize);
+	box.set(1, 1, 1);
 	box.mapTexCoords(0, 0, 2, 2);
 	boxMesh = box.getMesh();
 
 	pheromoneSquare.set(0, 0, gridController->GRID_WIDTH * boxSize, gridController->GRID_HEIGHT * boxSize);
 	pheromoneMesh = pheromoneSquare.getMesh();
-	
+
 	antSphere.set(boxSize, 64);
 	//vboBoxMeshAnt = antSphere.getMesh();
 
 	tilePheromone.set(boxSize, boxSize);
-	tilePheromone.setResolution(2, 2); 
+	tilePheromone.setResolution(2, 2);
 
 	tilePheromoneMesh = tilePheromone.getMesh();
 
@@ -69,7 +69,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
 	normalMap.load("models/newAnt3/Textures/material_normal.png");
 	metallicRoughnessMap.load("models/newAnt3/Textures/material_metallicRoughness.png");
-	
+
 	a = albedo.getTexture();
 	n = normalMap.getTexture();
 	m = metallicRoughnessMap.getTexture();
@@ -82,12 +82,9 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	vboAntMesh = antMesh;
 	boxCollider = createBoundingBox(antModelLoader);
 
-	shader_ant.load("ant_330_vs.glsl", "ant_330_fs.glsl");
-	shader_obj.load("obj_330_vs.glsl", "obj_330_fs.glsl");
-	shader_texture_wall.load("texture_wall_330_vs.glsl", "texture_wall_330_fs.glsl");
+	reloadShaders();
 
-	
-	shader = shader_obj;
+	shader = &shader_obj;
 
 	mainCameraMode = true;
 	mainCamera.lookAt(ofVec3f(antModelLoader.getPosition()));
@@ -110,6 +107,13 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	cameras.push_back(&POV);
 	numCam = 0;
 	activeCam = cameras[numCam];
+}
+
+void SceneController::reloadShaders()
+{
+	shader_ant.load("ant_330_vs.glsl", "ant_330_fs.glsl");
+	shader_obj.load("obj_330_vs.glsl", "obj_330_fs.glsl");
+	shader_texture_wall.load("texture_wall_330_vs.glsl", "texture_wall_330_fs.glsl");
 }
 
 void SceneController::updateGridController(GridController* gridController)
@@ -337,11 +341,19 @@ void SceneController::draw()
 
 void SceneController::keyPressed(int key)
 {
+	switch (key)
+	{
+	case 'c':
+		numCam = (numCam + 1) % cameras.size();
+		activeCam = cameras[numCam];
+		break;
+
+	case'r':
+		reloadShaders();
+		break;
+	}
 	if (key == 'c')
 	{
-		numCam = (numCam + 1) % cameras.size();
-
-		activeCam = cameras[numCam];
 	}
 }
 
@@ -405,22 +417,22 @@ void SceneController::drawScene()
 
 	shader_ant.end();
 
-	shader.begin();
+	shader->begin();
 	ofColor color = gridController->foodColor;
-	shader.setUniform3f("color_ambient", color.r / 255.0, color.g / 255.0, color.b / 255.0);
-	shader.setUniform3f("color_diffuse", 0, 1, 0);
-	shader.setUniform3f("light_position", light.getGlobalPosition());
+	shader->setUniform3f("color_ambient", color.r / 255.0, color.g / 255.0, color.b / 255.0);
+	shader->setUniform3f("color_diffuse", 0, 1, 0);
+	shader->setUniform3f("light_position", light.getGlobalPosition());
 
 	for (auto& foodPos : foodPositions)
 	{
 		if (!objectVisible(foodPos, RENDER_DISTANCE_PHEROMONES))
 			continue;
 
-		shader.setUniform3f("translation", foodPos.x, foodPos.y, foodPos.z);
-		shader.setUniform1f("scale_factor", 1);
+		shader->setUniform3f("translation", foodPos.x, foodPos.y, foodPos.z);
+		shader->setUniform1f("scale_factor", 1);
 		slimesMesh.drawFaces();
 	}
-	shader.end();
+	shader->end();
 
 	//shader.begin();
 	//shader.setUniform3f("color_ambient", 0, 0, 1);
@@ -439,7 +451,7 @@ void SceneController::drawScene()
 		if (objectVisible(pos, RENDER_DISTANCE_WALLS))
 		{
 			shader_texture_wall.setUniform3f("translation", pos.x, pos.y, pos.z);
-			shader_texture_wall.setUniform1f("scale_factor", 1);
+			shader_texture_wall.setUniform1f("scale_factor", boxSize);
 			float maxAniso;
 			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
 			texture.bind();
@@ -469,14 +481,14 @@ void SceneController::drawScene()
 	ofRotateDeg(-90, 1, 0, 0);
 	for (auto& pheromone : pheromonePositions)
 	{
-		
+
 		ofFill();
 		pos = get<0>(pheromone);
 		cell = get<1>(pheromone);
 		if (!objectVisible(pos, RENDER_DISTANCE_PHEROMONES)) continue;
 
 		ofPushMatrix();
-		ofTranslate(pos.x + (boxSize/2), -pos.z- (boxSize/2), 1e-3 * boxSize);
+		ofTranslate(pos.x + (boxSize / 2), -pos.z - (boxSize / 2), 1e-3 * boxSize);
 		ofSetColor(cell->getCellColor(125));
 		tilePheromoneMesh.draw();
 		ofPopMatrix();
@@ -504,8 +516,8 @@ bool SceneController::checkCollision(glm::vec3 newPos)
 
 	for (auto& pos : wallPositions)
 	{
-		if (abs(newPos.x - pos.x) < halfSize &&
-			abs(newPos.z - pos.z) < halfSize)
+		if (abs(newPos.x - pos.x) < boxSize &&
+			abs(newPos.z - pos.z) < boxSize)
 		{
 			return true;
 		}
@@ -521,8 +533,7 @@ bool SceneController::objectVisible(glm::vec3 pos, float renderDistance)
 
 void SceneController::updateCellPositions()
 {
-	float sizeBoxX = boxSize;
-	float sizeBoxY = boxSize;
+	float halfSizeBox = boxSize / 2;
 	Cell* cell;
 	glm::vec3 position;
 	ofPoint p;
@@ -539,25 +550,20 @@ void SceneController::updateCellPositions()
 			cell = gridController->grid.grid[y][x];
 			if (cell->type == WALL)
 			{
-				if (abs(boxCollider.getPosition().x - ((x * sizeBoxX) + (sizeBoxX / 2))) < (sizeBoxX * 1.5f) / 2 && abs(boxCollider.getPosition().z - ((y * sizeBoxY) + (sizeBoxY / 2))) < (sizeBoxY * 1.5) / 2)
-					continue;
-
-				position = glm::vec3((x * sizeBoxX) + (sizeBoxX / 2), box.getHeight() / 2, (y * sizeBoxY) + (sizeBoxY / 2));
+				position = glm::vec3(x * boxSize + halfSizeBox, halfSizeBox, y * boxSize + halfSizeBox);
 
 				wallPositions.push_back(position);
 			}
 			else if (cell->type == FOOD)
 			{
-				position = glm::vec3(((x * sizeBoxX) + (sizeBoxX / 2)), 0, (y * sizeBoxY) + (sizeBoxY / 2));
+				position = glm::vec3((x * boxSize + halfSizeBox), 0, y * boxSize + halfSizeBox);
 
 				foodPositions.push_back(position);
 			}
 			else if (cell->type == PHEROMONE && cell->value > 0)
 			{
+				position = glm::vec3(x * boxSize, 0, y * boxSize);
 
-				position = glm::vec3(x * sizeBoxX, 0, y * sizeBoxY);
-
-				//pheromoneColorCache[position] = ofRandom(0, cell->getValueFactor());
 				pheromonePositions.push_back(tuple(position, cell));
 			}
 		}

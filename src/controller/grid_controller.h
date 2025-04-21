@@ -9,9 +9,9 @@
 class GridController
 {
 public:
-	static const int GRID_WIDTH = 100;
-	static const int GRID_HEIGHT = 100;
-	static const int ANT_COUNT = 1000;
+	static const int GRID_WIDTH = 50;
+	static const int GRID_HEIGHT = 50;
+	static const int ANT_COUNT = 200;
 
 	float scaleX;
 	float scaleY;
