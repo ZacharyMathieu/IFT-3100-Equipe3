@@ -96,11 +96,6 @@ void CustomSceneController::setup()
 	posterTarget = glm::vec3(0, 5, -25);
 
 	isMaterial = false;
-	light.setup();
-	light.setDirectional();
-	light.setDiffuseColor(ofFloatColor(2.0, 2.0, 2.0));   // deux fois plus intense
-	light.setSpecularColor(ofFloatColor(1.0, 1.0, 1.0));  // plus fort
-	light.setAmbientColor(ofFloatColor(0.2));
 
 	cadre.load("images/cadre.png");
 	ck = ConvolutionKernel::identity;
@@ -145,7 +140,10 @@ void CustomSceneController::setup()
 
 	texPlateform = imgPlateform.getTexture();
 
-	activeAnt->setPosition(0, -45, 0); // L�g�rement au-dessus du sol
+	activeAnt->setScale(0.5, 0.5, 0.5);
+	activeAnt->setPosition(0, -50, 0);
+	activeAnt->setRotation(0, -90, 1, 0, 0);
+	activeAnt->getAnimation(0).play();
 
 	// Cr�e les plans
 	float boxSize = 100;
@@ -166,12 +164,12 @@ void CustomSceneController::setup()
 	backWall.setPosition(0, 0, -boxSize / 2);
 
 	cadrePlane.set(90, 70);
-	cadrePlane.setPosition(0, 0, (-boxSize / 2) + 1);
+	cadrePlane.setPosition(0, 0, backWall.getPosition().z + 0.1);
 	cadrePlane.rotateDeg(180, 0, 1, 0);
 
 	poster.set(58, 47);
 
-	poster.setPosition(1, -1, (-boxSize / 2) + 2);
+	poster.setPosition(1, -1, backWall.getPosition().z + 0.2);
 	poster.rotateDeg(180, 0, 1, 0);
 
 	image_height = posterImg.getHeight();
@@ -205,10 +203,10 @@ void CustomSceneController::setup()
 	tablette2Mesh = tablette2.getMesh();
 	tabletteMeshOriginal = tablette.getMesh();
 
-
-	vase.load("models/vase.glb");
+	vase.load("models/vase.glb", true);
 	vase.setPosition(tablette2.getPosition().x, tablette2.getPosition().y, tablette2.getPosition().z);
-	vase.setScale(0.02, -0.02, 0.02);
+	vase.setScale(0.02, 0.02, 0.02);
+	vase.setRotation(0, -90, 1, 0, 0);
 
 	controlPoints = {
 	glm::vec3(-25, 0, 0),    // d�part
@@ -220,7 +218,6 @@ void CustomSceneController::setup()
 	};
 
 	// Cam�ra
-
 	firstPos = glm::vec3(0, -10, 100);
 	firstTarget = glm::vec3(0, -10, 0);
 	cam.setPosition(firstPos);
@@ -339,16 +336,56 @@ void CustomSceneController::setup()
 
 	resetButton.set(ofGetWidth() / 2 - 50, 5, 75, 40);
 	cam.disableMouseInput();
-	light.setPosition(0, 0, 0);
-	light.lookAt(activeAnt->getPosition());
 
+	ofPoint center = ofPoint(0, boxSize / 4, 0);
+	float radius = boxSize * 0.25;
+	lights = vector<Light*>({
+		new Light(center, radius, 0),
+		new Light(center, radius, 1),
+		new Light(center, radius, 2),
+		new Light(center, radius, 3),
+		});
 
+	lightPanel.setup("Light");
+	lightPanel.setPosition(tintGui.getPosition().x + tintGui.getWidth() + 10, 10);
+
+	material_brightness.set("material_brightness", 1, 0, 1);
+	material_metallic.set("material_metallic", 0, 0, 1);
+	material_roughness.set("material_roughness", 0, 0, 1);
+	material_occlusion.set("material_occlusion", 1, 0, 1);
+	material_fresnel_ior.set("material_fresnel_ior", ofPoint(1, 1, 1));
+	tone_mapping_exposure.set("tone_mapping_exposure", 1, 0, 1);
+	tone_mapping_toggle.set("tone_mapping_toggle", true);
+	tone_mapping_gamma.set("tone_mapping_gamma", 1, 0, 1);
+	light_position.set("light_position", ofPoint(0), ofPoint(-boxSize / 2, 0, -boxSize / 2), ofPoint(boxSize / 2, boxSize, boxSize / 2));
+	light_color.set("light_color", ofColor(255));
+	light_intensity.set("light_intensity", 1, 0, 1);
+	material_color_ambient.set("material_color_ambient", ofColor(255));
+	material_color_diffuse.set("material_color_diffuse", ofColor(255));
+	material_color_specular.set("material_color_specular", ofColor(255));
+
+	lightPanel.add(material_brightness);
+	lightPanel.add(material_metallic);
+	lightPanel.add(material_roughness);
+	lightPanel.add(material_occlusion);
+	lightPanel.add(material_fresnel_ior);
+	lightPanel.add(tone_mapping_exposure);
+	lightPanel.add(tone_mapping_toggle);
+	lightPanel.add(tone_mapping_gamma);
+	lightPanel.add(light_position);
+	lightPanel.add(light_color);
+	lightPanel.add(light_intensity);
+	lightPanel.add(material_color_ambient);
+	lightPanel.add(material_color_diffuse);
+	lightPanel.add(material_color_specular);
 }
 
 void CustomSceneController::reloadShaders()
 {
 	shader.load("custom_ant_330_vs.glsl", "custom_ant_330_fs.glsl");
-	lightShader.load("light_330_vs.glsl", "light_330_fs.glsl");
+	//lightShader.load("light_330_vs.glsl", "light_330_fs.glsl");
+	lightTextureShader.load("light_330_vs.glsl", "light_330_fs.glsl");
+	//lightTextureShader.load("light_texture_330_vs.glsl", "light_texture_330_fs.glsl");
 }
 
 void CustomSceneController::update()
@@ -357,9 +394,13 @@ void CustomSceneController::update()
 	guiLeft.loadFont("verdana.ttf", 12);
 	guiRight.loadFont("verdana.ttf", 12);
 	tintGui.loadFont("verdana.ttf", 12);
+	lightPanel.loadFont("verdana.ttf", 12);
 
-	mirrorCam.setPosition(0, -1, -50 + 2);
-	mirrorCam.lookAt(glm::vec3(0, 0, 0));
+	auto camPos = cam.getPosition();
+	mirrorCam.setPosition(camPos.x, camPos.y, 2 * poster.getPosition().z - camPos.z);
+	mirrorCam.lookAt(mirrorCam.getPosition() - cam.getPosition());
+
+	//cam.setPosition(ofPoint(camPos.x, camPos.y, camPos.z + 0.5));
 
 	if (ofGetKeyPressed(OF_KEY_RIGHT))
 	{
@@ -370,19 +411,11 @@ void CustomSceneController::update()
 	{
 		newAngle += turnSpeed;
 	}
-	activeAnt->setPosition(0, -45, 0);
-	activeAnt->setScale(0.15, 0.15, 0.15);
-	activeAnt->setRotation(0, -90, 1, 0, 0);
 	activeAnt->setRotation(1, newAngle, 0, 0, 1);
 	plateform.setOrientation(glm::vec3(0, -newAngle, 0));
 
 	activeAnt->update();
 	activeAnt->getAnimation(0).play();
-
-
-	light.lookAt(ant.getPosition());
-
-	light.setGlobalPosition(glm::vec3(0, 40, 0));
 
 	if (isTransitioning) {
 		float elapsed = ofGetElapsedTimef() - transitionStartTime;
@@ -412,26 +445,30 @@ void CustomSceneController::update()
 	if (posterChoiceLeft) openPosterChoicer();
 	deformTablette();
 
+	for (auto l : lights)
+	{
+		l->update();
+	}
 }
 
 void CustomSceneController::draw()
 {
+	//light.enable();
+	ofEnableDepthTest();
+
 	mirrorFbo.begin();
+	ofClear(0);
+	ofBackground(0);
+	mirrorCam.begin();
+	drawScene(&mirrorCam.getModelViewMatrix());
+	mirrorCam.end();
+	mirrorFbo.end();
+
 	ofEnableDepthTest();
 	ofClear(0);
 	ofBackground(0);
-	light.enable();
-	mirrorCam.begin();
-
-	drawScene();
-
-	mirrorCam.end();
-	light.disable();
-
-	mirrorFbo.end();
-
 	cam.begin();
-	drawScene();
+	drawScene(&cam.getModelViewMatrix());
 	cam.end();
 
 	ofDisableDepthTest();
@@ -447,138 +484,141 @@ void CustomSceneController::draw()
 	}
 
 	drawGUI();
-
 }
-void CustomSceneController::drawScene()
+
+void CustomSceneController::drawScene(glm::mat4* modelView)
 {
+	//vector<glm::vec3> lightPositions;
+	//vector<glm::vec4> lightColors;
+	//for (auto light : lights)
+	//{
+	//	lightPositions.push_back(light->pos * (*modelView));
+	//	lightColors.push_back(glm::vec4(light->color.r, light->color.g, light->color.b, light->color.a));
+	//}
+
+	lightTextureShader.begin();
+	lightTextureShader.setUniform1f("material_brightness", material_brightness);
+	lightTextureShader.setUniform1f("material_metallic", material_metallic);
+	lightTextureShader.setUniform1f("material_roughness", material_roughness);
+	lightTextureShader.setUniform1f("material_occlusion", material_occlusion);
+	lightTextureShader.setUniform3f("material_fresnel_ior", glm::vec3(material_fresnel_ior.get().x, material_fresnel_ior.get().y, material_fresnel_ior.get().z));
+	lightTextureShader.setUniform1f("tone_mapping_exposure", tone_mapping_exposure);
+	lightTextureShader.setUniform1f("tone_mapping_toggle", tone_mapping_toggle);
+	lightTextureShader.setUniform1f("tone_mapping_gamma", tone_mapping_gamma);
+	lightTextureShader.setUniform3f("light_position", glm::vec3(light_position.get().x, light_position.get().y, light_position.get().z));
+	lightTextureShader.setUniform3f("light_color", glm::vec3(light_color.get().r / 255.0, light_color.get().g / 255.0, light_color.get().b / 255.0));
+	lightTextureShader.setUniform1f("light_intensity", light_intensity);
+	lightTextureShader.setUniform3f("material_color_ambient", glm::vec3(material_color_ambient.get().r / 255.0, material_color_ambient.get().g / 255.0, material_color_ambient.get().b / 255.0));
+	lightTextureShader.setUniform3f("material_color_diffuse", glm::vec3(material_color_diffuse.get().r / 255.0, material_color_diffuse.get().g / 255.0, material_color_diffuse.get().b / 255.0));
+	lightTextureShader.setUniform3f("material_color_specular", glm::vec3(material_color_specular.get().r / 255.0, material_color_specular.get().g / 255.0, material_color_specular.get().b / 255.0));
+
+	ofTexture colorTexture;
+	ofPixels colorPixels;
+	colorPixels.allocate(1, 1, OF_PIXELS_RGBA);
+	colorTexture.allocate(colorPixels);
+	colorPixels.setColor(0, 0, ofColor(255));
+	colorTexture.loadData(colorPixels);
+
+	lightTextureShader.setUniformTexture("texture_metallic", colorTexture, 0);
+	lightTextureShader.setUniformTexture("texture_roughness", colorTexture, 0);
+	lightTextureShader.setUniformTexture("texture_occlusion", colorTexture, 0);
+
+	lightTextureShader.setUniformTexture("texture_diffuse", mirrorFbo.getTexture(), 0);
+	poster.draw();
+
 	// Dessine les murs (avec couleurs distinctes)
-	ofSetColor(180); // Sol gris clair
+	colorPixels.setColor(0, 0, ofColor(180));  // Sol gris clair
+	colorTexture.loadData(colorPixels);
+	lightTextureShader.setUniformTexture("texture_diffuse", colorTexture, 0);
 	floor.draw();
 
-	ofSetColor(255); // Plafond blanc
+	colorPixels.setColor(0, 0, ofColor(255)); // Plafond blanc
+	colorTexture.loadData(colorPixels);
+	lightTextureShader.setUniformTexture("texture_diffuse", colorTexture, 0);
 	ceiling.draw();
 
-	ofSetColor(200); // Mur arri�re gris
+	colorPixels.setColor(0, 0, ofColor(200)); // Mur arri�re gris
+	colorTexture.loadData(colorPixels);
+	lightTextureShader.setUniformTexture("texture_diffuse", colorTexture, 0);
 	backWall.draw();
-
-	mirrorFbo.getTexture().bind();
-	poster.draw();
-	mirrorFbo.getTexture().unbind();
-
-	cadre.getTexture().bind();
-	cadrePlane.draw();
-	cadre.getTexture().unbind();
 
 	ofPushMatrix();
 	ofTranslate(leftWall.getPosition());
 	ofRotateDeg(90, 0, 1, 0);
-	ofSetColor(255);
-	if (posterSet) {
+	if (!posterSet) {
+		colorPixels.setColor(0, 0, leftWallColor);
+		colorTexture.loadData(colorPixels);
+		lightTextureShader.setUniformTexture("texture_diffuse", colorTexture, 0);
+	}
+	else
+	{
 		if (filterActivated)
 		{
-			posterFilter.getTexture().bind();
-			planeMeshLeft.draw();
-			posterFilter.getTexture().unbind();
+			lightTextureShader.setUniformTexture("texture_diffuse", posterFilter, 0);
 		}
 		else {
-			posterImg.getTexture().bind();
-			planeMeshLeft.draw();
-			posterImg.getTexture().unbind();
+			lightTextureShader.setUniformTexture("texture_diffuse", posterImg, 0);
 		}
-
 	}
-	else {
-		ofSetColor(leftWallColor);
-		planeMeshLeft.draw();
-	}
+	planeMeshLeft.draw();
 	ofPopMatrix();
 
 	ofPushMatrix();
 	ofTranslate(rightWall.getPosition());
 	ofRotateDeg(90, 0, 1, 0);
-	ofSetColor(255);
-	if (textureActivated) {
-		wallTexture.bind();
-		planeMeshRight.draw();
-		wallTexture.unbind();
+	if (!textureActivated) {
+		colorPixels.setColor(0, 0, rightWallColor);
+		colorTexture.loadData(colorPixels);
+		lightTextureShader.setUniformTexture("texture_diffuse", colorTexture, 0);
 	}
-	else {
-		ofSetColor(rightWallColor);
-		planeMeshRight.draw();
+	else
+	{
+		lightTextureShader.setUniformTexture("texture_diffuse", wallTexture, 0);
 	}
-
+	planeMeshRight.draw();
 	ofPopMatrix();
 
+	lightTextureShader.setUniformTexture("texture_diffuse", cadre.getTexture(), 0);
+	cadrePlane.draw();
+
+	ofPushMatrix();
 	ofSetColor(100);
-	texPlateform.bind();
+	lightTextureShader.setUniformTexture("texture_diffuse", texPlateform, 0);
 	plateform.draw();
-	texPlateform.unbind();
+	ofPopMatrix();
 
-	if (!isMaterial) {
-		activeAnt->disableMaterials();
-		shader.begin();
-
-		// Matrices
-		glm::mat4 modelMatrix = activeAnt->getModelMatrix();
-		glm::mat4 viewMatrix = ofGetCurrentViewMatrix();
-		glm::mat4 projectionMatrix = cam.getProjectionMatrix();
-		glm::mat4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
-		glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
-
-		shader.setUniformMatrix4f("modelMatrix", modelMatrix);
-		shader.setUniformMatrix4f("modelViewProjectionMatrix", modelViewProjectionMatrix);
-		shader.setUniformMatrix3f("normalMatrix", normalMatrix);
-
-		// Lumi�re
-		shader.setUniform3f("lightPos", light.getGlobalPosition());
-		shader.setUniform3f("viewPos", cam.getGlobalPosition());
-
-		// Textures
-		shader.setUniformTexture("baseColorMap", baseColorTexture, 0);
-		shader.setUniformTexture("normalMap", normalMapTexture, 1);
-		shader.setUniformTexture("metallicMap", metallicTexture, 2);
-		shader.setUniformTexture("roughnessMap", roughnessTexture, 3);
-
-		// Teinte dynamique (exemple avec ofColor dans ton GUI)
-		shader.setUniform3f("upperTint", upperColorChoice.r / 255.0f,
-			upperColorChoice.g / 255.0f,
-			upperColorChoice.b / 255.0f);
-		shader.setUniform3f("bottomTint", bottomColorChoice.r / 255.0f,
-			bottomColorChoice.g / 255.0f,
-			bottomColorChoice.b / 255.0f);
-
-		activeAnt->drawFaces();
-		shader.end();
-
-	}
-
-	else {
-		activeAnt->enableMaterials();
-		activeAnt->enableTextures();
-		activeAnt->drawFaces();
-	}
 	ofPushMatrix();
 	ofTranslate(tablette.getPosition());
 	ofRotateDeg(90, 0, 1, 0);  // Orienter comme le mur droit
-
 	ofSetColor(255);
-	texPlateform.bind();
+	lightTextureShader.setUniformTexture("texture_diffuse", texPlateform, 0);
 	tabletteMesh.draw();
-	texPlateform.unbind();
 	ofPopMatrix();
 
 	ofPushMatrix();
 	ofTranslate(tablette2.getPosition());
 	ofRotateDeg(90, 0, 1, 0);  // Orienter comme le mur droit
-
 	ofSetColor(200);
-	texPlateform.bind();
+	lightTextureShader.setUniformTexture("texture_diffuse", texPlateform, 0);
 	tablette2Mesh.draw();
-	texPlateform.unbind();
 	ofPopMatrix();
 
-	vase.drawFaces();
+	lightTextureShader.setUniformTexture("texture_diffuse", vase.getTextureForMesh(0), 0);
+	ofPushMatrix();
+	ofMultMatrix(vase.getModelMatrix());
+	vase.getMesh(0).draw();
+	ofPopMatrix();
+
+	lightTextureShader.setUniformTexture("texture_diffuse", activeAnt->getTextureForMesh(0), 0);
+	ofPushMatrix();
+	ofMultMatrix(activeAnt->getModelMatrix());
+	//activeAnt->getMesh(0).draw();
+	activeAnt->getCurrentAnimatedMesh(0).draw();
+	ofPopMatrix();
+
+	lightTextureShader.end();
 }
+
 void CustomSceneController::mousePressed(int x, int y, int button)
 {
 	if (button != OF_MOUSE_BUTTON_LEFT) return;
@@ -614,6 +654,15 @@ void CustomSceneController::mousePressed(int x, int y, int button)
 	lastClickTime = now;
 }
 
+void CustomSceneController::keyPressed(int key)
+{
+	switch (key)
+	{
+	case 'r':
+		reloadShaders();
+		break;
+	}
+}
 
 void CustomSceneController::startCameraTransition(glm::vec3 newPos, glm::vec3 newTarget) {
 	startPos = cam.getPosition();
@@ -642,16 +691,6 @@ void CustomSceneController::onNoMaterial(bool& value)
 	if (value) {
 		activeAnt = ants[0];
 		isMaterial = useMaterial = false;
-	}
-}
-
-void CustomSceneController::keyPressed(int key)
-{
-	switch (key)
-	{
-	case 'r':
-		reloadShaders();
-		break;
 	}
 }
 
@@ -870,7 +909,6 @@ void CustomSceneController::openPosterChoicer()
 
 void CustomSceneController::drawGUI()
 {
-
 	if (cam.getPosition() == leftPos)
 	{
 		guiLeft.draw();
@@ -883,6 +921,7 @@ void CustomSceneController::drawGUI()
 		gui.draw();
 		tintGui.draw();
 	}
+	lightPanel.draw();
 }
 
 void CustomSceneController::activatedRelief(ofTexture& imgTexture, ofBoxPrimitive& box, ofMesh& boxMesh, ofImage grayscaleImg)

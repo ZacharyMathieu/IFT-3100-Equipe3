@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "ofxAssimpModelLoader.h"
 #include <cmath>
+#include <light.h>
 //pour le filtre d'image
 enum class ConvolutionKernel
 {
@@ -63,9 +64,8 @@ class CustomSceneController : public ofBaseApp
 private:
 	ConvolutionKernel ck;
 	ofEasyCam cam;
-	ofLight light;
 	ofCylinderPrimitive plateform;
-	
+
 	//tablette
 	ofBoxPrimitive tablette, tablette2;
 	ofMesh tabletteMesh, tablette2Mesh;
@@ -117,7 +117,7 @@ public:
 	ofMesh planeMeshRight;
 	ofMesh planeMeshLeft;
 
-	ofPlanePrimitive  leftWall, backWall, ceiling,floor, poster, cadrePlane;
+	ofPlanePrimitive  leftWall, backWall, ceiling, floor, poster, cadrePlane;
 	ofBoxPrimitive rightWall;
 	ofImage posterImg;
 	ofImage posterFilter;
@@ -153,7 +153,7 @@ public:
 	ofImage brick;
 	ofParameter<bool> reliefActivatedRight;
 	bool reliefIsActivated;
-		
+
 	//GUI mur gauche
 	ofxPanel guiLeft;
 	ofParameter<bool> colorChoiceLeft;
@@ -171,6 +171,23 @@ public:
 	//Gui Catmull
 	ofxPanel controlPointsGui;
 	std::vector<ofParameter<float>> controlPointYSliders;
+
+	//GUI lumière
+	ofxPanel lightPanel;
+	ofParameter<float> material_brightness;
+	ofParameter<float> material_metallic;
+	ofParameter<float> material_roughness;
+	ofParameter<float> material_occlusion;
+	ofParameter<ofPoint> material_fresnel_ior;
+	ofParameter<float> tone_mapping_exposure;
+	ofParameter<bool> tone_mapping_toggle;
+	ofParameter<float> tone_mapping_gamma;
+	ofParameter<ofPoint> light_position;
+	ofParameter<ofColor> light_color;
+	ofParameter<float> light_intensity;
+	ofParameter<ofColor> material_color_ambient;
+	ofParameter<ofColor> material_color_diffuse;
+	ofParameter<ofColor> material_color_specular;
 
 	ofMaterial* mat;
 
@@ -191,20 +208,25 @@ public:
 	ofTexture roughnessTexture;
 	ofTexture aoTexture;
 
-	ofShader lightShader;
 	ofShader shader;
+	ofShader lightShader;
+	ofShader lightTextureShader;
 	ofTexture antTexture;
 	ofTexture wallTexture;
 	ofImage img;
 
 	ofImage imgPlateform;
 	ofTexture texPlateform;
+
+	vector<Light*> lights;
+
 	void setup();
 	void reloadShaders();
 	void update();
 	void draw();
-	void drawScene();
+	void drawScene(glm::mat4* modelView);
 	void mousePressed(int x, int y, int button) override;
+	void keyPressed(int key);
 	void startCameraTransition(glm::vec3 newPos, glm::vec3 newTarget);
 	void resetCamera();
 	void onUseMaterial(bool& value);
