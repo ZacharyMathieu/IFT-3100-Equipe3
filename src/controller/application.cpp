@@ -301,7 +301,6 @@ void Application::drawCustomCursors()
 void Application::onColorChanged(ofColor& color)
 {
 	currentDrawColor = color;
-	gridController.ants[0]->MAIN_ANT_COLOR = color;
 	gridController.foodColor = color;
 	
 }
