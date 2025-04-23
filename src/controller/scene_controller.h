@@ -98,12 +98,6 @@ public:
 	vector<string> rockTexture;
 	vector<string> metalTexture;
 	vector<string> blueMetalTexture;
-
-
-private:
-
-	//texture wall
-	
 	float material_metallic;
 	float material_roughness;
 	float material_occlusion;
@@ -111,6 +105,10 @@ private:
 	ofColor material_color_ambient;
 	ofColor material_color_diffuse;
 	ofColor material_color_specular;
+
+private:
+
+	//texture wall
 	glm::vec3 material_fresnel_ior;
 	ofColor light_color;
 	float tone_mapping_exposure;

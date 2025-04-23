@@ -114,7 +114,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	miniBox.set(2.0f); // taille 1
 	miniBox.mapTexCoordsFromTexture(texture_albedo.getTexture());
 
-	miniViewportFbo.allocate(300, 300, GL_RGBA); // taille du coin
+	miniViewportFbo.allocate(500, 500, GL_RGBA); // taille du coin
 	miniViewportCam.setNearClip(0.1f);
 	miniViewportCam.setFarClip(100.0f);
 	miniViewportCam.setPosition(2, 2, 2);
@@ -355,10 +355,20 @@ void SceneController::draw()
 		ofPopView();
 	}
 	if (textureSelected) {
+		glActiveTexture(GL_TEXTURE0);
+		texture_albedo.getTexture().bind(0);
+
+		glActiveTexture(GL_TEXTURE1);
+		texture_normal.getTexture().bind(1);
+
+		glActiveTexture(GL_TEXTURE2);
+		texture_arm.getTexture().bind(2);
 		// === MINI VIEWPORT ===
 		miniViewportFbo.begin();
-		ofClear(0, 0, 0, 255);
+		ofClear(120, 120, 120, 255);
 		ofEnableDepthTest();
+		ofEnableLighting();
+		light.enable();
 		miniViewportCam.begin();
 
 		// Bind shader + texture
@@ -366,14 +376,18 @@ void SceneController::draw()
 		shader_texture_wall.setUniformTexture("albedoMap", texture_albedo, 0);
 		shader_texture_wall.setUniformTexture("normalMap", texture_normal, 1);
 		shader_texture_wall.setUniformTexture("armMap", texture_arm, 2);
+		// Matériau : valeurs fixes ou variables si besoin
+		shader_texture_wall.setUniform3f("material_color_ambient", material_color_ambient.r / 255,
+			material_color_ambient.g / 255, material_color_ambient.b / 255);
+		shader_texture_wall.setUniform3f("material_color_diffuse", material_color_diffuse.r / 255,
+			material_color_diffuse.g / 255, material_color_diffuse.b / 255);
+		shader_texture_wall.setUniform3f("material_color_specular", material_color_specular.r / 255,
+			material_color_specular.g / 255, material_color_specular.b / 255);
 
-		shader_texture_wall.setUniform3f("material_color_ambient", 0.5f, 0.5f, 0.5f);
-		shader_texture_wall.setUniform3f("material_color_diffuse", 1.0f, 1.0f, 1.0f);
-		shader_texture_wall.setUniform3f("material_color_specular", 1.0f, 1.0f, 1.0f);
-		shader_texture_wall.setUniform1f("material_brightness", 1.0f);
-		shader_texture_wall.setUniform1f("material_metallic", 0.0f);
-		shader_texture_wall.setUniform1f("material_roughness", 1.0f);
-		shader_texture_wall.setUniform1f("material_occlusion", 1.0f);
+		shader_texture_wall.setUniform1f("material_brightness", material_brightness);
+		shader_texture_wall.setUniform1f("material_metallic", material_metallic);  // ou 0.0f si mur non métallique
+		shader_texture_wall.setUniform1f("material_roughness", material_roughness); // plus rugueux = plus diffus
+		shader_texture_wall.setUniform1f("material_occlusion", material_occlusion);
 		shader_texture_wall.setUniform3f("material_fresnel_ior", 0.04f, 0.04f, 0.04f);
 		shader_texture_wall.setUniform1f("tone_mapping_exposure", 1.0f);
 		shader_texture_wall.setUniform1f("tone_mapping_gamma", 2.2f);
@@ -387,12 +401,23 @@ void SceneController::draw()
 
 		shader_texture_wall.end();
 		miniViewportCam.end();
+		glUseProgram(0);
+		light.disable();
 		ofDisableDepthTest();
+		ofDisableLighting();
 		miniViewportFbo.end();
+
+		glActiveTexture(GL_TEXTURE0);
+		texture_albedo.getTexture().unbind(0);
+		glActiveTexture(GL_TEXTURE1);
+		texture_normal.getTexture().unbind(1);
+		glActiveTexture(GL_TEXTURE2);
+		texture_arm.getTexture().unbind(2);
 
 		// Affichage à l'écran
 		ofSetColor(255);
 		miniViewportFbo.draw((fullWidth / 2) - 200, 50, 200, 200); // position et taille à l'écran
+
 	}
 	
 
@@ -424,7 +449,7 @@ void SceneController::drawScene()
 	shader_ant.begin();
 
 	// Set uniform values
-	shader_ant.setUniformTexture("texture0", wood.getTexture(), 0);
+	shader_ant.setUniformTexture("texture0", antTexture, 0);
 	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
 	shader_ant.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
 
@@ -517,17 +542,20 @@ void SceneController::drawScene()
 	shader_texture_wall.setUniformTexture("armMap", texture_arm, 2);
 
 	// Matériau : valeurs fixes ou variables si besoin
-	shader_texture_wall.setUniform3f("material_color_ambient", 0.5f, 0.5f, 0.5f);
-	shader_texture_wall.setUniform3f("material_color_diffuse", 1.0f, 1.0f, 1.0f);
-	shader_texture_wall.setUniform3f("material_color_specular", 1.0f, 1.0f, 1.0f);
+	shader_texture_wall.setUniform3f("material_color_ambient", material_color_ambient.r /255,
+		material_color_ambient.g / 255, material_color_ambient.b / 255);
+	shader_texture_wall.setUniform3f("material_color_diffuse", material_color_diffuse.r/255,
+		material_color_diffuse.g / 255, material_color_diffuse.b / 255);
+	shader_texture_wall.setUniform3f("material_color_specular", material_color_specular.r/255,
+		material_color_specular.g / 255, material_color_specular.b / 255);
 
-	shader_texture_wall.setUniform1f("material_brightness", 1.0f);
-	shader_texture_wall.setUniform1f("material_metallic", 0.0f);  // ou 0.0f si mur non métallique
-	shader_texture_wall.setUniform1f("material_roughness", 1.0f); // plus rugueux = plus diffus
-	shader_texture_wall.setUniform1f("material_occlusion", 1.0f);
+	shader_texture_wall.setUniform1f("material_brightness", material_brightness);
+	shader_texture_wall.setUniform1f("material_metallic", material_metallic);  // ou 0.0f si mur non métallique
+	shader_texture_wall.setUniform1f("material_roughness", material_roughness); // plus rugueux = plus diffus
+	shader_texture_wall.setUniform1f("material_occlusion", material_occlusion);
 
 	// IOR pour Fresnel (ex: plastique ~0.04, métal ~0.9)
-	shader_texture_wall.setUniform3f("material_fresnel_ior", 0.04f, 0.04f, 0.04f);
+	shader_texture_wall.setUniform3f("material_fresnel_ior", 0.09f, 0.09f, 0.09f);
 
 	// Tone mapping
 	shader_texture_wall.setUniform1f("tone_mapping_exposure", 1.0f);

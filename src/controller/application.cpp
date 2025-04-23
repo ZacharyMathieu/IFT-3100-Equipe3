@@ -58,20 +58,20 @@ void Application::setup()
 
 	//GUI texture 
 	textureGui.setup("Wall textures");
-	woodPick.setName("Brick");
-	crackWallPick.setName("Rock");
-	rockPick.setName("Metal");
-	paintPick.setName("Blue Metal");
-	textureGui.add(woodPick);
-	textureGui.add(crackWallPick);
+	brickPick.setName("Brick");
+	rockPick.setName("Rock");
+	metalPick.setName("Metal");
+	blueMetalPick.setName("Blue Metal");
+	textureGui.add(brickPick);
 	textureGui.add(rockPick);
-	textureGui.add(paintPick);
+	textureGui.add(metalPick);
+	textureGui.add(blueMetalPick);
 	textureGui.setPosition(10, MENU_HEIGHT + 10);
 
-	textureSelection.push_back(&woodPick);
-	textureSelection.push_back(&crackWallPick);
+	textureSelection.push_back(&brickPick);
 	textureSelection.push_back(&rockPick);
-	textureSelection.push_back(&paintPick);
+	textureSelection.push_back(&metalPick);
+	textureSelection.push_back(&blueMetalPick);
 
 	for (auto* param : textureSelection) {
 		param->addListener(this, &Application::onTextureSelected);
@@ -114,6 +114,19 @@ void Application::setup()
 	}
 	camerasToFalse();
 	cameraSelection[0]->set(true);
+
+	guiTextureParameter.setup();
+	guiTextureParameter.add(material_color_ambient.set("ambient color", ofColor(63, 63, 63), ofColor(0, 0), ofColor(255, 255)));
+	guiTextureParameter.add(material_color_diffuse.set("diffuse color", ofColor(174, 223, 134), ofColor(0, 0), ofColor(255, 255)));
+	guiTextureParameter.add(material_color_specular.set("specular color", ofColor(174, 223, 134), ofColor(0, 0), ofColor(255, 255)));
+	guiTextureParameter.add(material_brightness.set("brightness", 0.5, 0, 1));
+	guiTextureParameter.add(material_metallic.set("metallic", 0.5, 0, 1));
+	guiTextureParameter.add(material_roughness.set("roughness", 0.5, 0, 1));
+	guiTextureParameter.add(material_occlusion.set("occlusion", 0.5, 0, 1));
+
+	guiTextureParameter.setPosition(10 + textureGui.getWidth(), MENU_HEIGHT +10);
+
+
 	
 }
 
@@ -194,6 +207,14 @@ void Application::update()
 	sceneController.COLOR_DIFFUSE = color_picker_diffuse;
 	gridController.foodColor = tempColor;
 
+	sceneController.material_color_ambient = material_color_ambient;
+	sceneController.material_color_diffuse = material_color_diffuse;
+	sceneController.material_color_specular = material_color_specular;
+	sceneController.material_brightness = material_brightness;
+	sceneController.material_metallic = material_metallic;
+	sceneController.material_roughness = material_roughness;
+	sceneController.material_occlusion = material_occlusion;
+
 	sceneController.update();
 
 	if (isRunning) {
@@ -220,6 +241,7 @@ void Application::draw()
 		colorGui.draw();
 	if (showTextureMenu)
 		textureGui.draw();
+		guiTextureParameter.draw();
 	if (showCameraMenu)
 		cameraGui.draw();
 
