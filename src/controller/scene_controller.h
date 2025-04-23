@@ -83,14 +83,27 @@ public:
 	void unbindAntTextures();
 	void updateGridController(GridController*);
 	ofxAssimpModelLoader& getAntModel();
+	bool textureSelected = false;
 
-private:
-
-	//texture wall
 	ofShader shader_texture_wall;
 	ofImage texture_albedo;
 	ofImage texture_normal;
 	ofImage texture_arm;
+
+	ofFbo miniViewportFbo;
+	ofEasyCam miniViewportCam;
+	ofBoxPrimitive miniBox;
+
+	vector<string> brickTexture;
+	vector<string> rockTexture;
+	vector<string> metalTexture;
+	vector<string> blueMetalTexture;
+
+
+private:
+
+	//texture wall
+	
 	float material_metallic;
 	float material_roughness;
 	float material_occlusion;

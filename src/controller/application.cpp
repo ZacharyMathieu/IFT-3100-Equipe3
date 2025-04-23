@@ -58,27 +58,20 @@ void Application::setup()
 
 	//GUI texture 
 	textureGui.setup("Wall textures");
-	woodPick.setName("Wood");
-	crackWallPick.setName("Crack wall");
-	rockPick.setName("Rock");
-	paintPick.setName("Paint");
-	glitterPick.setName("Glitter");
-	firePick.setName("Fire");
+	woodPick.setName("Brick");
+	crackWallPick.setName("Rock");
+	rockPick.setName("Metal");
+	paintPick.setName("Blue Metal");
 	textureGui.add(woodPick);
 	textureGui.add(crackWallPick);
 	textureGui.add(rockPick);
 	textureGui.add(paintPick);
-	textureGui.add(glitterPick);
-	textureGui.add(firePick);
 	textureGui.setPosition(10, MENU_HEIGHT + 10);
 
-	sceneController.texture = sceneController.wallTextures[0];
 	textureSelection.push_back(&woodPick);
 	textureSelection.push_back(&crackWallPick);
 	textureSelection.push_back(&rockPick);
 	textureSelection.push_back(&paintPick);
-	textureSelection.push_back(&glitterPick);
-	textureSelection.push_back(&firePick);
 
 	for (auto* param : textureSelection) {
 		param->addListener(this, &Application::onTextureSelected);
@@ -429,6 +422,8 @@ void Application::mousePressed(int x, int y, int button)
 		if (pressedButton == &textureButton)
 		{
 			showTextureMenu = !showTextureMenu;
+
+			sceneController.textureSelected = !sceneController.textureSelected;
 			showDrawMenu = false;
 			showEraserMenu = false;
 			showColorMenu = false;
@@ -777,12 +772,35 @@ void Application::onTextureSelected(bool& value)
 	if (value) {
 		int x = 0;
 		for (auto* param : textureSelection) {
-			if (&(param->get()) != &value) {  // comparer les adresses
+			if (&(param->get()) != &value) {  
 				param->set(false);
 				x++;
 			}
 			else {
-				sceneController.texture = sceneController.wallTextures[x];
+				switch (x) {
+				case 0:
+					sceneController.texture_albedo.load(sceneController.brickTexture[0]);
+					sceneController.texture_normal.load(sceneController.brickTexture[1]);
+					sceneController.texture_arm.load(sceneController.brickTexture[2]);
+					break;
+				case 1:
+					sceneController.texture_albedo.load(sceneController.rockTexture[0]);
+					sceneController.texture_normal.load(sceneController.rockTexture[1]);
+					sceneController.texture_arm.load(sceneController.rockTexture[2]);
+					break;
+				case 2:
+					sceneController.texture_albedo.load(sceneController.metalTexture[0]);
+					sceneController.texture_normal.load(sceneController.metalTexture[1]);
+					sceneController.texture_arm.load(sceneController.metalTexture[2]);
+					break;
+				case 3:
+					sceneController.texture_albedo.load(sceneController.blueMetalTexture[0]);
+					sceneController.texture_normal.load(sceneController.blueMetalTexture[1]);
+					sceneController.texture_arm.load(sceneController.blueMetalTexture[2]);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}
