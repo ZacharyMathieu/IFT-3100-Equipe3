@@ -119,6 +119,7 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	miniViewportCam.setFarClip(100.0f);
 	miniViewportCam.setPosition(2, 2, 2);
 	miniViewportCam.lookAt(glm::vec3(0, 0, 0));
+	miniViewportCam.disableMouseInput();
 
 }
 
@@ -365,7 +366,7 @@ void SceneController::draw()
 		texture_arm.getTexture().bind(2);
 		// === MINI VIEWPORT ===
 		miniViewportFbo.begin();
-		ofClear(120, 120, 120, 255);
+		ofClear(0, 0, 0, 0);
 		ofEnableDepthTest();
 		ofEnableLighting();
 		light.enable();
@@ -377,12 +378,9 @@ void SceneController::draw()
 		shader_texture_wall.setUniformTexture("normalMap", texture_normal, 1);
 		shader_texture_wall.setUniformTexture("armMap", texture_arm, 2);
 		// Matériau : valeurs fixes ou variables si besoin
-		shader_texture_wall.setUniform3f("material_color_ambient", material_color_ambient.r / 255,
-			material_color_ambient.g / 255, material_color_ambient.b / 255);
-		shader_texture_wall.setUniform3f("material_color_diffuse", material_color_diffuse.r / 255,
-			material_color_diffuse.g / 255, material_color_diffuse.b / 255);
-		shader_texture_wall.setUniform3f("material_color_specular", material_color_specular.r / 255,
-			material_color_specular.g / 255, material_color_specular.b / 255);
+		shader_texture_wall.setUniform3f("material_color_ambient", 1,1,1);
+		shader_texture_wall.setUniform3f("material_color_diffuse", 1,1,1);
+		shader_texture_wall.setUniform3f("material_color_specular", 1, 1, 1);
 
 		shader_texture_wall.setUniform1f("material_brightness", material_brightness);
 		shader_texture_wall.setUniform1f("material_metallic", material_metallic);  // ou 0.0f si mur non métallique
@@ -416,7 +414,7 @@ void SceneController::draw()
 
 		// Affichage à l'écran
 		ofSetColor(255);
-		miniViewportFbo.draw((fullWidth / 2) - 200, 50, 200, 200); // position et taille à l'écran
+		miniViewportFbo.draw((fullWidth / 2) - 400, 50, 400, 400); // position et taille à l'écran
 
 	}
 	
@@ -542,12 +540,9 @@ void SceneController::drawScene()
 	shader_texture_wall.setUniformTexture("armMap", texture_arm, 2);
 
 	// Matériau : valeurs fixes ou variables si besoin
-	shader_texture_wall.setUniform3f("material_color_ambient", material_color_ambient.r /255,
-		material_color_ambient.g / 255, material_color_ambient.b / 255);
-	shader_texture_wall.setUniform3f("material_color_diffuse", material_color_diffuse.r/255,
-		material_color_diffuse.g / 255, material_color_diffuse.b / 255);
-	shader_texture_wall.setUniform3f("material_color_specular", material_color_specular.r/255,
-		material_color_specular.g / 255, material_color_specular.b / 255);
+	shader_texture_wall.setUniform3f("material_color_ambient", 1,1,1);
+	shader_texture_wall.setUniform3f("material_color_diffuse", 1, 1, 1);
+	shader_texture_wall.setUniform3f("material_color_specular", 1, 1, 1);
 
 	shader_texture_wall.setUniform1f("material_brightness", material_brightness);
 	shader_texture_wall.setUniform1f("material_metallic", material_metallic);  // ou 0.0f si mur non métallique

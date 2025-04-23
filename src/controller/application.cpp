@@ -115,14 +115,11 @@ void Application::setup()
 	camerasToFalse();
 	cameraSelection[0]->set(true);
 
-	guiTextureParameter.setup();
-	guiTextureParameter.add(material_color_ambient.set("ambient color", ofColor(63, 63, 63), ofColor(0, 0), ofColor(255, 255)));
-	guiTextureParameter.add(material_color_diffuse.set("diffuse color", ofColor(174, 223, 134), ofColor(0, 0), ofColor(255, 255)));
-	guiTextureParameter.add(material_color_specular.set("specular color", ofColor(174, 223, 134), ofColor(0, 0), ofColor(255, 255)));
+	guiTextureParameter.setup();;
 	guiTextureParameter.add(material_brightness.set("brightness", 0.5, 0, 1));
 	guiTextureParameter.add(material_metallic.set("metallic", 0.5, 0, 1));
 	guiTextureParameter.add(material_roughness.set("roughness", 0.5, 0, 1));
-	guiTextureParameter.add(material_occlusion.set("occlusion", 0.5, 0, 1));
+	guiTextureParameter.add(material_occlusion.set("occlusion", 1, 0, 1));
 
 	guiTextureParameter.setPosition(10 + textureGui.getWidth(), MENU_HEIGHT +10);
 
@@ -207,13 +204,12 @@ void Application::update()
 	sceneController.COLOR_DIFFUSE = color_picker_diffuse;
 	gridController.foodColor = tempColor;
 
-	sceneController.material_color_ambient = material_color_ambient;
-	sceneController.material_color_diffuse = material_color_diffuse;
-	sceneController.material_color_specular = material_color_specular;
 	sceneController.material_brightness = material_brightness;
 	sceneController.material_metallic = material_metallic;
 	sceneController.material_roughness = material_roughness;
 	sceneController.material_occlusion = material_occlusion;
+
+	sceneController.textureSelected = showTextureParameterMenu;
 
 	sceneController.update();
 
@@ -241,6 +237,7 @@ void Application::draw()
 		colorGui.draw();
 	if (showTextureMenu)
 		textureGui.draw();
+	if (showTextureMenu)
 		guiTextureParameter.draw();
 	if (showCameraMenu)
 		cameraGui.draw();
@@ -417,6 +414,7 @@ void Application::mousePressed(int x, int y, int button)
 			showColorMenu = false;
 			showCameraMenu = false;
 			showTextureMenu = false;
+			showTextureParameterMenu = false;
 			cursorMode = showEraserMenu ? ERASE : DEFAULT;
 			return;
 		}
@@ -426,6 +424,7 @@ void Application::mousePressed(int x, int y, int button)
 			showTextureMenu = false;
 			showEraserMenu = false;
 			showColorMenu = false;
+			showTextureParameterMenu = false;
 			showCameraMenu = false;
 			cursorMode = showDrawMenu ? DRAW : DEFAULT;
 
@@ -438,14 +437,15 @@ void Application::mousePressed(int x, int y, int button)
 			showTextureMenu = false;
 			showEraserMenu = false;
 			showCameraMenu = false;
+			showTextureParameterMenu = false;
 			cursorMode = DEFAULT;
 			return;
 		}
 		if (pressedButton == &textureButton)
 		{
 			showTextureMenu = !showTextureMenu;
+			showTextureParameterMenu = !showTextureParameterMenu;
 
-			sceneController.textureSelected = !sceneController.textureSelected;
 			showDrawMenu = false;
 			showEraserMenu = false;
 			showColorMenu = false;
@@ -461,6 +461,7 @@ void Application::mousePressed(int x, int y, int button)
 			showEraserMenu = false;
 			showColorMenu = false;
 			showTextureMenu = false;
+			showTextureParameterMenu = false;
 			cursorMode = DEFAULT;
 
 			return;
@@ -472,6 +473,7 @@ void Application::mousePressed(int x, int y, int button)
 			showEraserMenu = false;
 			showColorMenu = false;
 			showTextureMenu = false;
+			showTextureParameterMenu = false;
 			cursorMode = DEFAULT;
 			customAnt();
 			return;
@@ -483,6 +485,8 @@ void Application::mousePressed(int x, int y, int button)
 		showDrawMenu = false;
 		showEraserMenu = false;
 		showColorMenu = false;
+		showTextureMenu = false;
+		showTextureMenu = false;
 
 		if (pressedButton == &penTypeChoiceButton)
 		{

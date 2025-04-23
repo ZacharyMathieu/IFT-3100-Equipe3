@@ -82,6 +82,7 @@ private:
 	bool showDrawMenu = false;
 	bool showColorMenu = false;
 	bool showTextureMenu = false;
+	bool showTextureParameterMenu = false;
 	bool showCameraMenu = false;
 	bool isEraserMenuCollapsed = false;
 	bool isDrawMenuCollapsed = false;
