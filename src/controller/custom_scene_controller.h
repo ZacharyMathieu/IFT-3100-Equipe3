@@ -75,7 +75,7 @@ private:
 	vector<glm::vec3> controlPoints;
 
 	bool colorChanged;
-	float newAngle = 115.0f;
+	float newAngle = 95.0f;
 	int turnSpeed = 3;
 	bool filterActivated;
 
@@ -111,6 +111,9 @@ public:
 	ofxAssimpModelLoader greenAnt;
 	vector<ofxAssimpModelLoader*> ants;
 	ofxAssimpModelLoader* activeAnt;
+	//ofPoint activeAntPosition;
+	ofNode antTransform;
+	float antScale = 3.75;
 	ofxAssimpModelLoader vase;
 
 	float reliefStrength = 5.0f;
@@ -188,6 +191,11 @@ public:
 	ofParameter<ofColor> material_color_ambient;
 	ofParameter<ofColor> material_color_diffuse;
 	ofParameter<ofColor> material_color_specular;
+	ofTexture texture_metallic;
+	ofTexture texture_roughness;
+	ofTexture texture_occlusion;
+
+	ofSpherePrimitive lightBall;
 
 	ofMaterial* mat;
 
@@ -218,13 +226,11 @@ public:
 	ofImage imgPlateform;
 	ofTexture texPlateform;
 
-	vector<Light*> lights;
-
 	void setup();
 	void reloadShaders();
 	void update();
 	void draw();
-	void drawScene(glm::mat4* modelView);
+	void drawScene(bool, glm::mat4&);
 	void mousePressed(int x, int y, int button) override;
 	void keyPressed(int key);
 	void startCameraTransition(glm::vec3 newPos, glm::vec3 newTarget);
