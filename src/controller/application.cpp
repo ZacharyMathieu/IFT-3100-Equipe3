@@ -114,7 +114,7 @@ void Application::setup()
 	}
 	camerasToFalse();
 	cameraSelection[0]->set(true);
-
+  
 	guiTextureParameter.setup();;
 	guiTextureParameter.add(material_brightness.set("brightness", 0.5, 0, 1));
 	guiTextureParameter.add(material_metallic.set("metallic", 0.5, 0, 1));
@@ -123,8 +123,7 @@ void Application::setup()
 
 	guiTextureParameter.setPosition(10 + textureGui.getWidth(), MENU_HEIGHT +10);
 
-
-	
+	customAnt();
 }
 
 //--------------------------------------------------------------

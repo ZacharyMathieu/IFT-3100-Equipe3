@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "ofxAssimpModelLoader.h"
 #include <cmath>
+#include <light.h>
 //pour le filtre d'image
 enum class ConvolutionKernel
 {
@@ -14,7 +15,7 @@ enum class ConvolutionKernel
 	blur
 };
 
-// kernel de convolution (3x3) : identité
+// kernel de convolution (3x3) : identitï¿½
 const std::array<float, 9> convolution_kernel_identity
 {
   0.0f,  0.0f,  0.0f,
@@ -30,7 +31,7 @@ const std::array<float, 9> convolution_kernel_sharpen
   0.0f, -1.0f,  0.0f
 };
 
-// kernel de convolution (3x3) : détection de bordure
+// kernel de convolution (3x3) : dï¿½tection de bordure
 const std::array<float, 9> convolution_kernel_edge_detect
 {
   0.0f,  1.0f,  0.0f,
@@ -63,9 +64,8 @@ class CustomSceneController : public ofBaseApp
 private:
 	ConvolutionKernel ck;
 	ofEasyCam cam;
-	ofLight light;
 	ofCylinderPrimitive plateform;
-	
+
 	//tablette
 	ofBoxPrimitive tablette, tablette2;
 	ofMesh tabletteMesh, tablette2Mesh;
@@ -75,7 +75,7 @@ private:
 	vector<glm::vec3> controlPoints;
 
 	bool colorChanged;
-	float newAngle = 115.0f;
+	float newAngle = 95.0f;
 	int turnSpeed = 3;
 	bool filterActivated;
 
@@ -111,13 +111,16 @@ public:
 	ofxAssimpModelLoader greenAnt;
 	vector<ofxAssimpModelLoader*> ants;
 	ofxAssimpModelLoader* activeAnt;
+	//ofPoint activeAntPosition;
+	ofNode antTransform;
+	float antScale = 3.75;
 	ofxAssimpModelLoader vase;
 
 	float reliefStrength = 5.0f;
 	ofMesh planeMeshRight;
 	ofMesh planeMeshLeft;
 
-	ofPlanePrimitive  leftWall, backWall, ceiling,floor, poster, cadrePlane;
+	ofPlanePrimitive  leftWall, backWall, ceiling, floor, poster, cadrePlane;
 	ofBoxPrimitive rightWall;
 	ofImage posterImg;
 	ofImage posterFilter;
@@ -153,7 +156,7 @@ public:
 	ofImage brick;
 	ofParameter<bool> reliefActivatedRight;
 	bool reliefIsActivated;
-		
+
 	//GUI mur gauche
 	ofxPanel guiLeft;
 	ofParameter<bool> colorChoiceLeft;
@@ -171,6 +174,28 @@ public:
 	//Gui Catmull
 	ofxPanel controlPointsGui;
 	std::vector<ofParameter<float>> controlPointYSliders;
+
+	//GUI lumiÃ¨re
+	ofxPanel lightPanel;
+	ofParameter<float> material_brightness;
+	ofParameter<float> material_metallic;
+	ofParameter<float> material_roughness;
+	ofParameter<float> material_occlusion;
+	ofParameter<ofPoint> material_fresnel_ior;
+	ofParameter<float> tone_mapping_exposure;
+	ofParameter<bool> tone_mapping_toggle;
+	ofParameter<float> tone_mapping_gamma;
+	ofParameter<ofPoint> light_position;
+	ofParameter<ofColor> light_color;
+	ofParameter<float> light_intensity;
+	ofParameter<ofColor> material_color_ambient;
+	ofParameter<ofColor> material_color_diffuse;
+	ofParameter<ofColor> material_color_specular;
+	ofTexture texture_metallic;
+	ofTexture texture_roughness;
+	ofTexture texture_occlusion;
+
+	ofSpherePrimitive lightBall;
 
 	ofMaterial* mat;
 
@@ -192,17 +217,22 @@ public:
 	ofTexture aoTexture;
 
 	ofShader shader;
+	ofShader lightShader;
+	ofShader lightTextureShader;
 	ofTexture antTexture;
 	ofTexture wallTexture;
 	ofImage img;
 
 	ofImage imgPlateform;
 	ofTexture texPlateform;
-	void setup() ;
-	void update() ;
+
+	void setup();
+	void reloadShaders();
+	void update();
 	void draw();
-	void drawScene();
+	void drawScene(bool, glm::mat4&);
 	void mousePressed(int x, int y, int button) override;
+	void keyPressed(int key);
 	void startCameraTransition(glm::vec3 newPos, glm::vec3 newTarget);
 	void resetCamera();
 	void onUseMaterial(bool& value);
