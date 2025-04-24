@@ -15,8 +15,8 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 
 	scale_ant = 0.002f * boxSize;
 
-	box.set(1, 1, 1);
-	box.mapTexCoords(0, 0, 2, 2);
+	box.set(1, 1, 1); // texture couvrira tout le cube
+	box.mapTexCoords(0, 0, 0.5, 0.5); // zoom encore plus fort
 	boxMesh = box.getMesh();
 
 	pheromoneSquare.set(0, 0, gridController->GRID_WIDTH * boxSize, gridController->GRID_HEIGHT * boxSize);
@@ -43,39 +43,12 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 		slimesMesh.append(slimes.getMesh(i));
 	}
 
-	crackWall.load("images/crackWall.jpg");
-	glitter.load("images/glitter.jpg");
-	fire.load("images/fire.jpg");
-	wood.load("images/wood.jpg");
-	rock.load("images/rock.jpg");
-	paint.load("images/paint.jpg");
-
-	wallTextures.push_back(wood.getTexture());
-	wallTextures.push_back(crackWall.getTexture());
-	wallTextures.push_back(rock.getTexture());
-	wallTextures.push_back(paint.getTexture());
-	wallTextures.push_back(glitter.getTexture());
-	wallTextures.push_back(fire.getTexture());
-
-	texture.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
-	texture.setTextureWrap(GL_REPEAT, GL_REPEAT);
-
 	//antModelLoader.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
 	antModelLoader.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
 
 	antTexture.load("models/newAnt4/tex/Ant_color.jpg");
 	antModelLoader.enableTextures();
 
-	albedo.load("models/newAnt3/Textures/material_baseColor.jpg");
-	normalMap.load("models/newAnt3/Textures/material_normal.png");
-	metallicRoughnessMap.load("models/newAnt3/Textures/material_metallicRoughness.png");
-
-	a = albedo.getTexture();
-	n = normalMap.getTexture();
-	m = metallicRoughnessMap.getTexture();
-	a.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
-	n.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
-	m.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
 
 	ants.loadModel("models/newAnt4/Ant_anim_fbx.fbx", true);
 	antMesh = ants.getMesh(0);
@@ -107,6 +80,47 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	cameras.push_back(&POV);
 	numCam = 0;
 	activeCam = cameras[numCam];
+
+	//texture wall
+
+	// paramètres des textures du matériau
+
+	brickTexture.push_back("images/bricks/textures/brick_albedo.jpg");
+	brickTexture.push_back("images/bricks/textures/brick_nor.jpg");
+	brickTexture.push_back("images/bricks/textures/brick_arm.jpg");
+
+	rockTexture.push_back("images/rocks/textures/rock_albedo.jpg");
+	rockTexture.push_back("images/rocks/textures/rock_nor.jpg");
+	rockTexture.push_back("images/rocks/textures/rock_arm.jpg");
+
+	metalTexture.push_back("images/metal/textures/metal_albedo.jpg");
+	metalTexture.push_back("images/metal/textures/metal_nor.jpg");
+	metalTexture.push_back("images/metal/textures/metal_arm.jpg");
+
+	blueMetalTexture.push_back("images/blueMetal/textures/blue_albedo.jpg");
+	blueMetalTexture.push_back("images/blueMetal/textures/blue_nor.jpg");
+	blueMetalTexture.push_back("images/blueMetal/textures/blue_arm.jpg");
+
+	texture_albedo.load("images/bricks/textures/brick_albedo.jpg");
+	texture_normal.load("images/bricks/textures/brick_nor.jpg");
+	texture_arm.load("images/bricks/textures/brick_arm.jpg");
+
+	texture_albedo.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
+	texture_normal.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
+	texture_arm.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
+
+
+	// Petit cube dans un mini viewport
+	miniBox.set(2.0f); // taille 1
+	miniBox.mapTexCoordsFromTexture(texture_albedo.getTexture());
+
+	miniViewportFbo.allocate(500, 500, GL_RGBA); // taille du coin
+	miniViewportCam.setNearClip(0.1f);
+	miniViewportCam.setFarClip(100.0f);
+	miniViewportCam.setPosition(2, 2, 2);
+	miniViewportCam.lookAt(glm::vec3(0, 0, 0));
+	miniViewportCam.disableMouseInput();
+
 }
 
 void SceneController::reloadShaders()
@@ -284,6 +298,10 @@ void SceneController::update()
 		antModelLoader.getAnimation(1).stop();
 		antModelLoader.getAnimation(0).play();
 	}
+
+	texture_albedo.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
+	texture_normal.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
+	texture_arm.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
 }
 
 void SceneController::draw()
@@ -337,6 +355,70 @@ void SceneController::draw()
 		ofDisableDepthTest();
 		ofPopView();
 	}
+	if (textureSelected) {
+		glActiveTexture(GL_TEXTURE0);
+		texture_albedo.getTexture().bind(0);
+
+		glActiveTexture(GL_TEXTURE1);
+		texture_normal.getTexture().bind(1);
+
+		glActiveTexture(GL_TEXTURE2);
+		texture_arm.getTexture().bind(2);
+		// === MINI VIEWPORT ===
+		miniViewportFbo.begin();
+		ofClear(0, 0, 0, 0);
+		ofEnableDepthTest();
+		ofEnableLighting();
+		light.enable();
+		miniViewportCam.begin();
+
+		// Bind shader + texture
+		shader_texture_wall.begin();
+		shader_texture_wall.setUniformTexture("albedoMap", texture_albedo, 0);
+		shader_texture_wall.setUniformTexture("normalMap", texture_normal, 1);
+		shader_texture_wall.setUniformTexture("armMap", texture_arm, 2);
+		// Matériau : valeurs fixes ou variables si besoin
+		shader_texture_wall.setUniform3f("material_color_ambient", 1,1,1);
+		shader_texture_wall.setUniform3f("material_color_diffuse", 1,1,1);
+		shader_texture_wall.setUniform3f("material_color_specular", 1, 1, 1);
+
+		shader_texture_wall.setUniform1f("material_brightness", material_brightness);
+		shader_texture_wall.setUniform1f("material_metallic", material_metallic);  // ou 0.0f si mur non métallique
+		shader_texture_wall.setUniform1f("material_roughness", material_roughness); // plus rugueux = plus diffus
+		shader_texture_wall.setUniform1f("material_occlusion", material_occlusion);
+		shader_texture_wall.setUniform3f("material_fresnel_ior", 0.04f, 0.04f, 0.04f);
+		shader_texture_wall.setUniform1f("tone_mapping_exposure", 1.0f);
+		shader_texture_wall.setUniform1f("tone_mapping_gamma", 2.2f);
+		shader_texture_wall.setUniform1i("tone_mapping_toggle", false);
+		shader_texture_wall.setUniform3f("light_position", light.getGlobalPosition());
+		shader_texture_wall.setUniform3f("viewPos", miniViewportCam.getPosition());
+		shader_texture_wall.setUniform3f("translation", 0, 0, 0);
+		shader_texture_wall.setUniform1f("scale_factor", 1.0f);
+
+		miniBox.draw();
+
+		shader_texture_wall.end();
+		miniViewportCam.end();
+		glUseProgram(0);
+		light.disable();
+		ofDisableDepthTest();
+		ofDisableLighting();
+		miniViewportFbo.end();
+
+		glActiveTexture(GL_TEXTURE0);
+		texture_albedo.getTexture().unbind(0);
+		glActiveTexture(GL_TEXTURE1);
+		texture_normal.getTexture().unbind(1);
+		glActiveTexture(GL_TEXTURE2);
+		texture_arm.getTexture().unbind(2);
+
+		// Affichage à l'écran
+		ofSetColor(255);
+		miniViewportFbo.draw((fullWidth / 2) - 400, 50, 400, 400); // position et taille à l'écran
+
+	}
+	
+
 }
 
 void SceneController::keyPressed(int key)
@@ -365,7 +447,7 @@ void SceneController::drawScene()
 	shader_ant.begin();
 
 	// Set uniform values
-	shader_ant.setUniformTexture("texture0", wood.getTexture(), 0);
+	shader_ant.setUniformTexture("texture0", antTexture, 0);
 	shader_ant.setUniform3f("light_position", light.getGlobalPosition());
 	shader_ant.setUniform3f("color_ambient", ant->COLOR.r / 255.0f, ant->COLOR.g / 255.0f, ant->COLOR.b / 255.0f);
 
@@ -440,28 +522,71 @@ void SceneController::drawScene()
 	//shader.setUniform3f("light_position", light.getGlobalPosition());
 	//shader.setUniform3f("translation", 0, 0, 0);
 	//shader.setUniform1f("scale_factor", 1);
+	wood.getTexture().unbind();
+	glActiveTexture(GL_TEXTURE0);
+	texture_albedo.getTexture().bind(0);
+
+	glActiveTexture(GL_TEXTURE1);
+	texture_normal.getTexture().bind(1);
+
+	glActiveTexture(GL_TEXTURE2);
+	texture_arm.getTexture().bind(2);
 
 	shader_texture_wall.begin();
-	shader_texture_wall.setUniformTexture("texture0", texture, 0);
-	shader_texture_wall.setUniform3f("color_ambient", 0.5f, 0.5f, 0.5f);
-	shader_texture_wall.setUniform3f("color_diffuse", 1, 1, 1);
+
+	// Bind des textures PBR
+	shader_texture_wall.setUniformTexture("albedoMap", texture_albedo, 0);
+	shader_texture_wall.setUniformTexture("normalMap", texture_normal, 1);
+	shader_texture_wall.setUniformTexture("armMap", texture_arm, 2);
+
+	// Matériau : valeurs fixes ou variables si besoin
+	shader_texture_wall.setUniform3f("material_color_ambient", 1,1,1);
+	shader_texture_wall.setUniform3f("material_color_diffuse", 1, 1, 1);
+	shader_texture_wall.setUniform3f("material_color_specular", 1, 1, 1);
+
+	shader_texture_wall.setUniform1f("material_brightness", material_brightness);
+	shader_texture_wall.setUniform1f("material_metallic", material_metallic);  // ou 0.0f si mur non métallique
+	shader_texture_wall.setUniform1f("material_roughness", material_roughness); // plus rugueux = plus diffus
+	shader_texture_wall.setUniform1f("material_occlusion", material_occlusion);
+
+	// IOR pour Fresnel (ex: plastique ~0.04, métal ~0.9)
+	shader_texture_wall.setUniform3f("material_fresnel_ior", 0.09f, 0.09f, 0.09f);
+
+	// Tone mapping
+	shader_texture_wall.setUniform1f("tone_mapping_exposure", 1.0f);
+	shader_texture_wall.setUniform1f("tone_mapping_gamma", 2.2f);
+	shader_texture_wall.setUniform1i("tone_mapping_toggle", false); // true pour ACES
+
+	// Lumière et caméra
 	shader_texture_wall.setUniform3f("light_position", light.getGlobalPosition());
+	shader_texture_wall.setUniform3f("viewPos", activeCam->getGlobalPosition());
+
 	for (auto& pos : wallPositions)
 	{
 		if (objectVisible(pos, RENDER_DISTANCE_WALLS))
 		{
+			// translation et échelle locale si ton vertex shader les utilise
 			shader_texture_wall.setUniform3f("translation", pos.x, pos.y, pos.z);
 			shader_texture_wall.setUniform1f("scale_factor", boxSize);
+
+			// Anisotropie (améliore qualité de la texture)
 			float maxAniso;
 			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
-			texture.bind();
-			boxMesh.draw(OF_MESH_FILL);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
-			texture.unbind();
+
+			boxMesh.draw(OF_MESH_FILL);
 		}
 	}
 
 	shader_texture_wall.end();
+	glActiveTexture(GL_TEXTURE0);
+	texture_albedo.getTexture().unbind(0);
+	glActiveTexture(GL_TEXTURE1);
+	texture_normal.getTexture().unbind(1);
+	glActiveTexture(GL_TEXTURE2);
+	texture_arm.getTexture().unbind(2);
+
+
 
 	for (int x = 0; x <= gridController->GRID_WIDTH; x++)
 	{

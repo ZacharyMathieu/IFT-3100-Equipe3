@@ -82,6 +82,7 @@ private:
 	bool showDrawMenu = false;
 	bool showColorMenu = false;
 	bool showTextureMenu = false;
+	bool showTextureParameterMenu = false;
 	bool showCameraMenu = false;
 	bool isEraserMenuCollapsed = false;
 	bool isDrawMenuCollapsed = false;
@@ -101,12 +102,20 @@ private:
 	ofParameter<bool> foodPenChoice;
 
 	//Choix de texture
-	ofParameter<bool> woodPick;
-	ofParameter<bool> crackWallPick;
+	ofParameter<bool> brickPick;
 	ofParameter<bool> rockPick;
-	ofParameter<bool> paintPick;
-	ofParameter<bool> firePick;
-	ofParameter<bool> glitterPick;
+	ofParameter<bool> metalPick;
+	ofParameter<bool> blueMetalPick;
+
+	//GUi texture
+	ofxPanel guiTextureParameter;
+	ofParameter<ofColor> material_color_ambient;
+	ofParameter<ofColor> material_color_diffuse;
+	ofParameter<ofColor> material_color_specular;
+	ofParameter<float> material_brightness;
+	ofParameter<float> material_metallic;
+	ofParameter<float> material_roughness;
+	ofParameter<float> material_occlusion;
 
 	//paramètre CameraGui
 	ofParameter<bool> checkPop;

@@ -58,27 +58,20 @@ void Application::setup()
 
 	//GUI texture 
 	textureGui.setup("Wall textures");
-	woodPick.setName("Wood");
-	crackWallPick.setName("Crack wall");
+	brickPick.setName("Brick");
 	rockPick.setName("Rock");
-	paintPick.setName("Paint");
-	glitterPick.setName("Glitter");
-	firePick.setName("Fire");
-	textureGui.add(woodPick);
-	textureGui.add(crackWallPick);
+	metalPick.setName("Metal");
+	blueMetalPick.setName("Blue Metal");
+	textureGui.add(brickPick);
 	textureGui.add(rockPick);
-	textureGui.add(paintPick);
-	textureGui.add(glitterPick);
-	textureGui.add(firePick);
+	textureGui.add(metalPick);
+	textureGui.add(blueMetalPick);
 	textureGui.setPosition(10, MENU_HEIGHT + 10);
 
-	sceneController.texture = sceneController.wallTextures[0];
-	textureSelection.push_back(&woodPick);
-	textureSelection.push_back(&crackWallPick);
+	textureSelection.push_back(&brickPick);
 	textureSelection.push_back(&rockPick);
-	textureSelection.push_back(&paintPick);
-	textureSelection.push_back(&glitterPick);
-	textureSelection.push_back(&firePick);
+	textureSelection.push_back(&metalPick);
+	textureSelection.push_back(&blueMetalPick);
 
 	for (auto* param : textureSelection) {
 		param->addListener(this, &Application::onTextureSelected);
@@ -121,6 +114,14 @@ void Application::setup()
 	}
 	camerasToFalse();
 	cameraSelection[0]->set(true);
+  
+	guiTextureParameter.setup();;
+	guiTextureParameter.add(material_brightness.set("brightness", 0.5, 0, 1));
+	guiTextureParameter.add(material_metallic.set("metallic", 0.5, 0, 1));
+	guiTextureParameter.add(material_roughness.set("roughness", 0.5, 0, 1));
+	guiTextureParameter.add(material_occlusion.set("occlusion", 1, 0, 1));
+
+	guiTextureParameter.setPosition(10 + textureGui.getWidth(), MENU_HEIGHT +10);
 
 	customAnt();
 }
@@ -202,6 +203,13 @@ void Application::update()
 	sceneController.COLOR_DIFFUSE = color_picker_diffuse;
 	gridController.foodColor = tempColor;
 
+	sceneController.material_brightness = material_brightness;
+	sceneController.material_metallic = material_metallic;
+	sceneController.material_roughness = material_roughness;
+	sceneController.material_occlusion = material_occlusion;
+
+	sceneController.textureSelected = showTextureParameterMenu;
+
 	sceneController.update();
 
 	if (isRunning) {
@@ -228,6 +236,8 @@ void Application::draw()
 		colorGui.draw();
 	if (showTextureMenu)
 		textureGui.draw();
+	if (showTextureMenu)
+		guiTextureParameter.draw();
 	if (showCameraMenu)
 		cameraGui.draw();
 
@@ -302,7 +312,6 @@ void Application::drawCustomCursors()
 void Application::onColorChanged(ofColor& color)
 {
 	currentDrawColor = color;
-	gridController.ants[0]->MAIN_ANT_COLOR = color;
 	gridController.foodColor = color;
 	
 }
@@ -404,6 +413,7 @@ void Application::mousePressed(int x, int y, int button)
 			showColorMenu = false;
 			showCameraMenu = false;
 			showTextureMenu = false;
+			showTextureParameterMenu = false;
 			cursorMode = showEraserMenu ? ERASE : DEFAULT;
 			return;
 		}
@@ -413,6 +423,7 @@ void Application::mousePressed(int x, int y, int button)
 			showTextureMenu = false;
 			showEraserMenu = false;
 			showColorMenu = false;
+			showTextureParameterMenu = false;
 			showCameraMenu = false;
 			cursorMode = showDrawMenu ? DRAW : DEFAULT;
 
@@ -425,12 +436,15 @@ void Application::mousePressed(int x, int y, int button)
 			showTextureMenu = false;
 			showEraserMenu = false;
 			showCameraMenu = false;
+			showTextureParameterMenu = false;
 			cursorMode = DEFAULT;
 			return;
 		}
 		if (pressedButton == &textureButton)
 		{
 			showTextureMenu = !showTextureMenu;
+			showTextureParameterMenu = !showTextureParameterMenu;
+
 			showDrawMenu = false;
 			showEraserMenu = false;
 			showColorMenu = false;
@@ -446,6 +460,7 @@ void Application::mousePressed(int x, int y, int button)
 			showEraserMenu = false;
 			showColorMenu = false;
 			showTextureMenu = false;
+			showTextureParameterMenu = false;
 			cursorMode = DEFAULT;
 
 			return;
@@ -457,6 +472,7 @@ void Application::mousePressed(int x, int y, int button)
 			showEraserMenu = false;
 			showColorMenu = false;
 			showTextureMenu = false;
+			showTextureParameterMenu = false;
 			cursorMode = DEFAULT;
 			customAnt();
 			return;
@@ -468,6 +484,8 @@ void Application::mousePressed(int x, int y, int button)
 		showDrawMenu = false;
 		showEraserMenu = false;
 		showColorMenu = false;
+		showTextureMenu = false;
+		showTextureMenu = false;
 
 		if (pressedButton == &penTypeChoiceButton)
 		{
@@ -779,12 +797,35 @@ void Application::onTextureSelected(bool& value)
 	if (value) {
 		int x = 0;
 		for (auto* param : textureSelection) {
-			if (&(param->get()) != &value) {  // comparer les adresses
+			if (&(param->get()) != &value) {  
 				param->set(false);
 				x++;
 			}
 			else {
-				sceneController.texture = sceneController.wallTextures[x];
+				switch (x) {
+				case 0:
+					sceneController.texture_albedo.load(sceneController.brickTexture[0]);
+					sceneController.texture_normal.load(sceneController.brickTexture[1]);
+					sceneController.texture_arm.load(sceneController.brickTexture[2]);
+					break;
+				case 1:
+					sceneController.texture_albedo.load(sceneController.rockTexture[0]);
+					sceneController.texture_normal.load(sceneController.rockTexture[1]);
+					sceneController.texture_arm.load(sceneController.rockTexture[2]);
+					break;
+				case 2:
+					sceneController.texture_albedo.load(sceneController.metalTexture[0]);
+					sceneController.texture_normal.load(sceneController.metalTexture[1]);
+					sceneController.texture_arm.load(sceneController.metalTexture[2]);
+					break;
+				case 3:
+					sceneController.texture_albedo.load(sceneController.blueMetalTexture[0]);
+					sceneController.texture_normal.load(sceneController.blueMetalTexture[1]);
+					sceneController.texture_arm.load(sceneController.blueMetalTexture[2]);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}

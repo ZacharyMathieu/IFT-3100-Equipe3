@@ -83,8 +83,38 @@ public:
 	void unbindAntTextures();
 	void updateGridController(GridController*);
 	ofxAssimpModelLoader& getAntModel();
+	bool textureSelected = false;
+
+	ofShader shader_texture_wall;
+	ofImage texture_albedo;
+	ofImage texture_normal;
+	ofImage texture_arm;
+
+	ofFbo miniViewportFbo;
+	ofEasyCam miniViewportCam;
+	ofBoxPrimitive miniBox;
+
+	vector<string> brickTexture;
+	vector<string> rockTexture;
+	vector<string> metalTexture;
+	vector<string> blueMetalTexture;
+	float material_metallic;
+	float material_roughness;
+	float material_occlusion;
+	float material_brightness;
+	ofColor material_color_ambient;
+	ofColor material_color_diffuse;
+	ofColor material_color_specular;
 
 private:
+
+	//texture wall
+	glm::vec3 material_fresnel_ior;
+	ofColor light_color;
+	float tone_mapping_exposure;
+	float tone_mapping_gamma;
+	bool tone_mapping_toggle;
+
 
 	ofPlanePrimitive tilePheromone;
 	ofVboMesh tilePheromoneMesh;
@@ -92,7 +122,7 @@ private:
 
 	ofShader shader_ant;
 	ofShader shader_obj;
-	ofShader shader_texture_wall;
+	
 	ofShader* shader;
 	ofLight light;
 	ofxAssimpModelLoader antModelLoader;
@@ -140,4 +170,5 @@ private:
 	void move();
 	void moveFreeCam();
 	ofPoint& movePOV();
+
 };

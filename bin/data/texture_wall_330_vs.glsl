@@ -1,36 +1,36 @@
 #version 330
 
-// Attributs d'entrée
-in vec4 position;   // Position du sommet
-in vec3 normal;     // Normale du sommet
-in vec2 texcoord;   // Coordonnées de texture
+in vec4 position;
+in vec4 normal;
+in vec2 texcoord;
+in vec3 tangent; // ← nécessaire pour normal map
 
-// Attributs en sortie
-out vec2 vTexCoord;      // Coordonnées de texture pour le fragment shader
-out vec3 surface_normal; // Normale interpolée pour l'éclairage
-out vec3 surface_position; // Position interpolée pour l'éclairage
+out vec3 surface_position;
+out vec3 surface_normal;
+out vec2 surface_texcoord;
+out mat3 tbn_matrix; // ← nécessaire pour normal map
 
-// Matrices et paramètres uniformes
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
-uniform vec3 translation;   // Translation de l'objet
-uniform float scale_factor; // Facteur d'échelle de l'objet
+uniform vec3 translation;
+uniform float scale_factor;
 
 void main()
 {
-    // Appliquer la translation et l'échelle
-    vec4 transformedPosition = vec4(position.xyz * scale_factor, 1.0) + vec4(translation, 0.0);
+    // Appliquer translation + échelle
+    vec4 transformed_position = vec4(position.xyz * scale_factor + translation, 1.0);
 
-    // Transformation normale pour le calcul de la lumière
+    // Calcul normal
     mat4 normalMatrix = transpose(inverse(modelViewMatrix));
-    surface_normal = normalize(vec3(normalMatrix * vec4(normal, 0.0)));
+    vec3 N = normalize(vec3(normalMatrix * normal));
+    vec3 T = normalize(vec3(modelViewMatrix * vec4(tangent, 0.0)));
+    vec3 B = cross(N, T);
 
-    // Calculer la position de la surface dans l'espace caméra
-    surface_position = vec3(modelViewMatrix * transformedPosition);
+    tbn_matrix = mat3(T, B, N);
 
-    // Passer les coordonnées de texture au fragment shader
-    vTexCoord = texcoord;
+    surface_normal = N;
+    surface_position = vec3(modelViewMatrix * transformed_position);
+    surface_texcoord = texcoord;
 
-    // Calculer la position finale du sommet
-    gl_Position = projectionMatrix * modelViewMatrix * transformedPosition;
+    gl_Position = projectionMatrix * modelViewMatrix * transformed_position;
 }
