@@ -8,8 +8,8 @@ int main( ){
 	settings.windowMode = OF_WINDOW;
 	settings.setGLVersion(3, 3);
 	shared_ptr<ofAppBaseWindow> mainWindow = ofCreateWindow(settings);
-	shared_ptr<CustomSceneController> mainApp = make_shared<CustomSceneController>();
-	//shared_ptr<Application> mainApp = make_shared<Application>();
+	//shared_ptr<CustomSceneController> mainApp = make_shared<CustomSceneController>();
+	shared_ptr<Application> mainApp = make_shared<Application>();
 
 	ofRunApp(mainWindow, mainApp);
 	ofRunMainLoop();

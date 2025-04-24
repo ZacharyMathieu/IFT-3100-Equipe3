@@ -122,8 +122,6 @@ void Application::setup()
 	guiTextureParameter.add(material_occlusion.set("occlusion", 1, 0, 1));
 
 	guiTextureParameter.setPosition(10 + textureGui.getWidth(), MENU_HEIGHT +10);
-
-	customAnt();
 }
 
 //--------------------------------------------------------------
