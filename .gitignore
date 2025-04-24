@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
+*.exp
+*.pdb
 
 *.code-workspace
 *.sln
@@ -43,10 +45,10 @@
 obj/*
 *.DS_Store
 .vs/*
-bin/*
 Makefile
 Projet.xcconfig
 UpgradeLog.htm
 x64/*
 !/models/**
 !/images/**
+*.xml

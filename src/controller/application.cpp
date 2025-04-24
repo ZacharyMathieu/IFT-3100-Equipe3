@@ -121,7 +121,8 @@ void Application::setup()
 	}
 	camerasToFalse();
 	cameraSelection[0]->set(true);
-	
+
+	customAnt();
 }
 
 //--------------------------------------------------------------
