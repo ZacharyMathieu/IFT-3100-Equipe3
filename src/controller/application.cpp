@@ -116,10 +116,10 @@ void Application::setup()
 	cameraSelection[0]->set(true);
   
 	guiTextureParameter.setup();;
-	guiTextureParameter.add(material_brightness.set("brightness", 0.5, 0, 1));
-	guiTextureParameter.add(material_metallic.set("metallic", 0.5, 0, 1));
-	guiTextureParameter.add(material_roughness.set("roughness", 0.5, 0, 1));
-	guiTextureParameter.add(material_occlusion.set("occlusion", 1, 0, 1));
+	guiTextureParameter.add(material_brightness.set("brightness", 0.8, 0, 1));
+	guiTextureParameter.add(material_metallic.set("metallic", 1, 0, 1));
+	guiTextureParameter.add(material_roughness.set("roughness", 0, 0, 1));
+	guiTextureParameter.add(material_occlusion.set("occlusion", 0.5, 0, 1));
 	guiTextureParameter.add(material_fresnel_ior.set("fresnel", ofPoint(0.4, 0.4, 0.4)));
 
 	guiTextureParameter.setPosition(10 + textureGui.getWidth(), MENU_HEIGHT +10);
