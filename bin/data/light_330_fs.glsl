@@ -40,6 +40,8 @@ uniform bool isAnt;
 uniform vec3 upperTint;
 uniform vec3 bottomTint;
 
+uniform bool isMirror;
+
 float trowbridge_reitz(vec3 n, vec3 h, float roughness) {
     float a = roughness * roughness;
     float a2 = a * a;
@@ -120,6 +122,11 @@ vec3 evaluateBRDF() {
 
 void main() {
     vec3 color = evaluateBRDF();
+    
+    if (isAnt && isMirror) {
+        // Inversion simple par symétrie sur l'axe Y
+        color = vec3(color.r, 1.0 - color.g, color.b);
+    }
     color = tone_mapping(color);
     color = pow(color, vec3(1.0 / tone_mapping_gamma));
     fragment_color = vec4(color, 1.0);

@@ -231,7 +231,7 @@ void CustomSceneController::setup()
 	gui.add(useMaterial);
 	useMaterial.addListener(this, &CustomSceneController::onUseMaterial);
 	useMaterial = true;
-	blueTint.setName("Blue eyes");
+	/*blueTint.setName("Blue eyes");
 	gui.add(blueTint);
 	blueTint.addListener(this, &CustomSceneController::onBlueChanged);
 	redTint.setName("Red eyes");
@@ -239,7 +239,7 @@ void CustomSceneController::setup()
 	redTint.addListener(this, &CustomSceneController::onRedChanged);
 	greenTint.setName("Green eyes");
 	gui.add(greenTint);
-	greenTint.addListener(this, &CustomSceneController::onGreenChanged);
+	greenTint.addListener(this, &CustomSceneController::onGreenChanged);*/
 
 	//GUI sans materiaux
 	tintGui.setup("Without Materials");
@@ -422,10 +422,10 @@ void CustomSceneController::update()
 	plateform.setOrientation(glm::vec3(0, newAngle, 0));
 	activeAnt->update();
 	activeAnt->getAnimation(0).play();
-	antWithMaterial.getAnimation(0).play();
-	antWithMaterial.setScale(0.50, 0.50, 0.50);
+	antWithMaterial.getAnimation(2).play();
+	antWithMaterial.setScale(0.5, 0.5, 0.5);
 	antWithMaterial.setRotation(0, -90, 1, 0, 0);
-	antWithMaterial.setRotation(1, newAngle, 0, 0, 1);
+	antWithMaterial.update();
 
 	if (isTransitioning) {
 		float elapsed = ofGetElapsedTimef() - transitionStartTime;
@@ -522,6 +522,7 @@ void CustomSceneController::drawScene(bool withMirror, glm::mat4& modelViewMatri
 
 	if (withMirror)
 	{
+
 		lightTextureShader.setUniform1f("material_brightness", 1);
 		lightTextureShader.setUniform1f("material_metallic", 0);
 		lightTextureShader.setUniform1f("material_roughness", 0);
@@ -616,15 +617,30 @@ void CustomSceneController::drawScene(bool withMirror, glm::mat4& modelViewMatri
 	vase.getMesh(0).draw();
 	ofPopMatrix();
 
-	
+	//ofNode mirrorAntTransform;
+	//mirrorAntTransform.setPosition(0, 20, 0); // même Y
+	//mirrorAntTransform.setScale(antScale, antScale, antScale); // ne pas inverser en Y
+	//mirrorAntTransform.setOrientation(glm::vec3(0, newAngle, 0));
 	ofPushMatrix();
-	ofMultMatrix(antTransform.getGlobalTransformMatrix());
+	/*if(!withMirror)
+		ofMultMatrix(mirrorAntTransform.getGlobalTransformMatrix());
+	else */
+		ofMultMatrix(antTransform.getGlobalTransformMatrix());
 	ofMultMatrix(activeAnt->getModelMatrix());
 
-	glm::mat4 modelMatrix = antTransform.getGlobalTransformMatrix() * activeAnt->getModelMatrix();
+	glm::mat4 modelMatrix;
+
+	/*if (!withMirror) {
+		modelMatrix = mirrorAntTransform.getGlobalTransformMatrix() * activeAnt->getModelMatrix();
+	}
+	else {*/
+		modelMatrix = antTransform.getGlobalTransformMatrix() * activeAnt->getModelMatrix();
+	//}
 	glm::mat4 viewMatrix = ofGetCurrentViewMatrix();
 	glm::mat4 projectionMatrix = cam.getProjectionMatrix();
 	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+
+	
 
 	lightTextureShader.setUniformMatrix4f("modelMatrix", modelMatrix);
 	lightTextureShader.setUniformMatrix4f("viewMatrix", viewMatrix);
