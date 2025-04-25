@@ -493,6 +493,7 @@ void CustomSceneController::drawScene(bool withMirror, glm::mat4& modelViewMatri
 	lightBall.draw();
 
 	lightTextureShader.begin();
+	lightTextureShader.setUniform1i("isAnt", false);
 	lightTextureShader.setUniform1f("material_brightness", material_brightness);
 	lightTextureShader.setUniform1f("material_metallic", material_metallic);
 	lightTextureShader.setUniform1f("material_roughness", material_roughness);
