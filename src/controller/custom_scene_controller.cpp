@@ -104,6 +104,7 @@ void CustomSceneController::setup()
 	ant.loadModel("models/sci-fiAnt/ant-SciFi.gltf");
 	redAnt.loadModel("models/sci-fiAnt2/ant-SciFi.gltf");
 	greenAnt.loadModel("models/sci-fiAnt3/ant-SciFi.gltf");
+	antWithMaterial.loadModel("models/sci-fiAnt/sci_fi_ant_unit.glb");
 
 	ants.push_back(&ant);
 	ants.push_back(&redAnt);
@@ -133,8 +134,7 @@ void CustomSceneController::setup()
 
 	imgPlateform.load("images/wood.jpg");
 	wood.load("images/wood.jpg");
-	brick.load("images/brick.jpg");
-
+	brick.load("images/rock.jpg");
 
 	texPlateform = imgPlateform.getTexture();
 
@@ -143,7 +143,8 @@ void CustomSceneController::setup()
 	antTransform.setPosition(0, -45, 0);
 	antTransform.setScale(antScale, -antScale, antScale);
 	activeAnt->getAnimation(0).play();
-
+	antWithMaterial.getAnimation(0).play();
+	
 	// Cr�e les plans
 	float boxSize = 100;
 	float wallThickness = 1.0;
@@ -230,7 +231,7 @@ void CustomSceneController::setup()
 	gui.add(useMaterial);
 	useMaterial.addListener(this, &CustomSceneController::onUseMaterial);
 	useMaterial = true;
-	blueTint.setName("Blue eyes");
+	/*blueTint.setName("Blue eyes");
 	gui.add(blueTint);
 	blueTint.addListener(this, &CustomSceneController::onBlueChanged);
 	redTint.setName("Red eyes");
@@ -238,7 +239,7 @@ void CustomSceneController::setup()
 	redTint.addListener(this, &CustomSceneController::onRedChanged);
 	greenTint.setName("Green eyes");
 	gui.add(greenTint);
-	greenTint.addListener(this, &CustomSceneController::onGreenChanged);
+	greenTint.addListener(this, &CustomSceneController::onGreenChanged);*/
 
 	//GUI sans materiaux
 	tintGui.setup("Without Materials");
@@ -271,7 +272,7 @@ void CustomSceneController::setup()
 	guiRight.add(woodPick);
 	woodPick.addListener(this, &CustomSceneController::onWoodPick);
 	woodPick = true;
-	brickPick.setName("Brick texture");
+	brickPick.setName("Rock texture");
 	guiRight.add(brickPick);
 	brickPick.addListener(this, &CustomSceneController::onBrickPick);
 	brickPick = false;
@@ -319,12 +320,12 @@ void CustomSceneController::setup()
 
 
 	//Gui B�zier
-	controlPointsGui.setup("D�formation Tablette");
+	controlPointsGui.setup("Deformation Tablette");
 	controlPointsGui.setPosition(10, 400);
 
 	for (int i = 0; i < controlPoints.size(); ++i) {
 		ofParameter<float> slider;
-		slider.set("Pt " + ofToString(i + 1), controlPoints[i].y, -50, 50);
+		slider.set("Pt " + ofToString(i + 1), controlPoints[i].y, -30, 50);
 
 		controlPointYSliders.push_back(slider);
 		controlPointsGui.add(controlPointYSliders.back());
@@ -374,6 +375,14 @@ void CustomSceneController::setup()
 	texture_occlusion = ofImage("texture/metal_plate_ao_1k.jpg").getTexture();
 
 	lightBall.setRadius(1);
+	mirrorAntTransform.setPosition(
+		antTransform.getPosition().x,
+		antTransform.getPosition().y,
+		2 * poster.getPosition().z - antTransform.getPosition().z
+	);
+	mirrorAntTransform.setScale(antTransform.getScale());
+	mirrorAntTransform.setOrientation(antTransform.getOrientationEuler());
+
 }
 
 void CustomSceneController::reloadShaders()
@@ -417,10 +426,26 @@ void CustomSceneController::update()
 	lightBall.setPosition(light_position.get().x, light_position.get().y, light_position.get().z);
 
 	antTransform.setOrientation(glm::vec3(0, newAngle, 0));
-	plateform.setOrientation(glm::vec3(0, newAngle, 0));
 
+	plateform.setOrientation(glm::vec3(0, newAngle, 0));
 	activeAnt->update();
 	activeAnt->getAnimation(0).play();
+	antWithMaterial.getAnimation(2).play();
+	antWithMaterial.setScale(0.5, 0.5, 0.5);
+	antWithMaterial.setRotation(0, -90, 1, 0, 0);
+	antWithMaterial.update();
+	glm::vec3 antPos = antTransform.getPosition();
+	mirrorAntTransform.setPosition(
+		antPos.x,
+		-antPos.y,
+		2 * poster.getPosition().z - antPos.z
+	);
+	mirrorAntTransform.setOrientation(antTransform.getOrientationEuler());
+	glm::vec3 scale = antTransform.getScale();
+
+	mirrorAntTransform.setScale(scale.x, scale.y, scale.z);
+
+
 
 	if (isTransitioning) {
 		float elapsed = ofGetElapsedTimef() - transitionStartTime;
@@ -449,6 +474,7 @@ void CustomSceneController::update()
 
 	if (posterChoiceLeft) openPosterChoicer();
 	deformTablette();
+	
 }
 
 void CustomSceneController::draw()
@@ -488,6 +514,7 @@ void CustomSceneController::drawScene(bool withMirror, glm::mat4& modelViewMatri
 	lightBall.draw();
 
 	lightTextureShader.begin();
+	lightTextureShader.setUniform1i("isAnt", false);
 	lightTextureShader.setUniform1f("material_brightness", material_brightness);
 	lightTextureShader.setUniform1f("material_metallic", material_metallic);
 	lightTextureShader.setUniform1f("material_roughness", material_roughness);
@@ -516,6 +543,7 @@ void CustomSceneController::drawScene(bool withMirror, glm::mat4& modelViewMatri
 
 	if (withMirror)
 	{
+
 		lightTextureShader.setUniform1f("material_brightness", 1);
 		lightTextureShader.setUniform1f("material_metallic", 0);
 		lightTextureShader.setUniform1f("material_roughness", 0);
@@ -613,10 +641,27 @@ void CustomSceneController::drawScene(bool withMirror, glm::mat4& modelViewMatri
 	ofPushMatrix();
 	ofMultMatrix(antTransform.getGlobalTransformMatrix());
 	ofMultMatrix(activeAnt->getModelMatrix());
-	for (int i = 0; i < activeAnt->getMeshCount(); i++)
-	{
-		lightTextureShader.setUniformTexture("texture_diffuse", activeAnt->getTextureForMesh(i), 0);
-		activeAnt->getCurrentAnimatedMesh(i).draw();
+
+	lightTextureShader.setUniformTexture("baseColorMap", baseColorTexture, 3);
+	lightTextureShader.setUniformTexture("normalMap", normalMapTexture, 4);
+	lightTextureShader.setUniformTexture("metallicMap", metallicTexture, 5);
+	lightTextureShader.setUniformTexture("roughnessMap", roughnessTexture, 6);
+
+	if (!isMaterial) {
+		lightTextureShader.setUniform1i("isAnt", true);
+		lightTextureShader.setUniform3f("upperTint", glm::vec3(upperColor.get().r / 255.0f, upperColor.get().g / 255.0f, upperColor.get().b / 255.0f));
+		lightTextureShader.setUniform3f("bottomTint", glm::vec3(bottomColor.get().r / 255.0f, bottomColor.get().g / 255.0f, bottomColor.get().b / 255.0f));
+		
+		for (int i = 0; i < activeAnt->getMeshCount(); ++i) {
+			
+			activeAnt->getCurrentAnimatedMesh(i).draw();
+		}
+	}
+	else {
+		activeAnt->enableTextures();
+		activeAnt->enableMaterials();
+
+		antWithMaterial.drawFaces();
 	}
 	ofPopMatrix();
 
@@ -685,17 +730,14 @@ void CustomSceneController::resetCamera()
 void CustomSceneController::onUseMaterial(bool& value)
 {
 	useMaterial = isMaterial = value;
-	if (value) {
-		noMaterial = false;
-	}
-
+	noMaterial = !value;
 }
 void CustomSceneController::onNoMaterial(bool& value)
 {
 	noMaterial = value;
+	useMaterial = isMaterial  = !value;
 	if (value) {
 		activeAnt = ants[0];
-		isMaterial = useMaterial = false;
 	}
 }
 
@@ -837,6 +879,8 @@ void CustomSceneController::onWoodPick(bool& value)
 	woodPick = value;
 	if (value) {
 		wallTexture = wood.getTexture();
+		wallTexture.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+		wallTexture.generateMipmap();
 		brickPick = false;
 	}
 }
@@ -845,6 +889,8 @@ void CustomSceneController::onBrickPick(bool& value)
 	brickPick = value;
 	if (value) {
 		wallTexture = brick.getTexture();
+		wallTexture.setTextureMinMagFilter(GL_LINEAR, GL_LINEAR);
+		wallTexture.generateMipmap();
 		woodPick = false;
 	}
 }

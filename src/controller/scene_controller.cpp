@@ -117,9 +117,15 @@ void SceneController::setup(int x, int y, int w, int h, GridController* gridCont
 	miniViewportFbo.allocate(500, 500, GL_RGBA); // taille du coin
 	miniViewportCam.setNearClip(0.1f);
 	miniViewportCam.setFarClip(100.0f);
-	miniViewportCam.setPosition(2, 2, 2);
+	miniViewportCam.setPosition(3, 2, 2);
 	miniViewportCam.lookAt(glm::vec3(0, 0, 0));
 	miniViewportCam.disableMouseInput();
+
+	miniLight.setDirectional();
+	miniLight.setGlobalPosition(2, 2, 2);
+	miniLight.lookAt(miniBox.getPosition());
+
+	light_position = glm::vec4(miniLight.getPosition().x, miniLight.getPosition().y, miniLight.getPosition().z, 1);
 
 }
 
@@ -283,6 +289,7 @@ void SceneController::update()
 	light.setSpecularColor(ofColor(191, 191, 191));
 
 	light.setGlobalPosition(centreX, centreY, 255.0f);
+	
 	light.setOrientation(glm::vec3(antModelLoader.getPosition()));
 
 	texture.setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
@@ -369,7 +376,7 @@ void SceneController::draw()
 		ofClear(0, 0, 0, 0);
 		ofEnableDepthTest();
 		ofEnableLighting();
-		light.enable();
+		miniLight.enable();
 		miniViewportCam.begin();
 
 		// Bind shader + texture
@@ -386,11 +393,14 @@ void SceneController::draw()
 		shader_texture_wall.setUniform1f("material_metallic", material_metallic);  // ou 0.0f si mur non métallique
 		shader_texture_wall.setUniform1f("material_roughness", material_roughness); // plus rugueux = plus diffus
 		shader_texture_wall.setUniform1f("material_occlusion", material_occlusion);
-		shader_texture_wall.setUniform3f("material_fresnel_ior", 0.04f, 0.04f, 0.04f);
+		shader_texture_wall.setUniform3f("material_fresnel_ior", material_fresnel_ior.x, material_fresnel_ior.y, material_fresnel_ior.z);
 		shader_texture_wall.setUniform1f("tone_mapping_exposure", 1.0f);
 		shader_texture_wall.setUniform1f("tone_mapping_gamma", 2.2f);
-		shader_texture_wall.setUniform1i("tone_mapping_toggle", false);
-		shader_texture_wall.setUniform3f("light_position", light.getGlobalPosition());
+		shader_texture_wall.setUniform1i("tone_mapping_toggle", false); 
+		glm::vec3 lightPos_view = glm::vec3(miniViewportCam.getModelViewMatrix() * light_position);
+		shader_texture_wall.setUniform3f("light_position", lightPos_view);
+		shader_texture_wall.setUniform3f("light_color", glm::vec3(1,1,1));
+		shader_texture_wall.setUniform1f("light_intensity", 0.5f);
 		shader_texture_wall.setUniform3f("viewPos", miniViewportCam.getPosition());
 		shader_texture_wall.setUniform3f("translation", 0, 0, 0);
 		shader_texture_wall.setUniform1f("scale_factor", 1.0f);
@@ -400,7 +410,7 @@ void SceneController::draw()
 		shader_texture_wall.end();
 		miniViewportCam.end();
 		glUseProgram(0);
-		light.disable();
+		miniLight.disable();
 		ofDisableDepthTest();
 		ofDisableLighting();
 		miniViewportFbo.end();
@@ -550,7 +560,7 @@ void SceneController::drawScene()
 	shader_texture_wall.setUniform1f("material_occlusion", material_occlusion);
 
 	// IOR pour Fresnel (ex: plastique ~0.04, métal ~0.9)
-	shader_texture_wall.setUniform3f("material_fresnel_ior", 0.09f, 0.09f, 0.09f);
+	shader_texture_wall.setUniform3f("material_fresnel_ior", material_fresnel_ior.x, material_fresnel_ior.y, material_fresnel_ior.z);
 
 	// Tone mapping
 	shader_texture_wall.setUniform1f("tone_mapping_exposure", 1.0f);
@@ -558,7 +568,11 @@ void SceneController::drawScene()
 	shader_texture_wall.setUniform1i("tone_mapping_toggle", false); // true pour ACES
 
 	// Lumière et caméra
-	shader_texture_wall.setUniform3f("light_position", light.getGlobalPosition());
+	shader_texture_wall.setUniform1i("tone_mapping_toggle", false);
+	glm::vec3 lightPos_view = glm::vec3(activeCam->getModelViewMatrix() * glm::vec4(light.getPosition().x, light.getPosition().y, light.getPosition().z,1));
+	shader_texture_wall.setUniform3f("light_position", lightPos_view);
+	shader_texture_wall.setUniform3f("light_color", glm::vec3(1, 1, 1));
+	shader_texture_wall.setUniform1f("light_intensity", 0.5f);
 	shader_texture_wall.setUniform3f("viewPos", activeCam->getGlobalPosition());
 
 	for (auto& pos : wallPositions)

@@ -65,7 +65,7 @@ private:
 	ConvolutionKernel ck;
 	ofEasyCam cam;
 	ofCylinderPrimitive plateform;
-
+	ofNode mirrorAntTransform;
 	//tablette
 	ofBoxPrimitive tablette, tablette2;
 	ofMesh tabletteMesh, tablette2Mesh;
@@ -110,7 +110,8 @@ public:
 	ofxAssimpModelLoader redAnt;
 	ofxAssimpModelLoader greenAnt;
 	vector<ofxAssimpModelLoader*> ants;
-	ofxAssimpModelLoader* activeAnt;
+	ofxAssimpModelLoader* activeAnt; 
+	ofxAssimpModelLoader antWithMaterial;
 	//ofPoint activeAntPosition;
 	ofNode antTransform;
 	float antScale = 3.75;

@@ -85,7 +85,8 @@ vec3 brdf_cook_torrance()
 {
     //  MODIF : Normale via normal map
     vec3 normal_map = texture(normalMap, surface_texcoord).rgb;
-    vec3 n = normalize(tbn_matrix * (normal_map * 2.0 - 1.0));
+    //vec3 n = normalize(tbn_matrix * (normal_map * 2.0 - 1.0));
+    vec3 n = normalize(surface_normal);
 
     vec3 l = normalize(light_position - surface_position);
     vec3 v = normalize(-surface_position);
@@ -100,7 +101,7 @@ vec3 brdf_cook_torrance()
 
     float ao = material_occlusion * arm.r;
     float roughness = material_roughness * arm.g;
-    float metallic = material_metallic * arm.b;
+    float metallic = mix(material_metallic, arm.b, 0.5);
 
     vec3 ambient = material_color_ambient * albedo * ao;
 
