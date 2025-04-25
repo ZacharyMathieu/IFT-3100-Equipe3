@@ -110,7 +110,8 @@ public:
 	ofxAssimpModelLoader redAnt;
 	ofxAssimpModelLoader greenAnt;
 	vector<ofxAssimpModelLoader*> ants;
-	ofxAssimpModelLoader* activeAnt;
+	ofxAssimpModelLoader* activeAnt; 
+	ofxAssimpModelLoader antWithMaterial;
 	//ofPoint activeAntPosition;
 	ofNode antTransform;
 	float antScale = 3.75;

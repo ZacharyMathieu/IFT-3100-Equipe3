@@ -116,6 +116,7 @@ private:
 	ofParameter<float> material_metallic;
 	ofParameter<float> material_roughness;
 	ofParameter<float> material_occlusion;
+	ofParameter<ofPoint> material_fresnel_ior;
 
 	//paramètre CameraGui
 	ofParameter<bool> checkPop;

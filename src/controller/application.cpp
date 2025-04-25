@@ -120,6 +120,7 @@ void Application::setup()
 	guiTextureParameter.add(material_metallic.set("metallic", 0.5, 0, 1));
 	guiTextureParameter.add(material_roughness.set("roughness", 0.5, 0, 1));
 	guiTextureParameter.add(material_occlusion.set("occlusion", 1, 0, 1));
+	guiTextureParameter.add(material_fresnel_ior.set("fresnel", ofPoint(0.4, 0.4, 0.4)));
 
 	guiTextureParameter.setPosition(10 + textureGui.getWidth(), MENU_HEIGHT +10);
 }
@@ -205,6 +206,7 @@ void Application::update()
 	sceneController.material_metallic = material_metallic;
 	sceneController.material_roughness = material_roughness;
 	sceneController.material_occlusion = material_occlusion;
+	sceneController.material_fresnel_ior = ofPoint(material_fresnel_ior.get().x, material_fresnel_ior.get().y, material_fresnel_ior.get().z);
 
 	sceneController.textureSelected = showTextureParameterMenu;
 

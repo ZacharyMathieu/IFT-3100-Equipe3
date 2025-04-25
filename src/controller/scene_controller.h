@@ -105,16 +105,18 @@ public:
 	ofColor material_color_ambient;
 	ofColor material_color_diffuse;
 	ofColor material_color_specular;
+	ofPoint material_fresnel_ior;
 
 private:
 
 	//texture wall
-	glm::vec3 material_fresnel_ior;
 	ofColor light_color;
 	float tone_mapping_exposure;
 	float tone_mapping_gamma;
 	bool tone_mapping_toggle;
 
+	ofLight miniLight;
+	glm::vec4 light_position;
 
 	ofPlanePrimitive tilePheromone;
 	ofVboMesh tilePheromoneMesh;
