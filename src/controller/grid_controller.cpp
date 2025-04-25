@@ -40,8 +40,14 @@ void GridController::draw(Ant* mainAnt)
 				ceil(scaleY));
 			if (cell->isSelected)
 			{
-				ofNoFill();
-				ofSetColor(255, 0, 0);
+				ofFill();
+				glm::vec4 color1 = glm::vec4(cell->getCellColor().r, cell->getCellColor().g, cell->getCellColor().b, cell->getCellColor().a) / 255.0f;
+				glm::vec4 color2 = glm::vec4(255, 0, 0, 150) / 255.0f;
+
+				glm::vec4 mixedColor = glm::mix(color1, color2, 0.35f);
+				ofColor colorMix = ofColor(mixedColor.r * 255, mixedColor.g * 255, mixedColor.b * 255, mixedColor.a * 255);
+
+				ofSetColor(colorMix);
 				ofSetLineWidth(7);
 				ofDrawRectangle(
 					(int)x * scaleX + displayPosX,
@@ -63,6 +69,24 @@ void GridController::draw(Ant* mainAnt)
 			ofDrawCircle(ofPoint(ant->pos.x * scaleX + displayPosX, ant->pos.y * scaleY + displayPosY), 2);
 		}
 	}
+	if (isDraggingSelection) {
+		for (auto pos : CSposition) {
+			int newX = pos.first + offsetDragX;
+			int newY = pos.second + offsetDragY;
+			if (newX >= 0 && newX < grid.w && newY >= 0 && newY < grid.h) {
+				ofFill();
+				ofSetColor(30, 255, 255,175);
+				ofSetLineWidth(2);
+				ofDrawRectangle(
+					newX * scaleX + displayPosX,
+					newY * scaleY + displayPosY,
+					scaleX,
+					scaleY);
+				ofFill();
+			}
+		}
+	}
+
 
 	ofSetColor(mainAnt->MAIN_ANT_COLOR);
 	ofDrawCircle(ofPoint(mainAnt->pos.x * scaleX + displayPosX, mainAnt->pos.y * scaleY + displayPosY), 8);
@@ -217,149 +241,160 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, CellT
 			}
 			
 		}
-		if (cursor == "SELECT")
-		{
-			if (!CSposition.empty()) {
-				float dist = glm::distance(glm::vec2(x, y), posStart);
-				if (dist > 15)
-				{
-					int newGridX = (x - displayPosX) / scaleX;
-					int newGridY = (y - displayPosY) / scaleY;
+		if (cursor == "SELECT" && !CSposition.empty()) {
+			float dist = glm::distance(glm::vec2(x, y), posStart);
+			if (dist > 10) {
+				isDraggingSelection = true;
 
-					int offsetX = newGridX - CSposition[0].first;
-					int offsetY = newGridY - CSposition[0].second;
-					vector<pair<int, int>> newPosition;
+				int newGridX = (x - displayPosX) / scaleX;
+				int newGridY = (y - displayPosY) / scaleY;
 
-					bool isValidMove = true;
+				offsetDragX = newGridX - CSposition[0].first;
+				offsetDragY = newGridY - CSposition[0].second;
 
+				int minX = CSposition[0].first;
+				int maxX = CSposition[0].first;
+				int minY = CSposition[0].second;
+				int maxY = CSposition[0].second;
 
-					for (auto pos : CSposition)
-					{
-						int oldPosX = pos.first;
-						int oldPosY = pos.second;
-
-						int newPosX = oldPosX + offsetX;
-						int newPosY = oldPosY + offsetY;
-
-						if (newPosX < 0 || newPosX >= grid.w || newPosY < 0 || newPosY >= grid.h)
-						{
-							isValidMove = false;
-							break;
-						}
-					}
-
-
-					if (isSelected) {
-
-
-						if (isValidMove)
-						{
-							vector<pair<int, int>> oldPositions;
-							vector<pair<int, int>> newPositions;
-
-							for (auto pos : CSposition)
-							{
-								int oldPosX = pos.first;
-								int oldPosY = pos.second;
-
-								int newPosX = oldPosX + offsetX;
-								int newPosY = oldPosY + offsetY;
-
-								if (newPosX < 0 || newPosX >= grid.w || newPosY < 0 || newPosY >= grid.h) {
-									isValidMove = false;
-									break;
-								}
-
-								if (grid.at(newPosX, newPosY)->type == WALL && !alreadySelected(newPosX, newPosY)) {
-									isValidMove = false;
-									break;
-								}
-
-								oldPositions.push_back({ oldPosX, oldPosY });
-								newPositions.push_back({ newPosX, newPosY });
-							}
-
-							if (isValidMove)
-							{
-								for (size_t i = 0; i < oldPositions.size(); i++)
-								{
-									int oldPosX = oldPositions[i].first;
-									int oldPosY = oldPositions[i].second;
-									int newPosX = newPositions[i].first;
-									int newPosY = newPositions[i].second;
-
-									grid.at(oldPosX, oldPosY)->type = PHEROMONE;
-									grid.at(oldPosX, oldPosY)->isSelected = false;
-									grid.at(newPosX, newPosY)->type = WALL;
-									grid.at(newPosX, newPosY)->isSelected = true;
-								}
-								CSposition = newPositions;
-							}
-							else
-							{
-								ofLog() << "Déplacement annulé : Une ou plusieurs cellules sont bloquées.";
-							}
-						}
-
-					}
+				for (auto& pos : CSposition) {
+					minX = std::min(minX, pos.first);
+					maxX = std::max(maxX, pos.first);
+					minY = std::min(minY, pos.second);
+					maxY = std::max(maxY, pos.second);
 				}
+
+				// Clamp sur X
+				if (minX + offsetDragX < 0)
+					offsetDragX = -minX;
+				if (maxX + offsetDragX >= grid.w)
+					offsetDragX = grid.w - 1 - maxX;
+
+				// Clamp sur Y
+				if (minY + offsetDragY < 0)
+					offsetDragY = -minY;
+				if (maxY + offsetDragY >= grid.h)
+					offsetDragY = grid.h - 1 - maxY;
 			}
 		}
-
 	}
 }
 
 //--------------------------------------------------------------
 void GridController::mousePressed(int x, int y, int button, string cursor)
 {
-	if (cursor == "SELECT" && y > 50) {
-		isSelected = insideZoneSelected(x, y);
-		drawZonePressed = true;
-	}
+	mouse_pressed_x = x;
+	mouse_pressed_y = y;
+	mouse_current_x = x;
+	mouse_current_y = y;
 
-	posStart = glm::vec2(x, y);
-	if (y > 50)
+	float scaleX = ((float)displayWidth) / grid.w;
+	float scaleY = ((float)displayHeight) / grid.h;
+
+	int gridX = (x - displayPosX) / scaleX;
+	int gridY = (y - displayPosY) / scaleY;
+
+	if (cursor == "SELECT" && y > 50)
 	{
-		float scaleX = ((float)displayWidth) / grid.w;
-		float scaleY = ((float)displayHeight) / grid.h;
-
-		int gridX = (x - displayPosX) / scaleX;
-		int gridY = (y - displayPosY) / scaleY;
-		if (cursor == "SELECT")
+		if (gridX >= 0 && gridX < grid.w && gridY >= 0 && gridY < grid.h)
 		{
-			if (grid.at(gridX, gridY)->type == WALL) {
-				grid.at(gridX, gridY)->isSelected = true;
-				CSposition.push_back({ gridX,gridY });
+			Cell* clickedCell = grid.at(gridX, gridY);
+			if (clickedCell->isSelected)
+			{
+				// Clique sur la sélection actuelle  préparer à déplacer
+				isDraggingSelection = true;
+				offsetDragX = 0;
+				offsetDragY = 0;
+			}
+			else
+			{
+				// Clique ailleurs annuler ancienne sélection
+				for (auto& pos : CSposition) {
+					grid.at(pos.first, pos.second)->isSelected = false;
+				}
+				CSposition.clear();
+				isSelected = false;
+
+				// Démarrer une nouvelle sélection
+				drawZonePressed = true;
 			}
 		}
 	}
+
 }
 
 //--------------------------------------------------------------
-void GridController::mouseReleased(int x, int y, int button, string action)
+void GridController::mouseReleased(int x, int y, int button, string action, string cursor)
 {
 	mouse_current_x = x;
 	mouse_current_y = y;
 
 	if (drawZonePressed) {
 		drawZonePressed = false;
-
 		processSelectionZone();
 	}
 
-	if (isSelected) {
+	bool movedSomething = false; // ajouter ce flag !
+
+	if (cursor == "SELECT" && isDraggingSelection)
+	{
+		vector<pair<Cell*, pair<CellType, CellType>>> selectAction;
+		vector<pair<int, int>> newCSPosition;
+
+		for (auto pos : CSposition) {
+			int oldX = pos.first;
+			int oldY = pos.second;
+			int newX = oldX + offsetDragX;
+			int newY = oldY + offsetDragY;
+
+			if (newX < 0 || newX >= grid.w || newY < 0 || newY >= grid.h)
+				continue;
+			if (grid.at(newX, newY)->type != PHEROMONE)
+				continue;
+
+			Cell* src = grid.at(oldX, oldY);
+			Cell* dst = grid.at(newX, newY);
+
+			selectAction.push_back({ src, { src->type, PHEROMONE } });
+			selectAction.push_back({ dst, { dst->type, src->type } });
+
+			dst->type = src->type;
+			dst->isSelected = false;  //  IMPORTANT : ne plus rester sélectionné
+			src->type = PHEROMONE;
+			src->isSelected = false;
+
+			newCSPosition.push_back({ newX, newY });
+		}
+
+		offsetDragX = offsetDragY = 0;
+		isDraggingSelection = false;
+
+		CSposition.clear();  //  Vider la liste
+		isSelected = false;  //  Plus rien de sélectionné
+
+		if (!selectAction.empty()) {
+			Undo.push(selectAction);
+			while (!Redo.empty()) Redo.pop();
+			movedSomething = true;
+		}
+	}
+
+	// Si on n'a pas fait de déplacement, et qu'on avait une sélection visuelle
+	if (!movedSomething && isSelected) {
 		for (auto& pos : CSposition) {
 			grid.at(pos.first, pos.second)->isSelected = false;
 		}
 		CSposition.clear();
+		isSelected = false;
 	}
-	isSelected = false;
 
+	// Pour le mode DRAW / ERASE
 	if (!tasCell.empty()) {
 		Undo.push(tasCell);
+		tasCell.clear();
 	}
-	tasCell.clear();
 }
+
 
 //--------------------------------------------------------------
 void GridController::mouseScrolled(int x, int y, float scrollX, float scrollY)
@@ -441,7 +476,8 @@ void GridController::processSelectionZone()
 		for (int j = minY; j <= maxY; j++)
 		{
 			if (i >= 0 && i < grid.w && j >= 0 && j < grid.h) {
-				if (grid.at(i, j)->type == WALL) {
+				CellType type = grid.at(i, j)->type;
+				if (type == WALL || type == FOOD) {
 					grid.at(i, j)->isSelected = true;
 					CSposition.push_back({ i, j });
 				}

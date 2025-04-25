@@ -42,6 +42,14 @@ public:
 	bool isSelected;
 	ofRectangle zoneSelected;
 
+	//variable pour selection multiple
+	vector<pair<Cell*, CellType>> movedCellsBefore;
+	vector<pair<Cell*, CellType>> movedCellsAfter;
+	vector<pair<Cell*, pair<CellType, CellType>>> selectActionTemp;
+
+	bool isDraggingSelection = false;
+	int offsetDragX = 0;
+	int offsetDragY = 0;
 	
 	void setup(int x, int y, int w, int h);
 	void draw(Ant*);
@@ -53,7 +61,7 @@ public:
 	void mouseMoved(int x, int y);
 	void mouseDragged(int x, int y, int button, string cursor, CellType material, int drawSize, int eraserSize);
 	void mousePressed(int x, int y, int button, string cursor);
-	void mouseReleased(int x, int y, int button,string action);
+	void mouseReleased(int x, int y, int button,string action, string cursor);
 	void mouseScrolled(int x, int y, float scrollX, float scrollY);
 	void mouseEntered(int x, int y);
 	void mouseExited(int x, int y);

@@ -644,7 +644,23 @@ void Application::mouseReleased(int x, int y, int button)
 	{
 		action = "ERASE";
 	}
-	gridController.mouseReleased(x, y, button, action);
+	string cursor;
+	switch(cursorMode)
+	{
+	case DRAW:
+		cursor = "DRAW";
+		break;
+	case ERASE:
+		cursor = "ERASE";
+		break;
+	case SELECT:
+		cursor = "SELECT";
+		break;
+	default:
+		cursor = "DEFAULT";
+		break;
+	}
+	gridController.mouseReleased(x, y, button, action,cursor );
 }
 
 //--------------------------------------------------------------
