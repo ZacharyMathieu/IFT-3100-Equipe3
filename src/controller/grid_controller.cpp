@@ -203,7 +203,7 @@ void GridController::mouseDragged(int x, int y, int button, string cursor, CellT
 							{
 								newType.first = grid.at(gridX, gridY)->type;
 								newType.second = PHEROMONE;
-								//grid.at(gridX, gridY)->type = PHEROMONE;
+								grid.at(gridX, gridY)->type = PHEROMONE;
 								tasCell.push_back({ grid.at(gridX, gridY), newType });
 								while (!Redo.empty())
 								{
