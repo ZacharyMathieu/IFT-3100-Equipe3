@@ -165,7 +165,7 @@ private:
 	vector<glm::vec3> foodPositions;
 	vector<float> antAngles;
 
-	void drawScene();
+	void drawScene(ofEasyCam* camera);
 	ofBoxPrimitive createBoundingBox(ofxAssimpModelLoader& model);
 	bool checkCollision(glm::vec3 newPos);
 	bool objectVisible(glm::vec3 pos, float);

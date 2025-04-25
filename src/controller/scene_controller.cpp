@@ -333,7 +333,7 @@ void SceneController::draw()
 
 	freeCamera.setPosition(freeCamPos);
 	activeCam->begin();
-	drawScene();
+	drawScene(activeCam);
 	activeCam->end();
 	freeCamera.setPosition(ofPoint());
 
@@ -341,27 +341,6 @@ void SceneController::draw()
 	ofDisableLighting();
 	ofDisableDepthTest();
 	ofPopView();
-
-	if (checkPop)
-	{
-		ofDrawLine(fullWidth / 2, halfHeight, fullWidth, halfHeight);
-
-		ofPushView();
-		ofViewport(fullWidth / 2, halfHeight, fullWidth / 2, halfHeight);
-
-		ofEnableDepthTest();
-		ofEnableLighting();
-		light.enable();
-
-		popUpCam->begin();
-		drawScene();
-		popUpCam->end();
-
-		light.disable();
-		ofDisableLighting();
-		ofDisableDepthTest();
-		ofPopView();
-	}
 	if (textureSelected) {
 		glActiveTexture(GL_TEXTURE0);
 		texture_albedo.getTexture().bind(0);
@@ -385,8 +364,8 @@ void SceneController::draw()
 		shader_texture_wall.setUniformTexture("normalMap", texture_normal, 1);
 		shader_texture_wall.setUniformTexture("armMap", texture_arm, 2);
 		// Matériau : valeurs fixes ou variables si besoin
-		shader_texture_wall.setUniform3f("material_color_ambient", 1,1,1);
-		shader_texture_wall.setUniform3f("material_color_diffuse", 1,1,1);
+		shader_texture_wall.setUniform3f("material_color_ambient", 1, 1, 1);
+		shader_texture_wall.setUniform3f("material_color_diffuse", 1, 1, 1);
 		shader_texture_wall.setUniform3f("material_color_specular", 1, 1, 1);
 
 		shader_texture_wall.setUniform1f("material_brightness", material_brightness);
@@ -396,10 +375,10 @@ void SceneController::draw()
 		shader_texture_wall.setUniform3f("material_fresnel_ior", material_fresnel_ior.x, material_fresnel_ior.y, material_fresnel_ior.z);
 		shader_texture_wall.setUniform1f("tone_mapping_exposure", 1.0f);
 		shader_texture_wall.setUniform1f("tone_mapping_gamma", 2.2f);
-		shader_texture_wall.setUniform1i("tone_mapping_toggle", false); 
+		shader_texture_wall.setUniform1i("tone_mapping_toggle", false);
 		glm::vec3 lightPos_view = glm::vec3(miniViewportCam.getModelViewMatrix() * light_position);
 		shader_texture_wall.setUniform3f("light_position", lightPos_view);
-		shader_texture_wall.setUniform3f("light_color", glm::vec3(1,1,1));
+		shader_texture_wall.setUniform3f("light_color", glm::vec3(1, 1, 1));
 		shader_texture_wall.setUniform1f("light_intensity", 0.5f);
 		shader_texture_wall.setUniform3f("viewPos", miniViewportCam.getPosition());
 		shader_texture_wall.setUniform3f("translation", 0, 0, 0);
@@ -427,6 +406,28 @@ void SceneController::draw()
 		miniViewportFbo.draw((fullWidth / 2) - 400, 50, 400, 400); // position et taille à l'écran
 
 	}
+
+	if (checkPop)
+	{
+		ofDrawLine(fullWidth / 2, halfHeight, fullWidth, halfHeight);
+
+		ofPushView();
+		ofViewport(fullWidth / 2, halfHeight, fullWidth / 2, halfHeight);
+
+		ofEnableDepthTest();
+		ofEnableLighting();
+		light.enable();
+
+		popUpCam->begin();
+		drawScene(popUpCam);
+		popUpCam->end();
+
+		light.disable();
+		ofDisableLighting();
+		ofDisableDepthTest();
+		ofPopView();
+	}
+	
 	
 
 }
@@ -449,7 +450,7 @@ void SceneController::keyPressed(int key)
 	}
 }
 
-void SceneController::drawScene()
+void SceneController::drawScene(ofEasyCam* camera)
 {
 	cubeMap.draw();
 	antModelLoader.drawFaces();
@@ -501,8 +502,8 @@ void SceneController::drawScene()
 		vbo.setAttributeDivisor(7, 1);
 
 		// View / Projection
-		shader_ant.setUniformMatrix4f("viewMatrix", activeCam->getModelViewMatrix());
-		shader_ant.setUniformMatrix4f("projectionMatrix", activeCam->getProjectionMatrix());
+		shader_ant.setUniformMatrix4f("viewMatrix", camera->getModelViewMatrix());
+		shader_ant.setUniformMatrix4f("projectionMatrix", camera->getProjectionMatrix());
 
 		vboAntMesh.drawInstanced(OF_MESH_FILL, instanceMatrices.size());
 	}
@@ -569,11 +570,11 @@ void SceneController::drawScene()
 
 	// Lumière et caméra
 	shader_texture_wall.setUniform1i("tone_mapping_toggle", false);
-	glm::vec3 lightPos_view = glm::vec3(activeCam->getModelViewMatrix() * glm::vec4(light.getPosition().x, light.getPosition().y, light.getPosition().z,1));
+	glm::vec3 lightPos_view = glm::vec3(camera->getModelViewMatrix() * glm::vec4(light.getPosition().x, light.getPosition().y, light.getPosition().z,1));
 	shader_texture_wall.setUniform3f("light_position", lightPos_view);
 	shader_texture_wall.setUniform3f("light_color", glm::vec3(1, 1, 1));
 	shader_texture_wall.setUniform1f("light_intensity", 0.5f);
-	shader_texture_wall.setUniform3f("viewPos", activeCam->getGlobalPosition());
+	shader_texture_wall.setUniform3f("viewPos", camera->getGlobalPosition());
 
 	for (auto& pos : wallPositions)
 	{
