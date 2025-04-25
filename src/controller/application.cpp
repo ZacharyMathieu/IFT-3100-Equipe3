@@ -927,7 +927,7 @@ void Application::createColorCanva(string filepath)
 		for (int x = 0; x < gridController.grid.w; x++) {
 
 			float value = gridController.grid.at(x, y)->value;
-			string type = gridController.grid.at(x, y)->type == WALL ? "WALL" : "PHEROMONE";
+			string type = cellTypeToString(gridController.grid.at(x, y)->type);
 
 			file << x << ","
 				<< y << ","
@@ -982,7 +982,14 @@ void Application::onAntWindowClosed(ofEventArgs& args)
 	antWindow.reset();
 
 }
-
+std::string Application::cellTypeToString(CellType type) {
+	switch (type) {
+	case WALL: return "WALL";
+	case PHEROMONE: return "PHEROMONE";
+	case FOOD: return "FOOD";
+	default: return "PHEROMONE";
+	}
+}
 
 
 //void Application::antPosition3D()

@@ -496,7 +496,10 @@ void GridController::importGrid(ofFile file)
 			int y = ofToInt(tokens[1]);
 			float v = ofToFloat(tokens[2]);
 			string type = ofToString(tokens[3]);
-			CellType c = type == "WALL" ? WALL : PHEROMONE;
+			CellType c;
+			if (type == "WALL") c = WALL;
+			if (type == "PHEROMONE") c = PHEROMONE;
+			if (type == "FOOD") c = FOOD;
 
 			if (x >= 0 && x < grid.w && y >= 0 && y < grid.h)
 			{

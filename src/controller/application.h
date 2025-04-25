@@ -201,6 +201,7 @@ private:
 	void changeCameraSelected(int num);
 	void customAnt();
 	void onAntWindowClosed(ofEventArgs& args);
+	std::string cellTypeToString(CellType type);
 	bool shouldResetAntApp = false;
 
 };
