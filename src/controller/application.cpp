@@ -184,6 +184,17 @@ void Application::drawMenu()
 	{
 		ofSetColor(255);
 		b->draw();
+		if (
+			(b == &drawModeButton && showDrawMenu) ||
+			(b == &eraseModeButton && showEraserMenu) ||
+			(b == &penTypeChoiceButton && showColorMenu) ||
+			(b == &textureButton && showTextureMenu) ||
+			(b == &cameraButton && showCameraMenu)||
+			(b == &selectButton && showSelectedIcon)
+			) {
+			ofSetColor(0, 0, 0, 100); // noir semi-transparent
+			ofDrawRectangle(b->x, b->y, b->w, b->h);
+		}
 	}
 	ofDrawLine(0, MENU_HEIGHT, WINDOW_WIDTH, MENU_HEIGHT);
 }
@@ -414,6 +425,7 @@ void Application::mousePressed(int x, int y, int button)
 			showCameraMenu = false;
 			showTextureMenu = false;
 			showTextureParameterMenu = false;
+			showSelectedIcon = false;
 			cursorMode = showEraserMenu ? ERASE : DEFAULT;
 			return;
 		}
@@ -425,6 +437,7 @@ void Application::mousePressed(int x, int y, int button)
 			showColorMenu = false;
 			showTextureParameterMenu = false;
 			showCameraMenu = false;
+			showSelectedIcon = false;
 			cursorMode = showDrawMenu ? DRAW : DEFAULT;
 
 			return;
@@ -436,6 +449,7 @@ void Application::mousePressed(int x, int y, int button)
 			showTextureMenu = false;
 			showEraserMenu = false;
 			showCameraMenu = false;
+			showSelectedIcon = false;
 			showTextureParameterMenu = false;
 			cursorMode = DEFAULT;
 			return;
@@ -449,6 +463,7 @@ void Application::mousePressed(int x, int y, int button)
 			showEraserMenu = false;
 			showColorMenu = false;
 			showCameraMenu = false;
+			showSelectedIcon = false;
 			cursorMode = DEFAULT;
 			return;
 
@@ -460,6 +475,7 @@ void Application::mousePressed(int x, int y, int button)
 			showEraserMenu = false;
 			showColorMenu = false;
 			showTextureMenu = false;
+			showSelectedIcon = false;
 			showTextureParameterMenu = false;
 			cursorMode = DEFAULT;
 
@@ -472,20 +488,32 @@ void Application::mousePressed(int x, int y, int button)
 			showEraserMenu = false;
 			showColorMenu = false;
 			showTextureMenu = false;
+			showSelectedIcon = false;
 			showTextureParameterMenu = false;
 			cursorMode = DEFAULT;
 			customAnt();
 			return;
 		}
+		if (pressedButton == &selectButton)
+		{
+			showCameraMenu = false;
+			showDrawMenu = false;
+			showEraserMenu = false;
+			showColorMenu = false;
+			showTextureMenu = false;
+			showTextureParameterMenu = false;
+		}
+		if (pressedButton != &selectButton) {
 
-
-
+			showTextureMenu = false;
+			showTextureParameterMenu = false;
+		}
 		// Si on clique ailleurs, tout fermer
 		showDrawMenu = false;
 		showEraserMenu = false;
 		showColorMenu = false;
 		showTextureMenu = false;
-		showTextureMenu = false;
+		showSelectedIcon = false;
 
 		if (pressedButton == &penTypeChoiceButton)
 		{
@@ -689,7 +717,6 @@ void Application::exportImage()
 		createColorCanva(saveFile.getPath());
 	}
 
-	cout << "exportImage\n";
 }
 
 //--------------------------------------------------------------
@@ -730,6 +757,7 @@ void Application::eraseMode()
 	showDrawMenu = false;
 	showColorMenu = false;
 	showTextureMenu = false;
+	showSelectedIcon = false;
 }
 
 //--------------------------------------------------------------
@@ -741,7 +769,7 @@ void Application::drawMode()
 	showDrawMenu = true;
 	showEraserMenu = false;
 	showTextureMenu = false;
-
+	showSelectedIcon = false;
 	showColorMenu = true; // Affiche la roue de sélection de couleur automatiquement
 }
 
@@ -753,11 +781,13 @@ void Application::penTypeChoice()
 	showEraserMenu = false;
 	showDrawMenu = false;
 	showTextureMenu = false;
+	showSelectedIcon = false;
 	ofShowCursor();
 }
 
 void Application::multipleSelection()
 {
+	showSelectedIcon = !showSelectedIcon;
 	cursorMode = SELECT;
 
 	ofShowCursor();
@@ -777,6 +807,7 @@ void Application::textureChoice()
 	showEraserMenu = false;
 	showDrawMenu = false;
 	showColorMenu = false;
+	showSelectedIcon = false;
 }
 
 void Application::texturesToFalse()
