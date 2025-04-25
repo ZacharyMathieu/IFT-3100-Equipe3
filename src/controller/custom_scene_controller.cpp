@@ -375,6 +375,14 @@ void CustomSceneController::setup()
 	texture_occlusion = ofImage("texture/metal_plate_ao_1k.jpg").getTexture();
 
 	lightBall.setRadius(1);
+	mirrorAntTransform.setPosition(
+		antTransform.getPosition().x,
+		antTransform.getPosition().y,
+		2 * poster.getPosition().z - antTransform.getPosition().z
+	);
+	mirrorAntTransform.setScale(antTransform.getScale());
+	mirrorAntTransform.setOrientation(antTransform.getOrientationEuler());
+
 }
 
 void CustomSceneController::reloadShaders()
@@ -426,6 +434,18 @@ void CustomSceneController::update()
 	antWithMaterial.setScale(0.5, 0.5, 0.5);
 	antWithMaterial.setRotation(0, -90, 1, 0, 0);
 	antWithMaterial.update();
+	glm::vec3 antPos = antTransform.getPosition();
+	mirrorAntTransform.setPosition(
+		antPos.x,
+		-antPos.y,
+		2 * poster.getPosition().z - antPos.z
+	);
+	mirrorAntTransform.setOrientation(antTransform.getOrientationEuler());
+	glm::vec3 scale = antTransform.getScale();
+
+	mirrorAntTransform.setScale(scale.x, scale.y, scale.z);
+
+
 
 	if (isTransitioning) {
 		float elapsed = ofGetElapsedTimef() - transitionStartTime;
@@ -454,6 +474,7 @@ void CustomSceneController::update()
 
 	if (posterChoiceLeft) openPosterChoicer();
 	deformTablette();
+	
 }
 
 void CustomSceneController::draw()
@@ -617,50 +638,22 @@ void CustomSceneController::drawScene(bool withMirror, glm::mat4& modelViewMatri
 	vase.getMesh(0).draw();
 	ofPopMatrix();
 
-	//ofNode mirrorAntTransform;
-	//mirrorAntTransform.setPosition(0, 20, 0); // même Y
-	//mirrorAntTransform.setScale(antScale, antScale, antScale); // ne pas inverser en Y
-	//mirrorAntTransform.setOrientation(glm::vec3(0, newAngle, 0));
 	ofPushMatrix();
-	/*if(!withMirror)
-		ofMultMatrix(mirrorAntTransform.getGlobalTransformMatrix());
-	else */
-		ofMultMatrix(antTransform.getGlobalTransformMatrix());
+	ofMultMatrix(antTransform.getGlobalTransformMatrix());
 	ofMultMatrix(activeAnt->getModelMatrix());
-
-	glm::mat4 modelMatrix;
-
-	/*if (!withMirror) {
-		modelMatrix = mirrorAntTransform.getGlobalTransformMatrix() * activeAnt->getModelMatrix();
-	}
-	else {*/
-		modelMatrix = antTransform.getGlobalTransformMatrix() * activeAnt->getModelMatrix();
-	//}
-	glm::mat4 viewMatrix = ofGetCurrentViewMatrix();
-	glm::mat4 projectionMatrix = cam.getProjectionMatrix();
-	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
-
-	
-
-	lightTextureShader.setUniformMatrix4f("modelMatrix", modelMatrix);
-	lightTextureShader.setUniformMatrix4f("viewMatrix", viewMatrix);
-	lightTextureShader.setUniformMatrix4f("projectionMatrix", projectionMatrix);
-	lightTextureShader.setUniformMatrix3f("normalMatrix", normalMatrix);
 
 	lightTextureShader.setUniformTexture("baseColorMap", baseColorTexture, 3);
 	lightTextureShader.setUniformTexture("normalMap", normalMapTexture, 4);
 	lightTextureShader.setUniformTexture("metallicMap", metallicTexture, 5);
 	lightTextureShader.setUniformTexture("roughnessMap", roughnessTexture, 6);
-	
 
 	if (!isMaterial) {
-		
 		lightTextureShader.setUniform1i("isAnt", true);
-		//activeAnt->disableMaterials();
 		lightTextureShader.setUniform3f("upperTint", glm::vec3(upperColor.get().r / 255.0f, upperColor.get().g / 255.0f, upperColor.get().b / 255.0f));
 		lightTextureShader.setUniform3f("bottomTint", glm::vec3(bottomColor.get().r / 255.0f, bottomColor.get().g / 255.0f, bottomColor.get().b / 255.0f));
-
+		
 		for (int i = 0; i < activeAnt->getMeshCount(); ++i) {
+			
 			activeAnt->getCurrentAnimatedMesh(i).draw();
 		}
 	}
@@ -669,9 +662,7 @@ void CustomSceneController::drawScene(bool withMirror, glm::mat4& modelViewMatri
 		activeAnt->enableMaterials();
 
 		antWithMaterial.drawFaces();
-		
 	}
-
 	ofPopMatrix();
 
 	lightTextureShader.end();
@@ -739,17 +730,14 @@ void CustomSceneController::resetCamera()
 void CustomSceneController::onUseMaterial(bool& value)
 {
 	useMaterial = isMaterial = value;
-	if (value) {
-		noMaterial = false;
-	}
-
+	noMaterial = !value;
 }
 void CustomSceneController::onNoMaterial(bool& value)
 {
 	noMaterial = value;
+	useMaterial = isMaterial  = !value;
 	if (value) {
 		activeAnt = ants[0];
-		isMaterial = useMaterial = false;
 	}
 }
 

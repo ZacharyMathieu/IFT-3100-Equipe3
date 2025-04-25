@@ -65,7 +65,7 @@ private:
 	ConvolutionKernel ck;
 	ofEasyCam cam;
 	ofCylinderPrimitive plateform;
-
+	ofNode mirrorAntTransform;
 	//tablette
 	ofBoxPrimitive tablette, tablette2;
 	ofMesh tabletteMesh, tablette2Mesh;
