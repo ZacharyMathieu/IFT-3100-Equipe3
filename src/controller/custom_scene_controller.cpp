@@ -242,7 +242,7 @@ void CustomSceneController::setup()
 	greenTint.addListener(this, &CustomSceneController::onGreenChanged);*/
 
 	//GUI sans materiaux
-	tintGui.setup("Without Materials");
+	tintGui.setup("Without Material");
 	tintGui.setPosition(gui.getWidth() + 10, 10);
 	noMaterial.setName("No material");
 	tintGui.add(noMaterial);
@@ -253,13 +253,13 @@ void CustomSceneController::setup()
 
 
 	//GUI mur droit
-	guiRight.setup("Texture wall");
+	guiRight.setup("Wall textures");
 	guiRight.setPosition(gui.getPosition());
-	colorChoiceRight.setName("Color wall");
+	colorChoiceRight.setName("Wall color");
 	guiRight.add(colorChoiceRight);
 	colorChoiceRight.addListener(this, &CustomSceneController::onColorRightPick);
 	colorChoiceRight = true;
-	guiRight.add(colorPickerRight.set("color piker", ofColor(0, 255, 0), ofColor(0, 0, 0), ofColor(255, 255, 255)));
+	guiRight.add(colorPickerRight.set("Color picker", ofColor(0, 255, 0), ofColor(0, 0, 0), ofColor(255, 255, 255)));
 	posterChoiceRight.setName("Texture choice");
 	guiRight.add(posterChoiceRight);
 	posterChoiceRight.addListener(this, &CustomSceneController::onTexturePick);
@@ -279,18 +279,18 @@ void CustomSceneController::setup()
 
 
 	//GUI mur gauche
-	guiLeft.setup("Poster wall");
+	guiLeft.setup("Wall picture");
 	guiLeft.setPosition(gui.getPosition());
-	colorChoiceLeft.setName("Color wall");
+	colorChoiceLeft.setName("Wall color");
 	colorChoiceLeft.addListener(this, &CustomSceneController::onColorLeftPick);
 	guiLeft.add(colorChoiceLeft);
 	colorChoiceLeft = true;
-	guiLeft.add(colorPickerLeft.set("color piker", ofColor(255, 0, 0), ofColor(0, 0, 0), ofColor(255, 255, 255)));
-	posterPick.setName("Poster wall");
+	guiLeft.add(colorPickerLeft.set("Color picker", ofColor(255, 0, 0), ofColor(0, 0, 0), ofColor(255, 255, 255)));
+	posterPick.setName("Picture");
 	guiLeft.add(posterPick);
 	posterPick.addListener(this, &CustomSceneController::onPosterSet);
 	posterPick = false;
-	posterChoiceLeft.setName("Choice your poster");
+	posterChoiceLeft.setName("Import picture");
 	guiLeft.add(posterChoiceLeft);
 	posterChoiceLeft = false;
 	identite.setName("Identity filter");
@@ -305,7 +305,7 @@ void CustomSceneController::setup()
 	bosseler.setName("Emboss filter");
 	bosseler.addListener(this, &CustomSceneController::onEmbossChanged);
 	guiLeft.add(bosseler);
-	flou.setName("blur filter");
+	flou.setName("Blur filter");
 	flou.addListener(this, &CustomSceneController::onBlurChanged);
 	guiLeft.add(flou);
 
@@ -320,7 +320,7 @@ void CustomSceneController::setup()
 
 
 	//Gui B�zier
-	controlPointsGui.setup("Deformation Tablette");
+	controlPointsGui.setup("Tablet mesh deformation");
 	controlPointsGui.setPosition(10, 400);
 
 	for (int i = 0; i < controlPoints.size(); ++i) {
@@ -340,20 +340,20 @@ void CustomSceneController::setup()
 	lightPanel.setup("Light");
 	lightPanel.setPosition(ofGetWidth() - lightPanel.getWidth() - 10, 10);
 
-	material_brightness.set("material_brightness", 1, 0, 1);
-	material_metallic.set("material_metallic", 0.1, 0, 1);
-	material_roughness.set("material_roughness", 0.2, 0, 1);
-	material_occlusion.set("material_occlusion", 0.6, 0, 1);
-	material_fresnel_ior.set("material_fresnel_ior", ofPoint(0.5, 0.5, 0.5));
-	tone_mapping_exposure.set("tone_mapping_exposure", 1, 0, 1);
-	tone_mapping_toggle.set("tone_mapping_toggle", true);
-	tone_mapping_gamma.set("tone_mapping_gamma", 1, 0, 1);
-	light_position.set("light_position", ofPoint(0), ofPoint(-boxSize / 2, -boxSize / 2, -boxSize / 2), ofPoint(boxSize / 2, boxSize / 2, boxSize / 2));
-	light_color.set("light_color", ofColor(255, 150, 0));
-	light_intensity.set("light_intensity", 0.1, 0, 1);
-	material_color_ambient.set("material_color_ambient", ofColor(255));
-	material_color_diffuse.set("material_color_diffuse", ofColor(255));
-	material_color_specular.set("material_color_specular", ofColor(255));
+	material_brightness.set("Material brightness", 1, 0, 1);
+	material_metallic.set("Material metallic", 0.1, 0, 1);
+	material_roughness.set("Material roughness", 0.2, 0, 1);
+	material_occlusion.set("Material occlusion", 0.6, 0, 1);
+	material_fresnel_ior.set("Material fresnel_ior", ofPoint(0.5, 0.5, 0.5));
+	tone_mapping_exposure.set("Tone mapping exposure", 1, 0, 1);
+	tone_mapping_toggle.set("Tone mapping toggle", true);
+	tone_mapping_gamma.set("Tone mapping gamma", 1, 0, 1);
+	light_position.set("Light position", ofPoint(0), ofPoint(-boxSize / 2, -boxSize / 2, -boxSize / 2), ofPoint(boxSize / 2, boxSize / 2, boxSize / 2));
+	light_color.set("light color", ofColor(255, 150, 0));
+	light_intensity.set("light intensity", 0.1, 0, 1);
+	material_color_ambient.set("material color_ambient", ofColor(255));
+	material_color_diffuse.set("material color diffuse", ofColor(255));
+	material_color_specular.set("material color specular", ofColor(255));
 
 	lightPanel.add(material_brightness);
 	lightPanel.add(material_metallic);

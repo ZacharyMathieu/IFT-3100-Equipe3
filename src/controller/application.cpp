@@ -25,15 +25,15 @@ void Application::setup()
 	setupButtons();
 
 	// GUI de l'efface
-	eraserGui.setup("Efface");
-	eraserSize.set("Taille de l'efface", 10, 1, 100);
+	eraserGui.setup("Eraser");
+	eraserSize.set("Eraser size", 10, 1, 100);
 	eraserGui.add(eraserSize);
 	eraserSize.addListener(this, &Application::onEraserSizeChanged);
 	eraserGui.setPosition(10, MENU_HEIGHT + 10);
 
 	// GUI du crayon
-	penGui.setup("Crayon");
-	drawCursorSize.set("Taille du crayon", 5, 1, 50);
+	penGui.setup("Pen");
+	drawCursorSize.set("Pen size", 5, 1, 50);
 	penGui.add(drawCursorSize);
 	drawCursorSize.addListener(this, &Application::onDrawCursorSizeChanged);
 
@@ -50,8 +50,8 @@ void Application::setup()
 	penGui.setPosition(10, MENU_HEIGHT + 10);
 
 	// GUI de la roue de couleur (seule)
-	colorGui.setup("Couleur");
-	tempColor.set("Couleur", ofColor(117, 255, 107), ofColor(0, 0), ofColor(255, 255));
+	colorGui.setup("Wall color");
+	tempColor.set("Color", ofColor(117, 255, 107), ofColor(0, 0), ofColor(255, 255));
 	colorGui.add(tempColor);
 	tempColor.addListener(this, &Application::onColorChanged);
 	colorGui.setPosition(10, MENU_HEIGHT + 10);
@@ -60,7 +60,7 @@ void Application::setup()
 	textureGui.setup("Wall textures");
 	brickPick.setName("Brick");
 	rockPick.setName("Rock");
-	metalPick.setName("Metal");
+	metalPick.setName("Rust");
 	blueMetalPick.setName("Blue Metal");
 	textureGui.add(brickPick);
 	textureGui.add(rockPick);
@@ -85,7 +85,7 @@ void Application::setup()
 	gui.add(color_picker_diffuse.set("diffuse color", ofColor(174, 223, 134), ofColor(0, 0), ofColor(255, 255)));
 
 	cameraGui.setup();
-	checkPop.setName("Deuxième vue");
+	checkPop.setName("Second view");
 	cameraChoice.setName("Camera choice");
 	mainCamera.setName("Main Camera");
 	topCamera.setName("Top Camera");
@@ -116,11 +116,11 @@ void Application::setup()
 	cameraSelection[0]->set(true);
   
 	guiTextureParameter.setup();;
-	guiTextureParameter.add(material_brightness.set("brightness", 0.8, 0, 1));
-	guiTextureParameter.add(material_metallic.set("metallic", 1, 0, 1));
-	guiTextureParameter.add(material_roughness.set("roughness", 0, 0, 1));
-	guiTextureParameter.add(material_occlusion.set("occlusion", 0.5, 0, 1));
-	guiTextureParameter.add(material_fresnel_ior.set("fresnel", ofPoint(0.4, 0.4, 0.4)));
+	guiTextureParameter.add(material_brightness.set("Brightness", 0.8, 0, 1));
+	guiTextureParameter.add(material_metallic.set("Metallic", 1, 0, 1));
+	guiTextureParameter.add(material_roughness.set("Roughness", 0, 0, 1));
+	guiTextureParameter.add(material_occlusion.set("Occlusion", 0.5, 0, 1));
+	guiTextureParameter.add(material_fresnel_ior.set("Fresnel", ofPoint(0.4, 0.4, 0.4)));
 
 	guiTextureParameter.setPosition(10 + textureGui.getWidth(), MENU_HEIGHT +10);
 }
@@ -496,30 +496,27 @@ void Application::mousePressed(int x, int y, int button)
 		}
 		if (pressedButton == &selectButton)
 		{
+			showSelectedIcon = !showSelectedIcon;
 			showCameraMenu = false;
 			showDrawMenu = false;
 			showEraserMenu = false;
 			showColorMenu = false;
 			showTextureMenu = false;
 			showTextureParameterMenu = false;
+			return;
 		}
-		if (pressedButton != &selectButton) {
+		if (pressedButton != &textureButton) {
 
 			showTextureMenu = false;
 			showTextureParameterMenu = false;
 		}
+		
 		// Si on clique ailleurs, tout fermer
 		showDrawMenu = false;
 		showEraserMenu = false;
 		showColorMenu = false;
 		showTextureMenu = false;
 		showSelectedIcon = false;
-
-		if (pressedButton == &penTypeChoiceButton)
-		{
-			showColorMenu = !showColorMenu;
-			return;
-		}
 		pressedButton->mousePressed(x, y, button);
 	}
 
@@ -803,16 +800,14 @@ void Application::penTypeChoice()
 
 void Application::multipleSelection()
 {
-	showSelectedIcon = !showSelectedIcon;
 	cursorMode = SELECT;
 
 	ofShowCursor();
-
+	showSelectedIcon = !showSelectedIcon;
 	showEraserMenu = false;
 	showDrawMenu = false;
 	showColorMenu = false;
 	showTextureMenu = false;
-
 }
 
 void Application::textureChoice()
