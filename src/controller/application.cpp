@@ -50,7 +50,7 @@ void Application::setup()
 	penGui.setPosition(10, MENU_HEIGHT + 10);
 
 	// GUI de la roue de couleur (seule)
-	colorGui.setup("Wall color");
+	colorGui.setup("Food color");
 	tempColor.set("Color", ofColor(117, 255, 107), ofColor(0, 0), ofColor(255, 255));
 	colorGui.add(tempColor);
 	tempColor.addListener(this, &Application::onColorChanged);
@@ -503,6 +503,7 @@ void Application::mousePressed(int x, int y, int button)
 			showColorMenu = false;
 			showTextureMenu = false;
 			showTextureParameterMenu = false;
+			cursorMode = showSelectedIcon ? SELECT : DEFAULT;
 			return;
 		}
 		if (pressedButton != &textureButton) {
