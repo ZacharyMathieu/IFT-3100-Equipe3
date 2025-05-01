@@ -625,7 +625,6 @@ void Application::mousePressed(int x, int y, int button)
 		cursor = "DEFAULT";
 		break;
 	}
-	ofLog() << cursorMode;
 	gridController.mousePressed(x, y, button, cursor);
 }
 
