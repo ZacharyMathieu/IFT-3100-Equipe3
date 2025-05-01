@@ -7,7 +7,7 @@ Cell::Cell(CellType type, float value)
 	isSelected = false;
 }
 
-ofColor& Cell::getCellColor(int alpha)
+ofColor Cell::getCellColor(int alpha)
 {
 	ofColor c;
 	switch (type)

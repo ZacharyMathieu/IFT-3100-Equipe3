@@ -48,7 +48,7 @@ public:
 	Cell(CellType = PHEROMONE, float = 0.0);
 
 	void update();
-	ofColor& getCellColor(int alpha = 255);
+	ofColor getCellColor(int alpha = 255);
 	float getValueFactor();
 	void setFoodColor(ofColor newColor);
 	void addAntValue(float);

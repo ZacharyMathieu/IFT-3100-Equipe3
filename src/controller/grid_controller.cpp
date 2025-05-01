@@ -41,7 +41,7 @@ void GridController::draw(Ant* mainAnt)
 			if (cell->isSelected)
 			{
 				ofFill();
-				glm::vec4 color1 = glm::vec4(cell->getCellColor().r, cell->getCellColor().g, cell->getCellColor().b, cell->getCellColor().a) / 255.0f;
+				glm::vec4 color1 = glm::vec4(color.r, color.g, color.b, color.a) / 255.0f;
 				glm::vec4 color2 = glm::vec4(255, 0, 0, 150) / 255.0f;
 
 				glm::vec4 mixedColor = glm::mix(color1, color2, 0.35f);

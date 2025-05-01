@@ -6,13 +6,13 @@
 
 using namespace std;
 
-constexpr float ANT_MOVE_SPEED = 0.20;
+constexpr float ANT_MOVE_SPEED = 0.2;
 constexpr float ANT_SEARCH_RADIUS = 10;
 constexpr float ANT_TURN_SPEED = ANT_MOVE_SPEED / ANT_SEARCH_RADIUS * TWO_PI;
-constexpr float ANT_MAX_PHEROMONE_LEVEL = 40;
+constexpr float ANT_MAX_PHEROMONE_LEVEL = 64;
 constexpr float ANT_NORMAL_PHEROMONE_LEVEL = 0.5;
-constexpr float ANT_PHEROMONE_LEVEL_DECAY_VALUE = 0.25;
-constexpr float ANT_RANDOM_TURN_MAX = ANT_TURN_SPEED * 2.5;
+constexpr float ANT_PHEROMONE_LEVEL_DECAY_VALUE = 0.5;
+constexpr float ANT_RANDOM_TURN_MAX = ANT_TURN_SPEED;
 constexpr float ANT_FOOD_HUNGER_VALUE = 100;
 
 class Ant
